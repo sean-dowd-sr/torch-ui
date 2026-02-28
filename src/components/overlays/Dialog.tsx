@@ -1,6 +1,6 @@
 import { Show, onMount, type JSX, splitProps, createEffect, on } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 const DEFAULT_DURATION_MS = 200
 

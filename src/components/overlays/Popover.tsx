@@ -1,6 +1,6 @@
 import { type JSX, splitProps } from 'solid-js'
 import * as PopoverPrimitive from '@kobalte/core/popover'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 const SIDES = ['top', 'bottom', 'left', 'right'] as const
 const ALIGNMENTS = ['start', 'center', 'end'] as const

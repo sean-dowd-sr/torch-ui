@@ -7,7 +7,7 @@ import { ColorChannelField as KobalteColorChannelField } from '@kobalte/core/col
 import { parseColor as KobalteParseColor } from '@kobalte/core/colors'
 import type { Color as KobalteColor } from '@kobalte/core/colors'
 import { Button } from '../../actions'
-import { cn } from '../../lib/cn'
+import { cn } from '../../../utilities/classNames'
 import { normalizeHex, hexToHslString, rgbaToHex } from './color-utils'
 
 const DEFAULT_PRESETS = [

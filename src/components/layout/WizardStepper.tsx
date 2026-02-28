@@ -1,5 +1,5 @@
 import { Check, ChevronRight } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type WizardStepperVariant = 'default' | 'compact' | 'pills' | 'chevrons'
 

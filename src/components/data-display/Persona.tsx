@@ -1,7 +1,7 @@
 import { type JSX, splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Avatar } from './Avatar'
-import type { SizeKey, AvatarShape, AvatarColor } from '../lib/avatar'
+import type { SizeKey, AvatarShape, AvatarColor } from '../../types/avatar-types'
 
 export interface PersonaProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
 	/** Display name (primary text); also used for avatar initials. */

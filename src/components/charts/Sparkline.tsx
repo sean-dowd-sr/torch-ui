@@ -1,6 +1,6 @@
 import { onMount, onCleanup, createEffect, createSignal, splitProps } from 'solid-js'
 import type { ChartConfiguration } from 'chart.js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface SparklineProps {
 	/** Data points for the line (e.g. [12, 19, 8, 15, 22, 18]). */

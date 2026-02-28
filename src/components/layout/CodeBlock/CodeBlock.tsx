@@ -1,10 +1,10 @@
 import { createSignal, createEffect, type JSX, Show, For, splitProps } from 'solid-js'
 import { ChevronDown, ChevronUp } from 'lucide-solid'
-import { Copy } from '../actions/Copy'
-import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from './Collapsible'
-import { PopoverRoot, PopoverTrigger, PopoverContent } from '../overlays/Popover'
-import { cn } from '../lib/cn'
-import Prism from 'prismjs'
+import { Copy } from '../../actions/Copy'
+import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../Collapsible'
+import { PopoverRoot, PopoverTrigger, PopoverContent } from '../../overlays/Popover'
+import { cn } from '../../../utilities/classNames'
+import { highlightElement } from './prism'
 
 export interface CodeBlockLanguage {
 	/** Unique id for the tab (e.g. "js", "ts"). */
@@ -218,7 +218,7 @@ export function CodeBlock(props: CodeBlockProps) {
 		el.textContent = content
 
 		// 2) Prism generates markup based on textContent (language class is declarative)
-		Prism.highlightElement(el)
+		highlightElement(el, currentLanguage())
 	})
 	/* Token styling: .code-block (follows app .dark) or forced .code-block-dark / .code-block-primary */
 	const themeClass = () =>

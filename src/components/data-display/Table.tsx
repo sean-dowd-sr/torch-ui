@@ -1,5 +1,5 @@
 import { type JSX, Show, splitProps, createContext, useContext } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 type TableSection = 'head' | 'body' | 'foot'
 

@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface TablePanelProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	header?: JSX.Element

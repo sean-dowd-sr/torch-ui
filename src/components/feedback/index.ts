@@ -4,11 +4,11 @@ export type { AlertProps, AlertStatus, AlertAppearance } from '../layout/Alert'
 export { AlertDialog } from '../overlays/AlertDialog'
 export type { AlertDialogProps } from '../overlays/AlertDialog'
 
-export { PasswordStrengthIndicator } from './PasswordStrengthIndicator'
-export type { PasswordStrengthIndicatorProps } from './PasswordStrengthIndicator'
-export { getPasswordAnalysis, getPasswordStrength, getPasswordRequirements, getPasswordSegmentScore } from './password-strength'
-export type { PasswordStrength, PasswordAnalysis, PasswordRequirements } from './password-strength'
-export { validatePassword, isPasswordWeak } from '../lib/password-validation'
+export { PasswordStrengthIndicator } from './password/PasswordStrengthIndicator'
+export type { PasswordStrengthIndicatorProps } from './password/PasswordStrengthIndicator'
+export { getPasswordAnalysis, getPasswordStrength, getPasswordRequirements, getPasswordSegmentScore } from './password/password-strength'
+export type { PasswordStrength, PasswordAnalysis, PasswordRequirements } from './password/password-strength'
+export { validatePassword, isPasswordWeak } from './password/password-validation'
 export { Progress } from './Progress'
 export type {
 	ProgressProps,
@@ -41,4 +41,4 @@ export type {
 export { ToastProvider, useToast } from './Toast'
 export type { ToastContextValue, ToastItem, ToastVariant } from './Toast'
 
-export type { PasswordValidationResult } from '../lib/password-validation'
+export type { PasswordValidationResult } from './password/password-validation'

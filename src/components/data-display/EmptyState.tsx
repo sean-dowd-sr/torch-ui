@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Show, splitProps, createUniqueId } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface EmptyStateProps extends JSX.HTMLAttributes<HTMLDivElement> {
   title: string

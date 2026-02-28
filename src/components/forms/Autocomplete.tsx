@@ -6,7 +6,7 @@ import { createEffect, createMemo, createSignal, Show, splitProps } from 'solid-
 import { type JSX } from 'solid-js'
 import { ChevronDown, X } from 'lucide-solid'
 import { Combobox as KobalteCombobox } from '@kobalte/core/combobox'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 const autocompleteStyles = `
 .torchui-combobox-content {

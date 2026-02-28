@@ -1,6 +1,6 @@
 import { For, splitProps, type Accessor } from 'solid-js'
 import * as TabsPrimitive from '@kobalte/core/tabs'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 /** Kobalte tabs root. Use for custom tab layouts; prefer Tabs for the standard tab bar. */
 export const KobalteTabs = TabsPrimitive.Root

@@ -1,14 +1,4 @@
-export type AvatarShape = 'circle' | 'rounded' | 'square'
-
-export type AvatarColor =
-	| 'neutral'
-	| 'primary'
-	| 'success'
-	| 'warning'
-	| 'danger'
-	| 'info'
-
-export type SizeKey = 'sm' | 'md' | 'lg'
+import type { AvatarShape, SizeKey } from '../../types/avatar-types'
 
 export const shapeClasses: Record<AvatarShape, string> = {
 	circle: 'rounded-full',

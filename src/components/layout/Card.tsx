@@ -2,7 +2,7 @@ import type { JSX, ParentComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { Avatar } from '../data-display/Avatar'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 const cardBase =
 	'rounded-xl border border-surface-border bg-surface-raised shadow-sm dark:text-ink-100'

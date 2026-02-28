@@ -1,7 +1,7 @@
 import { type JSX, splitProps } from 'solid-js'
 import * as CollapsiblePrimitive from '@kobalte/core/collapsible'
 import { ChevronDown } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export const CollapsibleRoot = CollapsiblePrimitive.Root
 export const CollapsibleTrigger = CollapsiblePrimitive.Trigger

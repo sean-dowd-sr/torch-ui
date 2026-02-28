@@ -1,6 +1,6 @@
 import { type JSX, Show, splitProps } from 'solid-js'
 import { Copy } from '../actions'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 type InlineProps = JSX.HTMLAttributes<HTMLElement> & { block?: false }
 type BlockProps = JSX.HTMLAttributes<HTMLDivElement> & { block: true }

@@ -1,6 +1,6 @@
 import { type JSX, createSignal, createEffect, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
 import { ChevronLeft, ChevronRight } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface CarouselSlide {
 	id: string

@@ -1,6 +1,6 @@
 import { type JSX, splitProps, Show } from 'solid-js'
 import { Checkbox as KobalteCheckbox } from '@kobalte/core/checkbox'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type CheckboxSize = 'sm' | 'md'
 

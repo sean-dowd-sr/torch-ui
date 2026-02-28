@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps, Show } from 'solid-js'
 import { NumberField as KobalteNumberField } from '@kobalte/core/number-field'
 import { ChevronDown, ChevronUp } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface NumberFieldProps {
 	/** Label above the input. */

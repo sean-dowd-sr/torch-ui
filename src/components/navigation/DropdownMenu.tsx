@@ -6,7 +6,7 @@ import type {
 	DropdownMenuSeparatorProps as KobalteDropdownMenuSeparatorProps,
 	DropdownMenuTriggerProps as KobalteDropdownMenuTriggerProps 
 } from '@kobalte/core/dropdown-menu'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface DropdownMenuContentProps extends KobalteDropdownMenuContentProps {
 	class?: string

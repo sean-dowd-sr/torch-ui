@@ -1,7 +1,7 @@
 import { createSignal, createContext, useContext, onCleanup, For, Show, splitProps, onMount, createEffect, type JSX } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { X } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info'
 

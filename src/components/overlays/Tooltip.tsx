@@ -1,6 +1,6 @@
 import { type JSX, splitProps } from 'solid-js'
 import * as TooltipPrimitive from '@kobalte/core/tooltip'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export const TooltipRoot = TooltipPrimitive.Root
 export const TooltipTrigger = TooltipPrimitive.Trigger

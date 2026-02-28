@@ -1,6 +1,6 @@
 import { Dynamic } from 'solid-js/web'
 import type { JSX } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface PageHeadingProps {
 	/** Main heading text */

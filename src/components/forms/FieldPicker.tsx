@@ -2,7 +2,7 @@ import { splitProps } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { Button } from '../actions'
 import { Autocomplete } from './Autocomplete'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface FieldPickerOption {
 	value: string

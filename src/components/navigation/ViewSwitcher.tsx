@@ -1,6 +1,6 @@
 import { type JSX, For, Show, createEffect, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 import { Pin } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { DropdownMenuContent, DropdownMenuItem } from './DropdownMenu'
 import { DropdownMenu as KobalteDropdownMenu } from '@kobalte/core/dropdown-menu'
 

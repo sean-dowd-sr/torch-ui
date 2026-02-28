@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Show, For } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Alert } from './Alert'
 
 export interface FormProps extends Omit<JSX.FormHTMLAttributes<HTMLFormElement>, 'class'> {

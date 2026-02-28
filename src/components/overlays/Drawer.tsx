@@ -1,7 +1,7 @@
 import { Show, onMount, type JSX, splitProps } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { Button } from '../actions'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type DrawerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 export type DrawerSide = 'start' | 'end' | 'top' | 'bottom' | 'left' | 'right'

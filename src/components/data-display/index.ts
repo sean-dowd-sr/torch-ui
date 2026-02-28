@@ -1,7 +1,7 @@
 /** Data Display (sidebar) */
 export { Avatar } from './Avatar'
 export type { AvatarProps, AvatarShape, AvatarRing, AvatarColor, AvatarBadgePlacement } from './Avatar'
-export type { SizeKey } from '../lib/avatar'
+export type { SizeKey } from '../../types/avatar-types'
 
 export { ColorSwatch } from './ColorSwatch'
 export type { ColorSwatchProps, ColorSwatchVariant } from './ColorSwatch'

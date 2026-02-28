@@ -11,7 +11,7 @@ import {
 import * as DropdownMenuPrimitive from '@kobalte/core/dropdown-menu'
 import { ToggleGroup as KobalteToggleGroup } from '@kobalte/core/toggle-group'
 import { ChevronDown } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Button } from './Button'
 import type { ButtonProps, ButtonSize, ButtonVariant } from './Button'
 

@@ -9,7 +9,7 @@ import {
 	assignRuleNumbers,
 	hasRulesWithEmptyField,
 	type FilterGroup,
-} from '../../lib/filter-types'
+} from '../../../types/filter-types'
 import { Drawer } from '../../overlays/Drawer'
 import { ViewSwitcher } from '../../navigation/ViewSwitcher'
 import type { TableViewConfig, TableViewsApi, ViewConfig } from './types'

@@ -1,6 +1,6 @@
 import { Show, splitProps, onMount, createSignal, createEffect } from 'solid-js'
 import * as AlertDialogPrimitive from '@kobalte/core/alert-dialog'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Button } from '../actions'
 
 // Both constants are evaluated at module load and baked into alertDialogStyles

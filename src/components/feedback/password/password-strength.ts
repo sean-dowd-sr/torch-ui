@@ -7,7 +7,7 @@
  * that leading/trailing spaces count toward length and character requirements
  * but don't bypass weak-pattern detection.
  */
-import { isPasswordWeak } from '../lib/password-validation'
+import { isPasswordWeak } from './password-validation'
 
 export type PasswordStrength = 'empty' | 'poor' | 'fair' | 'good' | 'excellent'
 

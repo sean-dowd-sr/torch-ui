@@ -8,8 +8,8 @@ import {
 	createUniqueId,
 } from 'solid-js'
 import { TextField as KobalteTextField } from '@kobalte/core/text-field'
-import { cn } from '../lib/cn'
-import { mergeRefs } from '../lib/mergeRefs'
+import { cn } from '../../utilities/classNames'
+import { mergeRefs } from '../../utilities/mergeRefs'
 
 export type TextAreaResize = 'none' | 'vertical' | 'horizontal' | 'both'
 

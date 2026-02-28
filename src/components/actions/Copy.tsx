@@ -3,7 +3,7 @@ import { Copy as CopyIcon, Check } from 'lucide-solid'
 import { Button } from './Button'
 import type { ButtonVariant, ButtonSize } from './Button'
 import { useCopyToClipboard } from './useCopyToClipboard'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type CopyDisplay = 'text' | 'icon-and-text' | 'icon-only'
 

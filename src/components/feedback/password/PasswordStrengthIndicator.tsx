@@ -5,10 +5,10 @@
  * Usage: <PasswordStrengthIndicator password={password()} showHelperText />
  */
 import { createMemo, createUniqueId, Show, splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../../utilities/classNames'
 import { getPasswordAnalysis } from './password-strength'
 import type { PasswordStrength } from './password-strength'
-import { Progress } from './Progress'
+import { Progress } from '../Progress'
 
 const SEGMENT_COUNT = 8
 

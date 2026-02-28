@@ -1,5 +1,5 @@
 import type { JSX, ParentComponent } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 export type ContainerAlign = 'start' | 'center' | 'end'

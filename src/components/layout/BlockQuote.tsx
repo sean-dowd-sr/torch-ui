@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type BlockQuoteJustify = 'start' | 'center' | 'end'
 

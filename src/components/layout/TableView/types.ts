@@ -1,4 +1,4 @@
-import type { FilterGroup } from '../../lib/filter-types'
+import type { FilterGroup } from '../../../types/filter-types'
 import type { ViewCustomizerField } from '../../forms/ViewCustomizer'
 import type { FilterFieldConfig } from '../../forms/FilterBuilder/FilterGroupBlock'
 

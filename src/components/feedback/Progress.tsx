@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, For, Show, splitProps } from 'solid-js'
 import { Progress as KobalteProgress } from '@kobalte/core/progress'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type ProgressSize = 'sm' | 'md' | 'lg'
 export type ProgressColor =

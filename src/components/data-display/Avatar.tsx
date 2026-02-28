@@ -1,15 +1,17 @@
 import { Show, type JSX, splitProps, createSignal, createEffect, createMemo } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Skeleton } from '../feedback/Skeleton'
 import {
-	shapeClasses,
-	avatarSizeClasses,
-	neutralColorClass,
-	getInitials,
 	type AvatarShape,
 	type AvatarColor,
 	type SizeKey,
-} from '../lib/avatar'
+} from '../../types/avatar-types'
+import { 
+	shapeClasses, 
+	avatarSizeClasses, 
+	neutralColorClass, 
+	getInitials 
+} from './avatar-utils'
 
 export type { AvatarShape, AvatarColor, SizeKey }
 

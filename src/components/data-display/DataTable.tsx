@@ -4,7 +4,7 @@ import { Button } from '../actions'
 import { Input } from '../forms'
 import { Dialog, AlertDialog } from '../layout'
 import { EmptyState } from './EmptyState'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import {
 	Table,
 	TableHeader,

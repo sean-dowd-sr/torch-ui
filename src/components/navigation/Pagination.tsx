@@ -1,6 +1,6 @@
 import { type JSX, Show, For, splitProps, createEffect, createSignal, createUniqueId, onMount, onCleanup } from 'solid-js'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Button } from '../actions'
 import { Select } from '../forms'
 

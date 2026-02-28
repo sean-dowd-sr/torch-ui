@@ -7,7 +7,7 @@ import {
 } from 'solid-js'
 import { Calendar as CalendarIcon } from 'lucide-solid'
 import * as Popover from '@kobalte/core/popover'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 /** Value is ISO date string YYYY-MM-DD or empty string. */
 export interface DatePickerProps {

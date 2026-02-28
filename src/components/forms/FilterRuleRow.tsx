@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 import { X } from 'lucide-solid'
 import { Autocomplete } from './Autocomplete'
 import { Select } from './Select'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface FilterRuleOption {
 	value: string

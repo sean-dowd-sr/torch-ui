@@ -1,7 +1,7 @@
 import { createSignal, createUniqueId, splitProps, Show, type JSX } from 'solid-js'
 import { Check, ChevronDown } from 'lucide-solid'
 import { Select as KobalteSelect } from '@kobalte/core/select'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface SelectOption {
 	value: string

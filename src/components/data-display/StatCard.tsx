@@ -1,5 +1,5 @@
 import { type JSX, Show, splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface StatCardProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	label: string

@@ -1,7 +1,7 @@
 import { splitProps, createMemo, type JSX } from 'solid-js'
 import { ColorSwatch as KobalteColorSwatch } from '@kobalte/core/color-swatch'
 import { parseColor } from '@kobalte/core/colors'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { normalizeHex, hexToHslString } from '../forms/ColorPicker/color-utils'
 
 export type ColorSwatchVariant = 'rounded' | 'circle' | 'square'

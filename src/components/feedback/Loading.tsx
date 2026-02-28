@@ -1,6 +1,6 @@
 import { type JSX, Show, Switch, Match, splitProps } from 'solid-js'
 import { Loader2, LoaderCircle } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import {
 	SkeletonCard,
 	SkeletonTable,

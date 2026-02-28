@@ -1,6 +1,6 @@
 import { onMount, onCleanup, createEffect, createSignal, createRoot, splitProps } from 'solid-js'
 import type { ChartConfiguration } from 'chart.js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type ChartType = 'line' | 'bar' | 'doughnut' | 'pie' | 'radar' | 'polarArea' | 'scatter' | 'bubble'
 

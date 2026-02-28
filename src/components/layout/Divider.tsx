@@ -1,6 +1,6 @@
 import { type JSX, splitProps } from 'solid-js'
 import { Separator as KobalteSeparator } from '@kobalte/core/separator'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type DividerStyle = 'solid' | 'dotted' | 'dashed'
 export type DividerWeight = 'thin' | 'medium' | 'thick'

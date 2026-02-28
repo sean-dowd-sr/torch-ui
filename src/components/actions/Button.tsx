@@ -2,7 +2,7 @@ import { type JSX, children, createEffect, splitProps } from 'solid-js'
 import { Button as KobalteButton } from '@kobalte/core/button'
 import { ToggleButton as KobalteToggleButton } from '@kobalte/core/toggle-button'
 import { LoaderCircle } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type ButtonVariant =
 	| 'primary'

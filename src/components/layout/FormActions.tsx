@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Button } from '../actions'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface FormActionsProps {
 	/** Label for the back/secondary button */

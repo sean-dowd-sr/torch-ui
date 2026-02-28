@@ -1,14 +1,16 @@
 import { For, createMemo, type JSX, splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 import { Avatar } from './Avatar'
 import type { AvatarRing } from './Avatar'
 import {
 	avatarSizeClasses,
 	shapeClasses,
 	neutralColorClass,
+} from './avatar-utils'
+import {
 	type SizeKey,
 	type AvatarShape,
-} from '../lib/avatar'
+} from '../../types/avatar-types'
 
 export interface AvatarGroupItem {
 	name: string

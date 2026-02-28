@@ -1,7 +1,7 @@
 import { type JSX, splitProps, Show, createSignal } from 'solid-js'
 import { Eye, EyeOff } from 'lucide-solid'
 import { TextField as KobalteTextField } from '@kobalte/core/text-field'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
 	label?: string

@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createUniqueId, createSignal, createEffect, onCleanup, Show, For, splitProps } from 'solid-js'
 import { File as FileIcon, FileCode, FileImage, FilePlay, FileSpreadsheet, FileText, FileUp, FolderArchive, LoaderCircle, RefreshCw, Trash2, Eye, Loader2 } from 'lucide-solid'
-import { cn } from '../lib/cn'
-import { mergeRefs } from '../lib/mergeRefs'
+import { cn } from '../../utilities/classNames'
+import { mergeRefs } from '../../utilities/mergeRefs'
 import { Progress } from '../feedback/Progress'
 import { Dialog } from '../overlays/Dialog'
 

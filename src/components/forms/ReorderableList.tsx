@@ -7,7 +7,7 @@ import {
 	createSortable,
 	type DragEvent as DnDDragEvent,
 } from '@thisbeyond/solid-dnd'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface ReorderableListItem {
 	id: string

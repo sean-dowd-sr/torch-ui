@@ -1,6 +1,6 @@
 import { createEffect, type JSX, splitProps, createUniqueId } from 'solid-js'
-import { cn } from '../lib/cn'
-import { mergeRefs } from '../lib/mergeRefs'
+import { cn } from '../../utilities/classNames'
+import { mergeRefs } from '../../utilities/mergeRefs'
 
 export interface CodeInputProps
 	extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'type' | 'maxLength'> {

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps, Show } from 'solid-js'
 import { Switch as KobalteSwitch } from '@kobalte/core/switch'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface SwitchProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
 	/** Label text. */

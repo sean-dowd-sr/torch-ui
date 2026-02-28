@@ -1,7 +1,7 @@
 import { type JSX, For, Show, splitProps } from 'solid-js'
 import { ChevronRight } from 'lucide-solid'
 import { Breadcrumbs as KobalteBreadcrumbs } from '@kobalte/core/breadcrumbs'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface BreadcrumbItem {
 	/** Label to show. */

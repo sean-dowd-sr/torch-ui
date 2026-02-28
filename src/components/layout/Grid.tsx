@@ -1,5 +1,5 @@
 import type { JSX, ParentComponent } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export type GridCols = 1 | 2 | 3 | 4 | 5 | 6
 export type GridGap = 'none' | 'sm' | 'md' | 'lg' | 'xl'

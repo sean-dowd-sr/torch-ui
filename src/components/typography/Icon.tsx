@@ -1,5 +1,5 @@
 import { type JSX, splitProps } from 'solid-js'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface IconProps extends Omit<JSX.ImgHTMLAttributes<HTMLImageElement>, 'children' | 'width' | 'height'> {
 	/** Image URL (local path or CDN). */

@@ -50,8 +50,8 @@ export { TableView, useTableView, emptyFilterGroup } from './TableView'
 export type { TableViewProps, TableViewContextValue } from './TableView'
 export type { TableViewConfig, ViewConfig } from './TableView/types'
 
-export { CodeBlock } from './CodeBlock'
-export type { CodeBlockProps, CodeBlockLanguage } from './CodeBlock'
+export { CodeBlock } from './CodeBlock/CodeBlock'
+export type { CodeBlockProps, CodeBlockLanguage } from './CodeBlock/CodeBlock'
 
 export {
 	AccordionRoot,

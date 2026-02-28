@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps, Show, For } from 'solid-js'
 import { Slider as KobalteSlider } from '@kobalte/core/slider'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export interface SliderProps {
 	/** Label for the slider. */

@@ -1,6 +1,6 @@
 import { type JSX, splitProps } from 'solid-js'
 import * as ContextMenuPrimitive from '@kobalte/core/context-menu'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 /** Pass-through to Kobalte's ContextMenu.Root. See Kobalte docs for available props (e.g. onOpenChange). */
 export const ContextMenuRoot = ContextMenuPrimitive.Root

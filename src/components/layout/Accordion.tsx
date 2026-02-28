@@ -2,7 +2,7 @@ import { type JSX, splitProps } from 'solid-js'
 import { Accordion as KobalteAccordion } from '@kobalte/core/accordion'
 import type { AccordionContentProps as KobalteAccordionContentProps, AccordionTriggerProps as KobalteAccordionTriggerProps, AccordionItemProps as KobalteAccordionItemProps } from '@kobalte/core/accordion'
 import { ChevronDown } from 'lucide-solid'
-import { cn } from '../lib/cn'
+import { cn } from '../../utilities/classNames'
 
 export const AccordionRoot = KobalteAccordion
 export const AccordionItem = KobalteAccordion.Item
