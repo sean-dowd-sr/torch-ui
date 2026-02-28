@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="./src/styles/theme.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TorchUI Color Palette</title>
+    <style>
+    
+        body {
+            padding: 2rem;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #fafafa;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .color-section {
+            border: 1px solid #e4e4e7;
+            border-radius: 8px;
+            padding: 1rem;
+            background: white;
+        }
+
+        .color-section h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 1rem;
+            border: 1px solid #e4e4e7;
+        }
+
+        .color-label {
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .toggle-dark {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-dark" onclick="document.documentElement.classList.toggle('dark')">Toggle Dark</button>
+    
+    <h1>TorchUI Color Palette</h1>
+    
+    <div class="color-grid">
+        <!-- Primary Colors -->
+        <div class="color-section">
+            <h2>Primary</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-50)"></div>
+                <span class="color-label">primary-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-100)"></div>
+                <span class="color-label">primary-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-200)"></div>
+                <span class="color-label">primary-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-300)"></div>
+                <span class="color-label">primary-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-400)"></div>
+                <span class="color-label">primary-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-500)"></div>
+                <span class="color-label">primary-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-600)"></div>
+                <span class="color-label">primary-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-700)"></div>
+                <span class="color-label">primary-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-800)"></div>
+                <span class="color-label">primary-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-900)"></div>
+                <span class="color-label">primary-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--primary-950)"></div>
+                <span class="color-label">primary-950</span>
+            </div>
+        </div>
+
+        <!-- Success Colors -->
+        <div class="color-section">
+            <h2>Success</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-50)"></div>
+                <span class="color-label">success-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-100)"></div>
+                <span class="color-label">success-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-200)"></div>
+                <span class="color-label">success-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-300)"></div>
+                <span class="color-label">success-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-400)"></div>
+                <span class="color-label">success-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-500)"></div>
+                <span class="color-label">success-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-600)"></div>
+                <span class="color-label">success-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-700)"></div>
+                <span class="color-label">success-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-800)"></div>
+                <span class="color-label">success-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-900)"></div>
+                <span class="color-label">success-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--success-950)"></div>
+                <span class="color-label">success-950</span>
+            </div>
+        </div>
+
+        <!-- Warning Colors -->
+        <div class="color-section">
+            <h2>Warning</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-50)"></div>
+                <span class="color-label">warning-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-100)"></div>
+                <span class="color-label">warning-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-200)"></div>
+                <span class="color-label">warning-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-300)"></div>
+                <span class="color-label">warning-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-400)"></div>
+                <span class="color-label">warning-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-500)"></div>
+                <span class="color-label">warning-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-600)"></div>
+                <span class="color-label">warning-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-700)"></div>
+                <span class="color-label">warning-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-800)"></div>
+                <span class="color-label">warning-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-900)"></div>
+                <span class="color-label">warning-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--warning-950)"></div>
+                <span class="color-label">warning-950</span>
+            </div>
+        </div>
+
+        <!-- Danger Colors -->
+        <div class="color-section">
+            <h2>Danger</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-50)"></div>
+                <span class="color-label">danger-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-100)"></div>
+                <span class="color-label">danger-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-200)"></div>
+                <span class="color-label">danger-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-300)"></div>
+                <span class="color-label">danger-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-400)"></div>
+                <span class="color-label">danger-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-500)"></div>
+                <span class="color-label">danger-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-600)"></div>
+                <span class="color-label">danger-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-700)"></div>
+                <span class="color-label">danger-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-800)"></div>
+                <span class="color-label">danger-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-900)"></div>
+                <span class="color-label">danger-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--danger-950)"></div>
+                <span class="color-label">danger-950</span>
+            </div>
+        </div>
+
+        <!-- Info Colors -->
+        <div class="color-section">
+            <h2>Info</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-50)"></div>
+                <span class="color-label">info-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-100)"></div>
+                <span class="color-label">info-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-200)"></div>
+                <span class="color-label">info-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-300)"></div>
+                <span class="color-label">info-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-400)"></div>
+                <span class="color-label">info-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-500)"></div>
+                <span class="color-label">info-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-600)"></div>
+                <span class="color-label">info-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-700)"></div>
+                <span class="color-label">info-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-800)"></div>
+                <span class="color-label">info-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-900)"></div>
+                <span class="color-label">info-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--info-950)"></div>
+                <span class="color-label">info-950</span>
+            </div>
+        </div>
+
+        <!-- Ink Colors -->
+        <div class="color-section">
+            <h2>Ink</h2>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-50)"></div>
+                <span class="color-label">ink-50</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-100)"></div>
+                <span class="color-label">ink-100</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-200)"></div>
+                <span class="color-label">ink-200</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-300)"></div>
+                <span class="color-label">ink-300</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-400)"></div>
+                <span class="color-label">ink-400</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-500)"></div>
+                <span class="color-label">ink-500 (base)</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-600)"></div>
+                <span class="color-label">ink-600</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-700)"></div>
+                <span class="color-label">ink-700</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-800)"></div>
+                <span class="color-label">ink-800</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-850)"></div>
+                <span class="color-label">ink-850</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-900)"></div>
+                <span class="color-label">ink-900</span>
+            </div>
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--ink-950)"></div>
+                <span class="color-label">ink-950</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
