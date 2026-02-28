@@ -1,0 +1,65 @@
+{
+  "name": "@torchui/solid",
+  "version": "0.1.0-beta.0",
+  "description": "A modern, accessible SolidJS component library built with Tailwind CSS and Kobalte",
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./actions": "./src/components/actions/index.ts",
+    "./typography": "./src/components/typography/index.ts",
+    "./forms": "./src/components/forms/index.ts",
+    "./feedback": "./src/components/feedback/index.ts",
+    "./layout": "./src/components/layout/index.ts",
+    "./overlays": "./src/components/overlays/index.ts",
+    "./navigation": "./src/components/navigation/index.ts",
+    "./data-display": "./src/components/data-display/index.ts",
+    "./charts": "./src/components/charts/index.ts",
+    "./styles/code-block-tokens.css": "./src/components/styles/code-block-tokens.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "solidjs",
+    "ui",
+    "components",
+    "tailwind",
+    "kobalte",
+    "accessibility",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sean-dowd-sr/torchui.git"
+  },
+  "homepage": "https://github.com/sean-dowd-sr/torchui#readme",
+  "bugs": {
+    "url": "https://github.com/sean-dowd-sr/torchui/issues"
+  },
+  "author": "Sean Dowd <sean.dowd.sr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@kobalte/core": "^0.13.11",
+    "@thisbeyond/solid-dnd": "^0.7.5",
+    "chart.js": "^4.5.1",
+    "clsx": "^2.1.1",
+    "lucide-solid": "^0.563.0",
+    "prismjs": "^1.30.0",
+    "tailwind-merge": "^3.3.1"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/prismjs": "^1.26.6",
+    "solid-js": "^1.9.11",
+    "typescript": "^5.9.3"
+  }
+}
