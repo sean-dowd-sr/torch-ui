@@ -53,7 +53,7 @@ function App() {
 - Tabs, Breadcrumbs, DropdownMenu, Pagination, ViewSwitcher
 
 ### Data Display
-- Table, DataTable, Avatar, AvatarGroup, Badge, Tag
+- Table, DataTable, Image, Avatar, AvatarGroup, Badge, Tag
 - Persona, StatCard, EmptyState, Carousel, ColorSwatch
 
 ### Feedback
