@@ -15,6 +15,9 @@ export type { BadgeProps, BadgeVariant, BadgeSize } from './Badge'
 export { AvatarGroup } from './AvatarGroup'
 export type { AvatarGroupProps, AvatarGroupItem, AvatarStacking } from './AvatarGroup'
 
+export { Image } from './Image'
+export type { ImageProps } from './Image'
+
 export { TablePanel } from '../layout/TablePanel'
 export type { TablePanelProps } from '../layout/TablePanel'
 
