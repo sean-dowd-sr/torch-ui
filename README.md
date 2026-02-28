@@ -67,7 +67,7 @@ function App() {
 
 ## Documentation
 
-For full documentation and examples, visit: https://torchui-docs.vercel.app
+For full documentation and examples, visit: https://torch-ui.dev
 
 ## Requirements
 
