@@ -25,12 +25,12 @@ function App() {
 
 ## Features
 
-- 🎨 **Beautiful Design** - Modern, clean components with Tailwind CSS
-- ♿ **Accessible** - Built with Kobalte for full accessibility support
-- 🔧 **Customizable** - Extensive theming and variant system
-- 📱 **Responsive** - Mobile-first design approach
-- 🌙 **Dark Mode** - Built-in dark mode support
-- 🚀 **Performance** - Lightweight and fast
+**Beautiful Design** - Modern, clean components with Tailwind CSS
+**Accessible** - Built with Kobalte for full accessibility support
+**Customizable** - Extensive theming and variant system
+**Responsive** - Mobile-first design approach
+**Dark Mode** - Built-in dark mode support
+**Performance** - Lightweight and fast
 
 ## Components
 
