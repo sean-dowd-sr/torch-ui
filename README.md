@@ -36,11 +36,7 @@ For class-based dark mode (e.g. `<body class="dark">`), add the custom variant b
 @import "@torchui/solid/styles/theme.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
-
-@source "../node_modules/@torchui/solid/src/**/*.{ts,tsx}";
 ```
-
-> **Note:** Adjust the `@source` path if your CSS file is not at `src/app.css` (e.g. in a monorepo the path may be `../../../packages/ui/src/**/*.{ts,tsx}`).
 
 ## Usage
 
