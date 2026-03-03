@@ -1,6 +1,6 @@
 {
-  "name": "@torchui/solid",
-  "version": "0.1.2",
+  "name": "@torch-ui/solid",
+  "version": "0.1.3",
   "description": "A modern, accessible SolidJS component library built with Tailwind CSS and Kobalte",
   "type": "module",
   "files": [
