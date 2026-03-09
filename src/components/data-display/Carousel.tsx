@@ -1,6 +1,6 @@
-import { type JSX, createSignal, createEffect, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
-import { ChevronLeft, ChevronRight } from 'lucide-solid'
+import { type JSX, createSignal, createEffect, on, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export interface CarouselSlide {
 	id: string
@@ -31,27 +31,25 @@ export function Carousel(props: CarouselProps) {
 		'aria-label',
 		'class',
 	])
+	const icons = useIcons()
 
 	const [currentSlide, setCurrentSlide] = createSignal(0)
 	const [progressBarReady, setProgressBarReady] = createSignal(false)
 	const autoPlayInterval = () => local.autoPlayInterval ?? 5000
+	const [autoPlayReset, setAutoPlayReset] = createSignal(0)
 
-	let intervalId: ReturnType<typeof setInterval> | undefined
+	createEffect(on(
+		() => local.slides.length,
+		(len) => { setCurrentSlide(i => Math.min(i, Math.max(len - 1, 0))) }
+	))
 
-	// Clamp currentSlide when slides array shrinks
 	createEffect(() => {
-		const max = Math.max(local.slides.length - 1, 0)
-		setCurrentSlide(i => Math.min(i, max))
-	})
-
-	// Reactive autoplay: restart timer when interval or slides change
-	createEffect(() => {
+		autoPlayReset() // track manual resets from goToSlide
 		const interval = autoPlayInterval()
 		const len = local.slides.length
-		if (intervalId) clearInterval(intervalId)
-		intervalId = undefined
 		if (interval > 0 && len > 1) {
-			intervalId = setInterval(nextSlide, interval)
+			const id = setInterval(nextSlide, interval)
+			onCleanup(() => clearInterval(id))
 		}
 		restartProgressBar()
 	})
@@ -74,25 +72,28 @@ export function Carousel(props: CarouselProps) {
 		const i = ((index % len) + len) % len
 		setCurrentSlide(i)
 		restartProgressBar()
-		if (intervalId) clearInterval(intervalId)
-		const interval = autoPlayInterval()
-		if (interval > 0 && len > 1) {
-			intervalId = setInterval(nextSlide, interval)
-		}
+		setAutoPlayReset(n => n + 1) // triggers autoplay effect to restart the interval
 	}
 
 	function goPrev() { goToSlide(currentSlide() - 1) }
 	function goNext() { goToSlide(currentSlide() + 1) }
 
 	onMount(() => {
-		// Defer progress bar animation by one frame so it runs on initial load (browser quirk)
+		const styleId = 'torch-carousel-styles'
+		if (!document.getElementById(styleId)) {
+			const style = document.createElement('style')
+			style.id = styleId
+			style.textContent = `@keyframes carouselProgressBar { from { width: 0%; } to { width: 100%; } }`
+			document.head.appendChild(style)
+		}
 		const raf = requestAnimationFrame(() => setProgressBarReady(true))
 		onCleanup(() => cancelAnimationFrame(raf))
 	})
 
-	onCleanup(() => {
-		if (intervalId) clearInterval(intervalId)
-	})
+	const dotsAlign = () => {
+		const p = local.dotsPosition ?? 'start'
+		return p === 'end' ? 'justify-end' : p === 'center' ? 'justify-center' : 'justify-start'
+	}
 
 	return (
 		<div
@@ -112,7 +113,7 @@ export function Carousel(props: CarouselProps) {
 						const isActive = () => index() === currentSlide()
 						return (
 							<div
-								aria-hidden={!isActive()}
+								aria-hidden={!isActive() ? 'true' : undefined}
 								class={cn('transition-opacity duration-500', isActive() ? 'pointer-events-auto' : 'pointer-events-none')}
 								style={
 									isActive()
@@ -144,29 +145,32 @@ export function Carousel(props: CarouselProps) {
 				<button
 					type="button"
 					onClick={goPrev}
+					class={cn(
+						'absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full p-2',
+						'bg-surface-raised/80 hover:bg-surface-raised text-ink-700 shadow-sm',
+						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
+					)}
 					aria-label="Previous slide"
-					class="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
 				>
-					<ChevronLeft class="h-5 w-5" />
+					{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 				</button>
 				<button
 					type="button"
 					onClick={goNext}
+					class={cn(
+						'absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full p-2',
+						'bg-surface-raised/80 hover:bg-surface-raised text-ink-700 shadow-sm',
+						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
+					)}
 					aria-label="Next slide"
-					class="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
 				>
-					<ChevronRight class="h-5 w-5" />
+					{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 				</button>
 			</Show>
 
 			<Show when={local.showDots !== false && local.slides.length > 1}>
 				<div
-					class={cn(
-						'flex gap-2 mt-8',
-						(local.dotsPosition ?? 'start') === 'end' && 'justify-end',
-						(local.dotsPosition ?? 'start') === 'center' && 'justify-center',
-						(local.dotsPosition ?? 'start') === 'start' && 'justify-start'
-					)}
+					class={cn('flex gap-2 mt-8', dotsAlign())}
 				>
 					<For each={local.slides}>
 						{(_, index) => (
@@ -180,7 +184,7 @@ export function Carousel(props: CarouselProps) {
 										: 'w-2 bg-white/40 hover:bg-white/60'
 								)}
 								aria-label={`Go to slide ${index() + 1}`}
-								aria-current={index() === currentSlide() ? 'page' : undefined}
+								aria-current={index() === currentSlide() ? 'true' : undefined}
 							>
 								<Show when={index() === currentSlide() && autoPlayInterval() > 0}>
 									<div
@@ -201,14 +205,6 @@ export function Carousel(props: CarouselProps) {
 				</div>
 			</Show>
 
-			<style>
-				{`
-					@keyframes carouselProgressBar {
-						from { width: 0%; }
-						to { width: 100%; }
-					}
-				`}
-			</style>
-		</div>
+			</div>
 	)
 }

@@ -1,8 +1,8 @@
 import { type JSX, Show, splitProps, onMount, createContext, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { NavigationMenu as KobalteNavigationMenu } from '@kobalte/core/navigation-menu'
-import { ChevronDown } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 /** ─── Variant context ───────────────────────────────────────────────────────── */
 type MenuVariant = 'default' | 'underline' | 'ghost'
@@ -159,6 +159,7 @@ export interface MegaMenuTriggerProps {
 
 export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 	const [local, others] = splitProps(props, ['class', 'children', 'noChevron', 'variant', 'icon', 'iconPosition'])
+	const icons = useIcons()
 	const contextVariant = useContext(VariantContext)
 	const v = () => local.variant ?? contextVariant
 	const ip = () => local.iconPosition ?? 'start'
@@ -214,10 +215,10 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 				</Show>
 			</Show>
 			<Show when={!local.noChevron && !isStacked()}>
-				<ChevronDown
-					class="relative h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform duration-200 group-data-[expanded]:rotate-180"
-					aria-hidden="true"
-				/>
+				{icons.chevronDown({
+					class: 'relative h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform duration-200 group-data-[expanded]:rotate-180',
+					'aria-hidden': 'true',
+				})}
 			</Show>
 		</KobalteNavigationMenu.Trigger>
 	)
@@ -232,14 +233,12 @@ export interface MegaMenuContentProps {
 export function MegaMenuContent(props: MegaMenuContentProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
-		<KobalteNavigationMenu.Portal>
-			<KobalteNavigationMenu.Content
-				class={cn('torchui-mm-content', local.class)}
-				{...others}
-			>
-				{local.children}
-			</KobalteNavigationMenu.Content>
-		</KobalteNavigationMenu.Portal>
+		<KobalteNavigationMenu.Content
+			class={cn('torchui-mm-content', local.class)}
+			{...others}
+		>
+			{local.children}
+		</KobalteNavigationMenu.Content>
 	)
 }
 
@@ -320,7 +319,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 				if (props.disabled) { e.preventDefault(); return }
 				props.onClick?.()
 			}}
-			aria-disabled={props.disabled || undefined}
+			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
 				'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors',
 				props.active ? 'bg-primary-50 dark:bg-primary-500/10' : 'hover:bg-surface-overlay',
@@ -377,7 +376,7 @@ export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
 			href={props.href}
 			class={cn(
 				'group relative flex flex-col justify-between overflow-hidden rounded-xl p-5 outline-none transition-opacity hover:opacity-90',
-				'focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+				'focus-visible:ring-2 focus-visible:ring-white/70',
 				props.backgroundClass ?? 'bg-gradient-to-br from-primary-500 to-primary-600',
 				props.class,
 			)}

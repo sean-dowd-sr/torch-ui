@@ -1,4 +1,4 @@
-import { type JSX, Show, splitProps, createSignal, onCleanup, createEffect } from 'solid-js'
+import { type JSX, Show, splitProps, createSignal, onCleanup, createEffect, createMemo, on } from 'solid-js'
 import { Image as KobalteImage } from '@kobalte/core/image'
 import { cn } from '../../utilities/classNames'
 
@@ -79,20 +79,17 @@ export function Image(props: ImageProps) {
 	const [hasTriedFallback, setHasTriedFallback] = createSignal(false)
 	let fallbackTimeout: ReturnType<typeof setTimeout> | undefined
 
-	// React to src prop changes
-	createEffect(() => {
-		const newSrc = local.src
+	createEffect(on(() => local.src, (newSrc) => {
 		setActiveSrc(newSrc)
 		setImageLoaded(false)
 		setShowFallback(false)
 		setHasTriedFallback(false)
-		
-		// Clear any pending timeout when src changes
+
 		if (fallbackTimeout) {
 			clearTimeout(fallbackTimeout)
 			fallbackTimeout = undefined
 		}
-	})
+	}, { defer: true }))
 
 	// Cleanup timeout on unmount
 	onCleanup(() => {
@@ -100,16 +97,6 @@ export function Image(props: ImageProps) {
 			clearTimeout(fallbackTimeout)
 		}
 	})
-
-	// Scaling logic - convert scale aliases to object-fit values
-	const effectiveObjectFit = () => {
-		// Priority: scale > objectFit
-		if (local.scale) {
-			return mapScaleToObjectFit(local.scale)
-		}
-		
-		return local.objectFit
-	}
 
 	const mapScaleToObjectFit = (scale: 'contain' | 'cover' | 'stretch' | 'none' | 'scale-down' | 'portrait' | 'landscape' | 'square'): 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' => {
 		switch (scale) {
@@ -126,20 +113,18 @@ export function Image(props: ImageProps) {
 		}
 	}
 
-	// Generate inline styles for constraints (Tailwind JIT won't see dynamic classes)
-	const constraintStyles = () => {
+	const effectiveObjectFit = createMemo(() => {
+		if (local.scale) return mapScaleToObjectFit(local.scale)
+		return local.objectFit
+	})
+
+	const constraintStyles = createMemo((): JSX.CSSProperties => {
 		if (!local.scalingConstraints) return {}
-		
 		const styles: JSX.CSSProperties = {}
-		if (local.scalingConstraints.maxWidth) {
-			styles['max-width'] = local.scalingConstraints.maxWidth
-		}
-		if (local.scalingConstraints.maxHeight) {
-			styles['max-height'] = local.scalingConstraints.maxHeight
-		}
-		
+		if (local.scalingConstraints.maxWidth) styles['max-width'] = local.scalingConstraints.maxWidth
+		if (local.scalingConstraints.maxHeight) styles['max-height'] = local.scalingConstraints.maxHeight
 		return styles
-	}
+	})
 
 	const handleLoad = () => {
 		setImageLoaded(true)
@@ -152,22 +137,18 @@ export function Image(props: ImageProps) {
 	}
 
 	const handleError = () => {
-		// Try fallback source if available and we haven't tried it yet
 		if (local.fallbackSrc && !hasTriedFallback() && activeSrc() !== local.fallbackSrc) {
 			setHasTriedFallback(true)
-			setImageLoaded(false)  // Reset loading state for proper transitions
-			setShowFallback(false) // Hide fallback UI while fallback loads
-			// Clear any existing timeout when switching to fallback
+			setImageLoaded(false)
+			setShowFallback(false)
 			if (fallbackTimeout) {
 				clearTimeout(fallbackTimeout)
 				fallbackTimeout = undefined
 			}
 			setActiveSrc(local.fallbackSrc)
-			// Let the image try loading the fallback
 			return
 		}
 
-		// Show fallback after delay (only applies when there's no fallbackSrc)
 		if (local.fallbackDelay) {
 			fallbackTimeout = setTimeout(() => setShowFallback(true), local.fallbackDelay)
 		} else {
@@ -255,7 +236,7 @@ export function Image(props: ImageProps) {
 						{local.fallback || (
 								<div class="flex items-center justify-center w-full h-full bg-surface-dim border border-surface-border">
 									<div class="text-center p-4">
-										<svg class="w-12 h-12 mx-auto mb-2 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg class="w-12 h-12 mx-auto mb-2 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
 										</svg>
 										<p class="text-sm text-ink-500">Failed to load image</p>

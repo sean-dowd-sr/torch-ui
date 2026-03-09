@@ -1,5 +1,6 @@
-import { createEffect, type JSX, splitProps, createUniqueId } from 'solid-js'
+import { createEffect, on, type JSX, splitProps, createUniqueId } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { type ComponentSize } from '../../types/component-size'
 import { mergeRefs } from '../../utilities/mergeRefs'
 
 export interface CodeInputProps
@@ -9,11 +10,19 @@ export interface CodeInputProps
 	label?: string
 	error?: string
 	helperText?: string
+	/** When true, never render label row or error/helper text (control only). */
+	bare?: boolean
+	/** When true, show required indicator on label. */
+	required?: boolean
+	/** When true, show "optional" on the label row when not required. Default false. */
+	optional?: boolean
 	/** Length of code (default 6) */
 	length?: number
 	value?: string
 	onValueChange?: (value: string) => void
 	onErrorClear?: () => void
+	/** Component size. Default 'md'. */
+	size?: ComponentSize
 }
 
 export function CodeInput(props: CodeInputProps) {
@@ -87,12 +96,12 @@ function CodeInputSingle(props: CodeInputProps) {
 				aria-describedby={describedBy()}
 				class={cn(
 					'w-full px-4 py-3 rounded-lg transition-all outline-none text-center text-xl tracking-[0.25em] font-mono',
-					'text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 placeholder:tracking-normal',
+					'text-ink-900 placeholder:text-ink-400 placeholder:tracking-normal',
 					'bg-surface-raised border',
 					hasError()
 						? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
-						: 'border-ink-300 focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-					'disabled:bg-ink-50 dark:disabled:bg-ink-900 disabled:text-ink-500 dark:disabled:text-ink-500 disabled:cursor-not-allowed',
+						: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
+					'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
 					local.class
 				)}
 				{...others}
@@ -112,11 +121,8 @@ function CodeInputSingle(props: CodeInputProps) {
 
 function CodeInputDigits(props: CodeInputProps) {
 	const length = () => props.length ?? 6
-	let inputRefs: (HTMLInputElement | undefined)[] = []
-
-	createEffect(() => {
-		inputRefs = new Array(length())
-	})
+	const inputRefs: (HTMLInputElement | undefined)[] = []
+	createEffect(on(length, (l) => { inputRefs.length = l }))
 
 	const emit = (next: string) => {
 		if (props.error && props.onErrorClear) props.onErrorClear()
@@ -151,7 +157,9 @@ function CodeInputDigits(props: CodeInputProps) {
 			emit(val.slice(0, index - 1) + val.slice(index))
 			requestAnimationFrame(() => inputRefs[index - 1]?.focus())
 		} else if (e.key === 'Backspace' && val[index]) {
+			e.preventDefault()
 			emit(val.slice(0, index) + val.slice(index + 1))
+			requestAnimationFrame(() => inputRefs[Math.max(index - 1, 0)]?.focus())
 		} else if (e.key === 'ArrowLeft' && index > 0) {
 			e.preventDefault()
 			inputRefs[index - 1]?.focus()
@@ -212,8 +220,8 @@ function CodeInputDigits(props: CodeInputProps) {
 							'w-11 h-12 rounded-lg border text-center text-xl font-semibold font-mono tabular-nums outline-none transition-colors',
 							'text-ink-900 bg-surface-raised',
 							hasError()
-								? 'border-danger-500 focus:ring-2 focus:ring-danger-500/20 focus:border-danger-500'
-								: 'border-ink-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20',
+								? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
+								: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
 							'disabled:opacity-50 disabled:cursor-not-allowed'
 						)}
 						aria-label={`Digit ${i + 1}`}

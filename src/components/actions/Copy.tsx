@@ -1,13 +1,14 @@
-import { type JSX, splitProps } from 'solid-js'
-import { Copy as CopyIcon, Check } from 'lucide-solid'
+import { type JSX, createMemo, splitProps } from 'solid-js'
 import { Button } from './Button'
-import type { ButtonVariant, ButtonSize } from './Button'
+import type { ButtonVariant } from './Button'
+import { type ComponentSize } from '../../types/component-size'
 import { useCopyToClipboard } from './useCopyToClipboard'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export type CopyDisplay = 'text' | 'icon-and-text' | 'icon-only'
 
-const filledVariants: ButtonVariant[] = ['primary', 'danger', 'success', 'warning']
+const filledVariants: ButtonVariant[] = ['primary', 'danger', 'success', 'warning', 'info']
 const borderlessVariants: ButtonVariant[] = ['ghost', 'link', 'danger-link']
 
 export interface CopyProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'href' | 'target' | 'rel'> {
@@ -21,7 +22,7 @@ export interface CopyProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonEleme
 	copiedLabel?: string
 	/** Button visual variant. Default: outlined */
 	variant?: ButtonVariant
-	size?: ButtonSize
+	size?: ComponentSize
 	class?: string
 	/** Called after successful copy. */
 	onCopied?: () => void
@@ -33,6 +34,7 @@ export interface CopyProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonEleme
  */
 export function Copy(props: CopyProps) {
 	const [copy, copied] = useCopyToClipboard()
+	const icons = useIcons()
 	const [local, rest] = splitProps(props, [
 		'text',
 		'display',
@@ -43,29 +45,19 @@ export function Copy(props: CopyProps) {
 		'class',
 		'onCopied',
 	])
-	const [, others] = splitProps(rest, ['onChange'])
-
 	async function handleClick() {
 		const ok = await copy(local.text)
 		if (ok) local.onCopied?.()
 	}
 
 	const display = () => local.display ?? 'icon-and-text'
-	const label = () => {
-		const v = (local.label ?? 'Copy').trim()
-		return v || 'Copy'
-	}
-	const copiedLabel = () => {
-		const v = (local.copiedLabel ?? 'Copied').trim()
-		return v || 'Copied'
-	}
+	const label = () => local.label ?? 'Copy'
+	const copiedLabel = () => local.copiedLabel ?? 'Copied'
 	const isIconOnly = () => display() === 'icon-only'
 	const showIcon = () => display() === 'icon-and-text' || display() === 'icon-only'
 
-	const checkIcon = () => (
-		<Check class="h-4 w-4 shrink-0" aria-hidden />
-	)
-	const copyIcon = () => <CopyIcon class="h-4 w-4 shrink-0" aria-hidden />
+	const checkIcon = createMemo(() => icons.check({ class: 'h-4 w-4 shrink-0', 'aria-hidden': 'true' }))
+	const copyIcon = createMemo(() => icons.copy({ class: 'h-4 w-4 shrink-0', 'aria-hidden': 'true' }))
 	const currentVariant = () => local.variant ?? 'outlined'
 	const resolvedVariant = (): ButtonVariant =>
 		copied()
@@ -92,7 +84,7 @@ export function Copy(props: CopyProps) {
 			title={isIconOnly() ? (copied() ? copiedLabel() : label()) : undefined}
 			aria-label={isIconOnly() ? (copied() ? copiedLabel() : label()) : undefined}
 			onClick={handleClick}
-			{...(others as Partial<import('./Button').ButtonProps>)}
+			{...(rest as Partial<import('./Button').ButtonProps>)}
 		/>
 	)
 }

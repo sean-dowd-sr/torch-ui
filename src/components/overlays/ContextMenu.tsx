@@ -18,7 +18,7 @@ export function ContextMenuContent(props: ContextMenuContentProps) {
 		<KobalteContextMenu.Portal>
 			<KobalteContextMenu.Content
 				class={cn(
-					'z-50 min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg',
+					'z-50 min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg outline-none',
 					local.class
 				)}
 				{...others}
@@ -58,7 +58,7 @@ export function ContextMenuSeparator(props: ContextMenuSeparatorProps) {
 	const [local, others] = splitProps(props, ['class'])
 	return (
 		<KobalteContextMenu.Separator
-			class={cn('my-1 h-px bg-surface-border', local.class)}
+			class={cn('my-1 h-px border-none bg-surface-border', local.class)}
 			{...others}
 		/>
 	)

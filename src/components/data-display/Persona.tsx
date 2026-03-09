@@ -1,4 +1,4 @@
-import { type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps, createMemo } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { Avatar } from './Avatar'
 import type { SizeKey, AvatarShape, AvatarColor } from '../../types/avatar-types'
@@ -43,7 +43,7 @@ export function Persona(props: PersonaProps) {
 	])
 
 	const size = () => local.size ?? 'md'
-	const styles = () => sizeStyles[size()]
+	const styles = createMemo(() => sizeStyles[size()])
 
 	return (
 		<div

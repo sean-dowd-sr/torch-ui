@@ -49,12 +49,10 @@ function containsBlockedPattern(trimmed: string): string | null {
 		}
 	}
 
-	// No more than 2 identical characters in a row
 	if (/(.)\1{2,}/.test(trimmed)) {
 		return 'Password contains too many repeated characters.'
 	}
 
-	// Repetitive patterns (e.g. "abcabcabc"): checks 1-3 char repeating prefix
 	if (trimmed.length >= 6) {
 		for (let len = 1; len <= 3; len++) {
 			const pattern = lower.slice(0, len)

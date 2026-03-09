@@ -1,4 +1,4 @@
-import { Show, type JSX, splitProps, createSignal, createEffect, createMemo } from 'solid-js'
+import { Show, type JSX, splitProps, createSignal, createEffect, createMemo, on } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { Skeleton } from '../feedback/Skeleton'
 import {
@@ -118,17 +118,17 @@ export function Avatar(props: AvatarProps) {
 	const color = () => local.color ?? 'neutral'
 	const badgePlacement = () => local.badgePlacement ?? 'bottom-right'
 	const sizeClass = () => avatarSizeClasses[size()]
-	const ringClass = (): string => {
+	const ringClass = createMemo((): string => {
 		const r = local.ring
 		if (!r) return ''
-		const ringColor = r === true ? 'ring-white dark:ring-ink-800' : (r.color ?? 'ring-white dark:ring-ink-800')
+		const ringColor = r === true ? 'ring-surface-base' : (r.color ?? 'ring-surface-base')
 		const useOffset = r === true || (typeof r === 'object' && r.offset !== false)
 		return cn(
 			'ring-2',
 			useOffset && 'ring-offset-2 ring-offset-surface-base',
 			ringColor,
 		)
-	}
+	})
 	const initials = () => getInitials(local.name)
 	const hasBadge = () => local.badge != null
 	const badgeIsInteractive = () => !local.decorative && local.badgeInteractive === true
@@ -140,13 +140,11 @@ export function Avatar(props: AvatarProps) {
 	const [imageLoaded, setImageLoaded] = createSignal(false)
 	const [imageStartedLoading, setImageStartedLoading] = createSignal(false)
 	
-	// Reset states when imageUrl changes
-	createEffect(() => {
-		const url = local.imageUrl
+	createEffect(on(() => local.imageUrl, () => {
 		setImageError(false)
 		setImageLoaded(false)
 		setImageStartedLoading(false)
-	})
+	}))
 
 	return (
 		<span
@@ -171,24 +169,22 @@ export function Avatar(props: AvatarProps) {
 					when={local.imageUrl && !imageError()}
 					fallback={<span aria-hidden="true">{initials()}</span>}
 				>
-					<Show
-						when={imageLoaded()}
-						fallback={
-							<Skeleton
-								class="absolute inset-0"
-								round={shape() === 'circle' ? 'full' : shape() === 'square' ? 'none' : 'lg'}
-							/>
-						}
-					>
+					<>
 						<img
 							src={local.imageUrl!}
 							alt=""
-							class="h-full w-full object-cover"
+							class={cn('h-full w-full object-cover', !imageLoaded() && 'opacity-0')}
 							onError={() => setImageError(true)}
 							onLoad={() => setImageLoaded(true)}
 							onLoadStart={() => setImageStartedLoading(true)}
 						/>
-					</Show>
+						{imageStartedLoading() && !imageLoaded() && (
+							<Skeleton
+								class="absolute inset-0"
+								round={shape() === 'circle' ? 'full' : shape() === 'square' ? 'none' : 'lg'}
+							/>
+						)}
+					</>
 				</Show>
 			</span>
 			{hasBadge() && (

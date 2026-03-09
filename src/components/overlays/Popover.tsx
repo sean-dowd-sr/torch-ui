@@ -49,6 +49,7 @@ export const PopoverAnchor = KobaltePopover.Anchor
 export const PopoverPortal = KobaltePopover.Portal
 export const PopoverContentPrimitive = KobaltePopover.Content
 export const PopoverArrow = KobaltePopover.Arrow
+export const PopoverCloseButton = KobaltePopover.CloseButton
 
 export interface PopoverContentProps extends KobaltePopoverContentProps {
 	class?: string

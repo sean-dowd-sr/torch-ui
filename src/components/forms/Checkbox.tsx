@@ -1,10 +1,11 @@
 import { type JSX, splitProps, Show } from 'solid-js'
 import { Checkbox as KobalteCheckbox } from '@kobalte/core/checkbox'
 import { cn } from '../../utilities/classNames'
+import { useComponentSize } from '../../utilities/componentSizeContext'
 
 export type CheckboxSize = 'sm' | 'md'
 
-export interface CheckboxProps extends Omit<JSX.HTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface CheckboxProps extends Omit<JSX.HTMLAttributes<HTMLInputElement>, 'onChange' | 'onValueChange'> {
 	/** Label text (or use children). */
 	label?: string
 	/** Error message shown below the checkbox. */
@@ -17,12 +18,12 @@ export interface CheckboxProps extends Omit<JSX.HTMLAttributes<HTMLInputElement>
 	required?: boolean
 	/** When true, show "optional" on the label row when not required. Default false. */
 	optional?: boolean
-	/** When true, use smaller label text and optional tighter spacing. */
-	compact?: boolean
 	/** Controlled checked state. */
 	checked?: boolean
 	/** Controlled change handler. Receives the new checked boolean. */
-	onChange?: (checked: boolean) => void
+	onValueChange?: (checked: boolean) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	/** Visual size. */
 	size?: CheckboxSize
 	/** Indeterminate state (e.g. parent when some children selected). */
@@ -51,9 +52,9 @@ export function Checkbox(props: CheckboxProps) {
 		'bare',
 		'required',
 		'optional',
-		'compact',
 		'checked',
-		'onChange',
+		'onValueChange',
+		'onErrorClear',
 		'size',
 		'indeterminate',
 		'class',
@@ -74,14 +75,19 @@ export function Checkbox(props: CheckboxProps) {
 		}
 	}
 
+	const contextSize = useComponentSize()
 	const hasError = () => !!local.error
-	const size = () => local.size ?? 'md'
+	const size = (): CheckboxSize => local.size ?? (contextSize === 'xs' || contextSize === 'sm' ? 'sm' : 'md')
 	const iconSize = () => size() === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3'
+	const hasLabel = () => !local.bare && (local.label ?? local.children)
 
 	return (
 		<KobalteCheckbox
 			checked={local.checked}
-			onChange={(v) => local.onChange?.(v === true)}
+			onChange={(v) => {
+				if (local.error && local.onErrorClear) local.onErrorClear()
+				local.onValueChange?.(v === true)
+			}}
 			indeterminate={local.indeterminate}
 			validationState={hasError() ? 'invalid' : undefined}
 			required={local.required}
@@ -93,8 +99,8 @@ export function Checkbox(props: CheckboxProps) {
 		>
 			<div
 				class={cn(
-					'inline-flex items-center select-none',
-					local.compact ? 'gap-1.5' : 'gap-2',
+					'inline-flex items-start select-none',
+					size() === 'sm' ? 'gap-1.5' : 'gap-2',
 					local.disabled && 'opacity-50',
 					hasError() && 'text-danger-600',
 				)}
@@ -102,12 +108,16 @@ export function Checkbox(props: CheckboxProps) {
 				<KobalteCheckbox.Input {...others} />
 				<KobalteCheckbox.Control
 					class={cn(
-						'relative inline-flex shrink-0 items-center justify-center rounded border cursor-pointer',
+						'relative inline-flex shrink-0 items-center justify-center rounded border cursor-pointer outline-none transition-colors',
 						sizeClasses[size()],
-						'bg-surface-raised border-ink-300',
-						'data-[checked]:border-primary-500 data-[checked]:bg-primary-500 dark:data-[checked]:border-primary-400 dark:data-[checked]:bg-primary-500',
-						'data-[indeterminate]:border-primary-500 data-[indeterminate]:bg-primary-500 dark:data-[indeterminate]:border-primary-400 dark:data-[indeterminate]:bg-primary-500',
-						hasError() && 'border-danger-500 dark:border-danger-500',
+						hasLabel() && (size() === 'sm' ? 'mt-0.5' : 'mt-[3px]'),
+						'bg-surface-raised border-surface-border',
+						'data-[checked]:border-primary-500 data-[checked]:bg-primary-500',
+						'data-[indeterminate]:border-primary-500 data-[indeterminate]:bg-primary-500',
+						hasError() && 'border-danger-500',
+						hasError()
+							? 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-inset data-[focus-visible]:ring-danger-500 data-[focus-visible]:border-transparent'
+							: 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-inset data-[focus-visible]:ring-primary-500 data-[focus-visible]:border-transparent',
 						local.disabled && 'cursor-not-allowed',
 					)}
 				>
@@ -126,30 +136,55 @@ export function Checkbox(props: CheckboxProps) {
 						</Show>
 					</KobalteCheckbox.Indicator>
 				</KobalteCheckbox.Control>
-				<Show when={!local.bare && (local.label ?? local.children)}>
-					<KobalteCheckbox.Label class={cn('text-ink-700 cursor-pointer', local.compact ? 'text-xs' : 'text-sm', local.disabled && 'cursor-not-allowed')}>
-						{local.label ?? local.children}
-						<Show when={local.required}>
-							<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
+				<Show
+					when={!local.bare && (local.label ?? local.children)}
+					fallback={
+						<>
+							<Show when={!local.bare && local.helperText && !hasError()}>
+								<KobalteCheckbox.Description class="mt-1.5 text-sm text-ink-500">
+									{local.helperText}
+								</KobalteCheckbox.Description>
+							</Show>
+
+							<Show when={!local.bare && local.error}>
+								<KobalteCheckbox.ErrorMessage class="mt-1.5 text-sm text-danger-600">
+									{local.error}
+								</KobalteCheckbox.ErrorMessage>
+							</Show>
+						</>
+					}
+				>
+					<div class="min-w-0">
+						<KobalteCheckbox.Label
+							class={cn(
+								'text-ink-700 cursor-pointer',
+								size() === 'sm' ? 'text-xs' : 'text-sm',
+								local.disabled && 'cursor-not-allowed',
+							)}
+						>
+							{local.label ?? local.children}
+							<Show when={local.required}>
+								<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
+							</Show>
+							<Show when={!local.required && local.optional}>
+								<span class="text-xs text-ink-500 ml-1">optional</span>
+							</Show>
+						</KobalteCheckbox.Label>
+
+						<Show when={!local.bare && local.helperText && !hasError()}>
+							<KobalteCheckbox.Description class="mt-1 text-sm text-ink-500">
+								{local.helperText}
+							</KobalteCheckbox.Description>
 						</Show>
-						<Show when={!local.required && local.optional}>
-							<span class="text-xs text-ink-500 ml-1">optional</span>
+
+						<Show when={!local.bare && local.error}>
+							<KobalteCheckbox.ErrorMessage class="mt-1 text-sm text-danger-600">
+								{local.error}
+							</KobalteCheckbox.ErrorMessage>
 						</Show>
-					</KobalteCheckbox.Label>
+					</div>
 				</Show>
 			</div>
-
-			<Show when={!local.bare && local.helperText && !hasError()}>
-				<KobalteCheckbox.Description class="mt-1.5 text-sm text-ink-500">
-					{local.helperText}
-				</KobalteCheckbox.Description>
-			</Show>
-
-			<Show when={!local.bare && local.error}>
-				<KobalteCheckbox.ErrorMessage class="mt-1.5 text-sm text-danger-600">
-					{local.error}
-				</KobalteCheckbox.ErrorMessage>
-			</Show>
 		</KobalteCheckbox>
 	)
 }

@@ -60,8 +60,6 @@ export function getPasswordAnalysis(password: string): PasswordAnalysis {
 		: met === 4 ? 'good'
 		: 'excellent'
 
-	// Segment score: 0–8 for smooth progress bar fill.
-	// When weak, cap at 2 regardless of met count.
 	let segmentScore: number
 	if (weak) {
 		segmentScore = Math.min(2, Math.max(1, met))
@@ -78,7 +76,6 @@ export function getPasswordAnalysis(password: string): PasswordAnalysis {
 	return { requirements, met, strength, segmentScore }
 }
 
-// Convenience wrappers (backward-compat, delegate to getPasswordAnalysis)
 
 export function getPasswordRequirements(password: string): PasswordRequirements {
 	return getPasswordAnalysis(password).requirements
@@ -92,8 +89,6 @@ export function getPasswordStrength(password: string): PasswordStrength {
 export function getPasswordSegmentScore(password: string): number {
 	return getPasswordAnalysis(password).segmentScore
 }
-
-// Internal
 
 function computeRequirements(password: string): PasswordRequirements {
 	let upper = false, lower = false, digit = false, symbol = false

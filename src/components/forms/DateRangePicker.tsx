@@ -1,7 +1,9 @@
-import { createSignal, createMemo, Show, For, splitProps, createUniqueId, createEffect } from 'solid-js'
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from 'lucide-solid'
+import { createSignal, createMemo, Show, For, splitProps, createUniqueId, createEffect, on } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { cn } from '../../utilities/classNames'
+import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
+import { useComponentSize } from '../../utilities/componentSizeContext'
+import { useIcons } from '../../icons'
 
 export interface DateRangePickerProps {
 	/** ISO date string YYYY-MM-DD for range start */
@@ -9,7 +11,9 @@ export interface DateRangePickerProps {
 	/** ISO date string YYYY-MM-DD for range end */
 	end?: string
 	/** Called when range changes. end may be empty string if only start is selected. */
-	onRangeChange?: (start: string, end: string) => void
+	onValueChange?: (start: string, end: string) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	placeholder?: string
 	disabled?: boolean
 	/** Min date YYYY-MM-DD */
@@ -26,6 +30,8 @@ export interface DateRangePickerProps {
 	dualMonth?: boolean
 	/** Allow clearing the range. Default: true */
 	clearable?: boolean
+	/** Component size. Default 'md'. */
+	size?: ComponentSize
 	class?: string
 	id?: string
 }
@@ -99,10 +105,8 @@ function MonthGrid(props: MonthGridProps) {
 	}
 	const isStart = (d: Date) => !!props.start && sameDay(d, props.start)
 
-	// Effective end: hover preview (when only start is set) or committed end
 	const effectiveEndDate = () => (!props.end && props.hover) ? props.hover : props.end
 
-	// Ordered [lo, hi] regardless of click order
 	const orderedRange = (): [Date, Date] | null => {
 		const s = props.start
 		const e = effectiveEndDate()
@@ -173,10 +177,10 @@ function MonthGrid(props: MonthGridProps) {
 											: inRange()
 												? 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-500/20'
 												: otherMonth()
-													? 'text-ink-300 dark:text-ink-600 hover:bg-surface-overlay'
+													? 'text-ink-300 hover:bg-surface-overlay'
 													: today()
 														? 'text-primary-600 font-semibold hover:bg-surface-overlay dark:text-primary-400'
-														: 'text-ink-800 dark:text-ink-200 hover:bg-surface-overlay',
+														: 'text-ink-800 hover:bg-surface-overlay',
 										disabled() && 'cursor-not-allowed opacity-30',
 									)}
 								>
@@ -196,60 +200,55 @@ function MonthGrid(props: MonthGridProps) {
 
 export function DateRangePicker(props: DateRangePickerProps) {
 	const [local] = splitProps(props, [
-		'start', 'end', 'onRangeChange', 'placeholder', 'disabled',
+		'start', 'end', 'onValueChange', 'onErrorClear', 'placeholder', 'disabled',
 		'min', 'max', 'label', 'error', 'helperText', 'bare',
-		'required', 'optional', 'dualMonth', 'clearable', 'class', 'id',
+		'required', 'optional', 'dualMonth', 'clearable', 'size', 'class', 'id',
 	])
-
+	const icons = useIcons()
+	const contextSize = useComponentSize()
+	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
 	const generatedId = createUniqueId()
 	const inputId = () => local.id || `drp-${generatedId}`
 	const [open, setOpen] = createSignal(false)
 	const [hover, setHover] = createSignal<Date | null>(null)
-
-	// Picking state: null = picking start, 'start' = start picked, waiting for end
 	const [pickingEnd, setPickingEnd] = createSignal(false)
-
 	const startDate = () => parseDate(local.start ?? '')
 	const endDate = () => parseDate(local.end ?? '')
-
-	// View month: left calendar
+	const minDate = () => parseDate(local.min ?? '')
+	const maxDate = () => parseDate(local.max ?? '')
+	const dual = () => local.dualMonth !== false
+	const clearable = () => local.clearable !== false
 	const initView = () => {
 		const s = startDate()
-		return s ? { year: s.getFullYear(), month: s.getMonth() } : { year: new Date().getFullYear(), month: new Date().getMonth() }
+		const mn = minDate()
+		const base = s ?? mn ?? new Date()
+		return { year: base.getFullYear(), month: base.getMonth() }
 	}
 	const [viewLeft, setViewLeft] = createSignal(initView())
-
-	// Right calendar is always next month from left
 	const viewRight = () => {
 		const { year, month } = viewLeft()
 		const next = new Date(year, month + 1, 1)
 		return { year: next.getFullYear(), month: next.getMonth() }
 	}
 
-	createEffect(() => {
-		if (!open()) {
+	createEffect(on(open, (isOpen) => {
+		if (!isOpen) {
 			setPickingEnd(false)
 			setHover(null)
 		}
-	})
-
-	const dual = () => local.dualMonth !== false
-	const clearable = () => local.clearable !== false
-	const minDate = () => parseDate(local.min ?? '')
-	const maxDate = () => parseDate(local.max ?? '')
+	}, { defer: true }))
 
 	function handleDayClick(d: Date) {
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		if (!pickingEnd()) {
-			// First click: set start, clear end
-			local.onRangeChange?.(toISODate(d), '')
+			local.onValueChange?.(toISODate(d), '')
 			setPickingEnd(true)
 		} else {
-			// Second click: set end (or swap if before start)
 			const s = startDate()
 			if (s && d < s) {
-				local.onRangeChange?.(toISODate(d), toISODate(s))
+				local.onValueChange?.(toISODate(d), toISODate(s))
 			} else {
-				local.onRangeChange?.(local.start ?? toISODate(d), toISODate(d))
+				local.onValueChange?.(local.start ?? toISODate(d), toISODate(d))
 			}
 			setPickingEnd(false)
 			setOpen(false)
@@ -257,7 +256,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	}
 
 	function clearRange() {
-		local.onRangeChange?.('', '')
+		local.onValueChange?.('', '')
 		setPickingEnd(false)
 	}
 
@@ -320,18 +319,19 @@ export function DateRangePicker(props: DateRangePickerProps) {
 						id={inputId()}
 						disabled={local.disabled}
 						aria-describedby={msgId()}
-						aria-invalid={hasError() ? true : undefined}
+						aria-invalid={hasError() ? 'true' : undefined}
 						class={cn(
-							'inline-flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
+							'inline-flex w-full items-center gap-2 rounded-lg border transition-colors',
+							sc().h, sc().py, sc().pl, sc().text, sc().pr,
 							'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 							hasError()
 								? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600'
-								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400 dark:hover:border-ink-500',
+								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400',
 							local.disabled && 'cursor-not-allowed opacity-50',
 							clearable() && (local.start || local.end) && !local.disabled && 'pr-8',
 						)}
 					>
-						<CalendarIcon class="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+						{icons.calendar({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })}
 						<span class={cn('truncate', displayValue() ? 'text-ink-900' : 'text-ink-400')}>
 							{displayValue() || (local.placeholder ?? 'Pick a date range')}
 						</span>
@@ -343,7 +343,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors"
 							aria-label="Clear date range"
 						>
-							<X class="h-3.5 w-3.5" />
+							{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 						</button>
 					</Show>
 				</div>
@@ -365,7 +365,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 									class="flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 									aria-label="Previous month"
 								>
-									<ChevronLeft class="h-4 w-4" />
+									{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 								</button>
 								<div class={cn('flex', dual() ? 'gap-8' : '')}>
 									<div class="text-sm font-semibold text-ink-900 min-w-[140px] text-center">
@@ -383,7 +383,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 									class="flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 									aria-label="Next month"
 								>
-									<ChevronRight class="h-4 w-4" />
+									{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 								</button>
 							</div>
 

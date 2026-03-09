@@ -1,8 +1,8 @@
 import { type JSX, Show, For, splitProps, createEffect, createSignal, createUniqueId, onMount, onCleanup } from 'solid-js'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
 import { Button } from '../actions'
 import { Select } from '../forms'
+import { useIcons } from '../../icons'
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50]
 
@@ -44,6 +44,7 @@ export function Pagination(props: PaginationProps) {
 		'totalItems', 'pageSize', 'onPageSizeChange', 'pageSizeOptions',
 		'selectId', 'class',
 	])
+	const icons = useIcons()
 
 	const total = () => Math.max(1, local.totalPages)
 	/** Clamped page — always valid even if consumer state is stale. */
@@ -210,8 +211,6 @@ export function Pagination(props: PaginationProps) {
 							value={String(pageSizeVal())}
 							onValueChange={handlePageSizeChange}
 							options={pageSizeSelectOptions()}
-							compact
-							class="w-20 rounded-lg"
 						/>
 					</div>
 				</Show>
@@ -225,7 +224,7 @@ export function Pagination(props: PaginationProps) {
 							variant="outlined"
 							size="sm"
 							iconOnly
-							icon={<ChevronsLeft class="h-4 w-4" />}
+							icon={icons.chevronsLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 							aria-label="First page"
 							disabled={!canPrev()}
 							onClick={() => local.onPageChange(1)}
@@ -237,7 +236,7 @@ export function Pagination(props: PaginationProps) {
 						variant="outlined"
 						size="sm"
 						iconOnly
-						icon={<ChevronLeft class="h-4 w-4" />}
+						icon={icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 						aria-label="Previous page"
 						disabled={!canPrev()}
 						onClick={() => local.onPageChange(page() - 1)}
@@ -272,7 +271,7 @@ export function Pagination(props: PaginationProps) {
 						variant="outlined"
 						size="sm"
 						iconOnly
-						icon={<ChevronRight class="h-4 w-4" />}
+						icon={icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 						aria-label="Next page"
 						disabled={!canNext()}
 						onClick={() => local.onPageChange(page() + 1)}
@@ -284,7 +283,7 @@ export function Pagination(props: PaginationProps) {
 							variant="outlined"
 							size="sm"
 							iconOnly
-							icon={<ChevronsRight class="h-4 w-4" />}
+							icon={icons.chevronsRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 							aria-label="Last page"
 							disabled={!canNext()}
 							onClick={() => local.onPageChange(total())}

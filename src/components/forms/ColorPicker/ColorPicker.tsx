@@ -1,5 +1,4 @@
-import { createSignal, createMemo, Show, For, splitProps, createEffect } from 'solid-js'
-import { Pipette, X } from 'lucide-solid'
+import { createSignal, createMemo, Show, For, splitProps, createEffect, on } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { ColorArea as KobalteColorArea } from '@kobalte/core/color-area'
 import { ColorSlider as KobalteColorSlider } from '@kobalte/core/color-slider'
@@ -8,7 +7,9 @@ import { parseColor as KobalteParseColor } from '@kobalte/core/colors'
 import type { Color as KobalteColor } from '@kobalte/core/colors'
 import { Button } from '../../actions'
 import { cn } from '../../../utilities/classNames'
+import { type ComponentSize } from '../../../types/component-size'
 import { normalizeHex, hexToHslString, rgbaToHex } from './color-utils'
+import { useIcons } from '../../../icons'
 
 const DEFAULT_PRESETS = [
 	'#000000',
@@ -36,8 +37,20 @@ export interface ColorPickerProps {
 	presets?: string[]
 	/** Optional label above the control. */
 	label?: string
-	/** If true, only show the trigger + modal (no preset strip). */
-	compact?: boolean
+	/** Error message and invalid styling. */
+	error?: string
+	/** Hint text below the control. */
+	helperText?: string
+	/** When true, never render label row or error/helper text (control only). */
+	bare?: boolean
+	/** When true, show required indicator on label. */
+	required?: boolean
+	/** When true, show "optional" on the label row when not required. Default false. */
+	optional?: boolean
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
+	/** Component size. 'sm' hides preset strip and shows trigger only. Default 'md'. */
+	size?: ComponentSize
 	disabled?: boolean
 	class?: string
 	/** Max number of "last used" colors to keep. 0 to hide. Default 9. */
@@ -73,13 +86,21 @@ export function ColorPicker(props: ColorPickerProps) {
 		'onValueChange',
 		'presets',
 		'label',
-		'compact',
+		'error',
+		'helperText',
+		'bare',
+		'required',
+		'optional',
+		'onErrorClear',
+		'size',
 		'disabled',
 		'class',
 		'lastUsedCount',
 		'allowedFormats',
 		'predefined',
 	])
+	const icons = useIcons()
+	const hasError = () => !!local.error
 
 	const presets = () => local.presets ?? [...DEFAULT_PRESETS]
 	const lastUsedMax = () => local.lastUsedCount ?? 9
@@ -105,6 +126,7 @@ export function ColorPicker(props: ColorPickerProps) {
 	const handlePresetClick = (hex: string) => {
 		const n = normalizeHex(hex)
 		if (n) {
+			if (local.error && local.onErrorClear) local.onErrorClear()
 			local.onValueChange?.(n)
 			addToLastUsed(n)
 		}
@@ -113,6 +135,7 @@ export function ColorPicker(props: ColorPickerProps) {
 	const handleCustomApply = (hex: string) => {
 		const n = normalizeHex(hex)
 		if (!n) return
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		local.onValueChange?.(n)
 		addToLastUsed(n)
 		setCustomOpen(false)
@@ -123,8 +146,18 @@ export function ColorPicker(props: ColorPickerProps) {
 
 	return (
 		<div class={cn('w-full', local.class)} {...rest}>
-			<Show when={local.label}>
-				<label class="mb-1.5 block text-sm font-medium text-ink-700">{local.label}</label>
+			<Show when={!local.bare && local.label}>
+				<div class="flex items-center justify-between gap-2 mb-1.5">
+					<label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
+						{local.label}
+						<Show when={local.required}>
+							<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
+						</Show>
+					</label>
+					<Show when={!local.required && local.optional}>
+						<span class="text-xs text-ink-500">optional</span>
+					</Show>
+				</div>
 			</Show>
 
 			<div class="flex flex-wrap items-center gap-2">
@@ -135,7 +168,8 @@ export function ColorPicker(props: ColorPickerProps) {
 						type="button"
 						disabled={local.disabled}
 						class={cn(
-							'h-10 w-10 shrink-0 rounded-lg border-2 border-surface-border shadow-sm transition hover:border-ink-300 dark:hover:border-ink-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 focus:ring-offset-surface-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+							'h-10 w-10 shrink-0 rounded-lg border-2 shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+							hasError() ? 'border-danger-500 hover:border-danger-600' : 'border-surface-border hover:border-ink-300',
 						)}
 						style={{ 'background-color': currentHex() || 'transparent' }}
 						title="Choose color"
@@ -161,7 +195,7 @@ export function ColorPicker(props: ColorPickerProps) {
 					</KobaltePopover.Portal>
 				</KobaltePopover>
 
-				<Show when={!local.compact}>
+				<Show when={(local.size ?? 'md') !== 'sm'}>
 					{/* Preset swatches */}
 					<div class="flex flex-wrap gap-1.5">
 						<For each={presets()}>
@@ -169,10 +203,10 @@ export function ColorPicker(props: ColorPickerProps) {
 								<button
 									type="button"
 									class={cn(
-										'h-8 w-8 shrink-0 rounded-full border-2 shadow-sm transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500',
+										'h-8 w-8 shrink-0 rounded-full border-2 shadow-sm transition hover:scale-105 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 										normalizeHex(hex) === currentHex()
-											? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-500/30'
-											: 'border-surface-border hover:border-ink-300 dark:hover:border-ink-600',
+											? 'border-primary-500 ring-2 ring-primary-200'
+											: 'border-surface-border hover:border-ink-300',
 									)}
 									style={{ 'background-color': hex }}
 									title={hex}
@@ -186,9 +220,9 @@ export function ColorPicker(props: ColorPickerProps) {
 						<button
 							type="button"
 							class={cn(
-								'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-ink-300 bg-ink-50 text-ink-500 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:bg-primary-500/20 dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500',
+								'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-surface-border bg-surface-base text-ink-500 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 								!isPreset(currentHex()) && currentHex()
-									? 'border-primary-400 dark:border-primary-500 bg-primary-50 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400'
+									? 'border-primary-400 bg-primary-50 text-primary-600'
 									: '',
 							)}
 							title="Custom color"
@@ -196,11 +230,18 @@ export function ColorPicker(props: ColorPickerProps) {
 							onClick={() => setCustomOpen(true)}
 							disabled={local.disabled}
 						>
-							<Pipette class="h-4 w-4" />
+							{icons.pipette({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 						</button>
 					</div>
 				</Show>
 			</div>
+
+			<Show when={!local.bare && local.helperText && !hasError()}>
+				<p class="mt-2 text-sm text-ink-500">{local.helperText}</p>
+			</Show>
+			<Show when={!local.bare && hasError()}>
+				<p class="mt-2 text-sm text-danger-600">{local.error}</p>
+			</Show>
 		</div>
 	)
 }
@@ -225,11 +266,13 @@ interface ColorPickerCustomPanelProps {
 }
 
 function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
+	const icons = useIcons()
 	const formats = () => props.allowedFormats
 	const defaultFormat = () => (formats().includes('hex') ? 'hex' : formats()[0] ?? 'hex')
 	const [format, setFormat] = createSignal<ColorFormat>(defaultFormat())
 
-	// Reset format if current selection is no longer in allowedFormats
+	const thumbBaseClass = 'absolute rounded-full border-2 border-white shadow touch-none'
+
 	createEffect(() => {
 		if (!props.allowedFormats.includes(format())) setFormat(defaultFormat())
 	})
@@ -242,23 +285,17 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 	const [color, setColor] = createSignal<KobalteColor>(initialColor())
 	const [hexText, setHexText] = createSignal(colorToHex(initialColor()))
-	let prevOpen = false
-
-	// When popover opens (false -> true), sync panel color from current value so it shows the selected color
-	createEffect(() => {
-		const open = props.isOpen ?? false
-		if (open && !prevOpen && props.value && isValidHex(props.value)) {
+	createEffect(on(() => props.isOpen ?? false, (open, wasOpen) => {
+		if (open && !wasOpen && props.value && isValidHex(props.value)) {
 			const c = safeParseColor(normalizeHex(props.value))
 			setColor(c)
 			setHexText(colorToHex(c))
 		}
-		prevOpen = open
-	})
+	}, { defer: true }))
 
 	const hex = () => colorToHex(color())
 
-	// Sync hexText when color changes via area/slider/channel fields (not hex input)
-	createEffect(() => { setHexText(hex()) })
+	createEffect(on(hex, setHexText))
 
 	const formatTabs: { id: ColorFormat; label: string }[] = [
 		{ id: 'hex', label: 'Hex' },
@@ -275,11 +312,11 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 				<span class="text-sm font-semibold text-ink-900">Color Picker</span>
 				<button
 					type="button"
-					class="rounded p-1 text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-200 hover:text-ink-600 dark:hover:text-ink-200"
+					class="rounded p-1 text-ink-400 hover:bg-surface-overlay hover:text-ink-600"
 					onClick={props.onCancel}
 					aria-label="Close"
 				>
-					<X class="h-4 w-4" />
+					{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 				</button>
 			</div>
 
@@ -294,7 +331,9 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 					class="relative block w-full"
 				>
 					<KobalteColorArea.Background class="relative block h-32 w-full rounded-lg border border-surface-border cursor-crosshair touch-none" />
-					<KobalteColorArea.Thumb class="pointer-events-none absolute h-4 w-4 rounded-full border-2 border-white shadow-md [transform:translate(-50%,-50%)]">
+					<KobalteColorArea.Thumb
+						class={cn('pointer-events-none h-4 w-4 shadow-md [transform:translate(-50%,-50%)]', thumbBaseClass)}
+					>
 						<KobalteColorArea.HiddenInputX />
 						<KobalteColorArea.HiddenInputY />
 					</KobalteColorArea.Thumb>
@@ -305,7 +344,10 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 			<div class="mb-3">
 				<KobalteColorSlider channel="hue" value={color()} onChange={setColor} colorSpace="hsb">
 					<KobalteColorSlider.Track class="relative block h-6 w-full rounded-full border border-surface-border cursor-pointer touch-none">
-						<KobalteColorSlider.Thumb class="absolute h-6 w-6 rounded-full border-2 border-white shadow [transform:translate(-50%,-50%)] touch-none">
+						<KobalteColorSlider.Thumb
+							class={cn('h-6 w-6', thumbBaseClass)}
+							style={{ top: 'calc(50%)', transform: 'translate(-50%, -50%)' }}
+						>
 							<KobalteColorSlider.Input class="sr-only" />
 						</KobalteColorSlider.Thumb>
 					</KobalteColorSlider.Track>
@@ -314,7 +356,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 			{/* Format tabs (only when more than one format allowed) */}
 			<Show when={showFormatTabs()}>
-				<div class="mb-3 flex gap-1 rounded-lg bg-ink-100 p-1">
+				<div class="mb-3 flex gap-1 rounded-lg bg-surface-overlay p-1">
 					<For each={visibleFormatTabs()}>
 						{(tab) => (
 							<button
@@ -323,7 +365,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 									'flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition',
 									format() === tab.id
 										? 'bg-surface-raised text-ink-900 shadow-sm'
-										: 'text-ink-600 hover:text-ink-900 dark:hover:text-ink-100',
+										: 'text-ink-600 hover:text-ink-900',
 								)}
 								onClick={() => setFormat(tab.id)}
 							>
@@ -338,7 +380,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 			<div class="mb-4 flex flex-wrap items-center gap-2">
 				<Show when={format() === 'hex'}>
 					<div class="flex flex-1 items-center gap-2">
-						<Pipette class="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+						{icons.pipette({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })}
 						<input
 							type="text"
 							value={hexText()}
@@ -423,7 +465,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 							{(hex) => (
 								<button
 									type="button"
-									class="h-7 w-7 shrink-0 rounded-md border border-surface-border shadow-sm transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500"
+									class="h-7 w-7 shrink-0 rounded-md border border-surface-border shadow-sm transition hover:scale-105 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 									style={{ 'background-color': hex }}
 									title={hex}
 									aria-label={`Set color to ${hex}`}
@@ -444,7 +486,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 							{(hex) => (
 								<button
 									type="button"
-									class="h-7 w-7 shrink-0 rounded-md border border-surface-border shadow-sm transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500"
+									class="h-7 w-7 shrink-0 rounded-md border border-surface-border shadow-sm transition hover:scale-105 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 									style={{ 'background-color': hex }}
 									title={hex}
 									aria-label={`Set color to ${hex}`}

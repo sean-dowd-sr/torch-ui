@@ -10,7 +10,7 @@ export interface BlockQuoteProps {
 	citation?: string | JSX.Element
 	/** Optional cite URL for the blockquote source. Maps to the cite attribute on <blockquote>. */
 	cite?: string
-	/** Optional icon (e.g. Quote from lucide-solid) shown at the start of the quote. */
+	/** Optional icon shown at the start of the quote. */
 	icon?: JSX.Element
 	/** Optional avatar (e.g. Avatar or img) shown to the left of the quote. */
 	avatar?: JSX.Element

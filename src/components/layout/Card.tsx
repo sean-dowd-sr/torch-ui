@@ -4,13 +4,21 @@ import { Dynamic } from 'solid-js/web'
 import { Avatar } from '../data-display/Avatar'
 import { cn } from '../../utilities/classNames'
 
-const cardBase =
-	'rounded-xl border border-surface-border bg-surface-raised shadow-sm'
+export type CardVariant = 'default' | 'flat'
+
+const cardBase = 'rounded-xl border border-surface-border bg-surface-raised'
+
+const variantClasses: Record<CardVariant, string> = {
+	default: 'shadow-sm',
+	flat: 'shadow-none',
+}
 
 export interface CardProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
 	children: JSX.Element
 	/** Horizontal layout: image (or first block) on the left, content on the right. Use with Card.Image (horizontal) + Card.Content. */
 	horizontal?: boolean
+	/** Visual style: default (border + bg + shadow), or flat (border + bg, no shadow). */
+	variant?: CardVariant
 }
 
 export type CardComponent = ParentComponent<CardProps> & {
@@ -22,13 +30,15 @@ export type CardComponent = ParentComponent<CardProps> & {
 }
 
 /** Card root: rounded border, background, optional horizontal layout. Use with Card.Header, Card.Image, Card.AvatarTitle, Card.Body, Card.Content. */
-export const Card: CardComponent = (props) => {
-	const [local, others] = splitProps(props, ['children', 'horizontal', 'class', 'ref'])
+function CardRoot(props: CardProps): JSX.Element {
+	const [local, others] = splitProps(props, ['children', 'horizontal', 'variant', 'class', 'ref'])
+	const variant = () => local.variant ?? 'default'
 	return (
 		<div
 			ref={local.ref}
 			class={cn(
 				cardBase,
+				variantClasses[variant()],
 				local.horizontal ? 'flex flex-row overflow-hidden' : 'flex flex-col',
 				local.class,
 			)}
@@ -159,8 +169,10 @@ export const CardBody: ParentComponent<CardBodyProps> = (props) => {
 	)
 }
 
-Card.Header = CardHeader
-Card.Image = CardImage
-Card.AvatarTitle = CardAvatarTitle
-Card.Content = CardContent
-Card.Body = CardBody
+export const Card: CardComponent = Object.assign(CardRoot, {
+	Header: CardHeader,
+	Image: CardImage,
+	AvatarTitle: CardAvatarTitle,
+	Content: CardContent,
+	Body: CardBody,
+})

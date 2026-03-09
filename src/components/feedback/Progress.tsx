@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, For, Show, splitProps } from 'solid-js'
+import { createEffect, createMemo, For, Show, splitProps, onMount } from 'solid-js'
 import { Progress as KobalteProgress } from '@kobalte/core/progress'
 import { cn } from '../../utilities/classNames'
 
@@ -48,7 +48,7 @@ export interface ProgressProps {
 	/** Striped indicator */
 	isStriped?: boolean
 	/** Disabled state */
-	isDisabled?: boolean
+	disabled?: boolean
 	/** Disable fill animation */
 	disableAnimation?: boolean
 	/** When set, render as segmented bar (e.g. password strength) */
@@ -72,6 +72,33 @@ export interface ProgressProps {
 
 const ANIMATION_NAME = 'torchui-progress-fill'
 const INDETERMINATE_NAME = 'torchui-progress-indeterminate'
+const PROGRESS_STYLE_ID = 'torchui-progress-styles'
+
+function ensureProgressStyles() {
+	if (typeof document === 'undefined') return
+	if (document.getElementById(PROGRESS_STYLE_ID)) return
+	const style = document.createElement('style')
+	style.id = PROGRESS_STYLE_ID
+	style.textContent = `@keyframes ${ANIMATION_NAME} { to { width: 100%; } }
+@keyframes ${INDETERMINATE_NAME} {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(400%); }
+}
+.torchui-progress-stripes {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image: repeating-linear-gradient(
+		-45deg,
+		transparent 0,
+		transparent 10px,
+		rgba(255,255,255,.25) 10px,
+		rgba(255,255,255,.25) 20px
+	);
+	border-radius: inherit;
+}`
+	document.head.appendChild(style)
+}
 
 const SIZE_CLASSES: Record<ProgressSize, string> = {
 	sm: 'h-1',
@@ -132,7 +159,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 		'showValueLabel',
 		'isIndeterminate',
 		'isStriped',
-		'isDisabled',
+		'disabled',
 		'disableAnimation',
 		'segments',
 		'durationMs',
@@ -185,6 +212,8 @@ export function Progress(props: ProgressProps): JSX.Element {
 	)
 	const classNames = () => local.classNames ?? {}
 
+	onMount(ensureProgressStyles)
+
 	return (
 		<KobalteProgress
 			value={isIndeterminate() || durationMs() != null ? undefined : rawValue()}
@@ -200,37 +229,8 @@ export function Progress(props: ProgressProps): JSX.Element {
 			aria-label={ariaLabel()}
 			aria-labelledby={local['aria-labelledby']}
 			aria-describedby={local['aria-describedby']}
-			aria-disabled={local.isDisabled ? true : undefined}
+			aria-disabled={local.disabled ? 'true' : undefined}
 		>
-			{/* Style tags are injected per instance — CSS rules are idempotent so
-			   duplicates are harmless, just slightly wasteful if many Progress bars
-			   are on screen simultaneously. */}
-			<Show when={durationMs() != null || isIndeterminate()}>
-				<style>
-					{`@keyframes ${ANIMATION_NAME} { to { width: 100%; } }
-					@keyframes ${INDETERMINATE_NAME} {
-						0% { transform: translateX(-100%); }
-						100% { transform: translateX(400%); }
-					}`}
-				</style>
-			</Show>
-			<Show when={local.isStriped}>
-				<style>
-					{`.torchui-progress-stripes {
-						position: absolute;
-						inset: 0;
-						pointer-events: none;
-						background-image: repeating-linear-gradient(
-							-45deg,
-							transparent 0,
-							transparent 10px,
-							rgba(255,255,255,.25) 10px,
-							rgba(255,255,255,.25) 20px
-						);
-						border-radius: inherit;
-					}`}
-				</style>
-			</Show>
 			<Show when={local.label != null || valueDisplay() != null}>
 				<div
 					class={cn(

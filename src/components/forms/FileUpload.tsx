@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
-import { createUniqueId, createSignal, createEffect, onCleanup, Show, For, splitProps } from 'solid-js'
-import { File as FileIcon, FileCode, FileImage, FilePlay, FileSpreadsheet, FileText, FileUp, FolderArchive, LoaderCircle, RefreshCw, Trash2, Eye, Loader2 } from 'lucide-solid'
+import { createUniqueId, createSignal, onMount, onCleanup, Show, For, splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { mergeRefs } from '../../utilities/mergeRefs'
 import { Progress } from '../feedback/Progress'
 import { Dialog } from '../overlays/Dialog'
+import { useIcons, type TorchUIIcons } from '../../icons'
 
 /** Single file entry with status and optional progress/error. Parent manages upload and updates these. */
 export interface FileUploadItem {
@@ -42,6 +42,8 @@ export interface FileUploadProps {
 	variant?: FileUploadVariant
 	/** Form-level error (e.g. "No files attached"). */
 	error?: string
+	/** Called when user interacts while a form-level error is shown, allowing the parent to clear it. */
+	onErrorClear?: () => void
 	/** Disabled state. */
 	disabled?: boolean
 	/** Optional id for the hidden input. */
@@ -67,19 +69,19 @@ const SPREADSHEET_EXT = new Set(['csv', 'xls', 'xlsx', 'xlsm', 'ods'])
 const ARCHIVE_EXT = new Set(['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'zst'])
 
 /** Default icon by file type: PDF, image, video, spreadsheet, archive, code/txt, else file. */
-function defaultFileIcon(file: File): JSX.Element {
+function defaultFileIcon(file: File, icons: TorchUIIcons): JSX.Element {
 	const t = (file.type || '').toLowerCase()
 	const ext = (file.name.split('.').pop() ?? '').toLowerCase()
 	const cls = 'h-4 w-4 shrink-0 text-ink-400'
-	if (t === 'application/pdf') return <FileText class={cls} aria-hidden="true" />
-	if (t.startsWith('image/')) return <FileImage class={cls} aria-hidden="true" />
-	if (t.startsWith('video/')) return <FilePlay class={cls} aria-hidden="true" />
+	if (t === 'application/pdf') return icons.fileText({ class: cls, 'aria-hidden': 'true' })
+	if (t.startsWith('image/')) return icons.fileImage({ class: cls, 'aria-hidden': 'true' })
+	if (t.startsWith('video/')) return icons.filePlay({ class: cls, 'aria-hidden': 'true' })
 	if (t === 'text/csv' || t.includes('spreadsheet') || t.includes('excel') || SPREADSHEET_EXT.has(ext))
-		return <FileSpreadsheet class={cls} aria-hidden="true" />
+		return icons.fileSpreadsheet({ class: cls, 'aria-hidden': 'true' })
 	if (t.includes('zip') || t.includes('rar') || t.includes('gzip') || t.includes('compress') || ARCHIVE_EXT.has(ext))
-		return <FolderArchive class={cls} aria-hidden="true" />
-	if (t.startsWith('text/') || CODE_EXT.has(ext)) return <FileCode class={cls} aria-hidden="true" />
-	return <FileIcon class={cls} aria-hidden="true" />
+		return icons.folderArchive({ class: cls, 'aria-hidden': 'true' })
+	if (t.startsWith('text/') || CODE_EXT.has(ext)) return icons.fileCode({ class: cls, 'aria-hidden': 'true' })
+	return icons.file({ class: cls, 'aria-hidden': 'true' })
 }
 
 function formatFileSize(bytes: number): string {
@@ -145,6 +147,7 @@ export function FileUpload(props: FileUploadProps) {
 		'maxFileSize',
 		'variant',
 		'error',
+		'onErrorClear',
 		'disabled',
 		'id',
 		'ref',
@@ -155,6 +158,7 @@ export function FileUpload(props: FileUploadProps) {
 		'fileIcon',
 		'fileInline',
 	])
+	const icons = useIcons()
 
 	const uid = createUniqueId()
 	const id = () => local.id ?? `file-upload-${uid}`
@@ -167,7 +171,7 @@ export function FileUpload(props: FileUploadProps) {
 	const maxFiles = () =>
 		local.maxFiles ?? (isMultiple() ? DEFAULT_MAX_FILES : 1)
 	const fileIcon = (file: File) =>
-		local.fileIcon ? local.fileIcon(file) : defaultFileIcon(file)
+		local.fileIcon ? local.fileIcon(file) : defaultFileIcon(file, icons)
 	const canAddMore = () => local.files.length < maxFiles()
 	const atLimit = () => !canAddMore()
 	const [dragDepth, setDragDepth] = createSignal(0)
@@ -180,8 +184,7 @@ export function FileUpload(props: FileUploadProps) {
 		Array.from(e.dataTransfer?.types ?? []).includes('Files')
 
 	// Reset drag depth if the cursor leaves the window or the drag ends elsewhere
-	createEffect(() => {
-		if (typeof window === 'undefined') return
+	onMount(() => {
 		const reset = () => setDragDepth(0)
 		const onWinDragLeave = (e: DragEvent) => {
 			if ((e as any).relatedTarget == null) reset()
@@ -217,6 +220,7 @@ export function FileUpload(props: FileUploadProps) {
 
 	const handleInputChange = (e: Event) => {
 		setValidationErrors([])
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		const input = e.currentTarget as HTMLInputElement
 		const list = input.files
 		if (!list?.length) return
@@ -237,6 +241,7 @@ export function FileUpload(props: FileUploadProps) {
 		e.preventDefault()
 		setDragDepth(0)
 		setValidationErrors([])
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		if (local.disabled || atLimit()) return
 		const list = e.dataTransfer?.files
 		if (!list?.length) return
@@ -351,9 +356,9 @@ export function FileUpload(props: FileUploadProps) {
 									if (zoneDisabled()) return
 									if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputEl?.click() }
 								}}
-								class="flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-1 px-4 py-6 text-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 rounded-lg"
+								class="flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-1 px-4 py-6 text-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 rounded-lg"
 							>
-								<FileUp class="h-8 w-8 text-ink-400" />
+								{icons.fileUpload({ class: 'h-8 w-8 text-ink-400', 'aria-hidden': 'true' })}
 								<span class="text-sm font-medium text-ink-700">
 									Choose a file or drag & drop here
 								</span>
@@ -368,7 +373,7 @@ export function FileUpload(props: FileUploadProps) {
 					>
 						<div class="flex min-h-[140px] flex-col items-center justify-center gap-3 px-4 py-6">
 							<div class="flex flex-col items-center justify-center gap-1 text-center">
-								<FileUp class="h-10 w-10 text-ink-400" />
+								{icons.fileUpload({ class: 'h-10 w-10 text-ink-400', 'aria-hidden': 'true' })}
 								<span class="text-sm font-medium text-ink-700">
 									Drag and drop your files here
 								</span>
@@ -387,18 +392,13 @@ export function FileUpload(props: FileUploadProps) {
 								onClick={() => inputEl?.click()}
 								disabled={local.disabled || atLimit()}
 								class={cn(
-									'inline-flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-ink-900',
+									'inline-flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 									(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
 								)}
 							>
-								<FileUp class="h-4 w-4" />
+								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 								Browse
 							</button>
-						</div>
-					</Show>
-					<Show when={local.actions}>
-						<div class="flex w-full items-center justify-between gap-2 border-t border-surface-border px-4 py-3">
-							{local.actions}
 						</div>
 					</Show>
 				</div>
@@ -407,124 +407,123 @@ export function FileUpload(props: FileUploadProps) {
 
 			{variant() === 'button' && (
 				<>
-				<Show when={!hideTrigger()}>
-				<div class="flex flex-wrap items-center gap-2">
-					<input
-						ref={mergeRefs((el: HTMLInputElement) => (inputEl = el), local.ref)}
-						id={id()}
-						type="file"
-						accept={local.accept}
-						multiple={isMultiple()}
-						onChange={handleInputChange}
-						disabled={local.disabled || atLimit()}
-						class="sr-only"
-						aria-labelledby={local.label ? labelId() : undefined}
-						aria-label={local.label ? undefined : 'Browse files'}
-						aria-describedby={describedBy()}
-						aria-invalid={hasAnyError() ? 'true' : undefined}
-						aria-errormessage={ariaErrorMessage()}
-					/>
-					<button
-						type="button"
-						onClick={() => inputEl?.click()}
-						disabled={local.disabled || atLimit()}
-						class={cn(
-							'inline-flex items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm font-medium text-ink-700 hover:bg-surface-overlay transition-colors',
-							(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
-						)}
-					>
-						<FileUp class="h-4 w-4" />
-						Browse Files
-					</button>
-					<Show when={local.description}>
-						<span class="text-sm text-ink-500">{local.description}</span>
-					</Show>
-					<Show when={local.fileInline && local.files.length > 0}>
-						<div class="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2">
-							<Show
-								when={local.files.length === 1 && local.files[0]}
-								fallback={
-									<span class="min-w-0 flex-1 text-sm text-ink-900">
-										{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
-									</span>
-								}
-							>
-								<>
-									{local.files[0] && fileIcon(local.files[0].file)}
-									<span class="min-w-0 flex-1 truncate text-sm font-medium text-ink-900">
-										{local.files[0]?.file.name}
-									</span>
-									<span class="shrink-0 text-xs text-ink-500">
-										{local.files[0] && formatFileSize(local.files[0].file.size)}
-									</span>
-								</>
-							</Show>
+					<Show when={!hideTrigger()}>
+						<div class="flex flex-wrap items-center gap-2">
+							<input
+								ref={mergeRefs((el: HTMLInputElement) => (inputEl = el), local.ref)}
+								id={id()}
+								type="file"
+								accept={local.accept}
+								multiple={isMultiple()}
+								onChange={handleInputChange}
+								disabled={local.disabled || atLimit()}
+								class="sr-only"
+								aria-labelledby={local.label ? labelId() : undefined}
+								aria-label={local.label ? undefined : 'Browse files'}
+								aria-describedby={describedBy()}
+								aria-invalid={hasAnyError() ? 'true' : undefined}
+								aria-errormessage={ariaErrorMessage()}
+							/>
 							<button
 								type="button"
-								onClick={() => setViewModalOpen(true)}
-								class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800 dark:hover:text-ink-200"
-								aria-label="View files"
+								onClick={() => inputEl?.click()}
+								disabled={local.disabled || atLimit()}
+								class={cn(
+									'inline-flex items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm font-medium text-ink-700 hover:bg-surface-overlay transition-colors',
+									(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
+								)}
 							>
-								<Eye class="h-4 w-4" />
+								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+								Browse Files
 							</button>
+							<Show when={local.description}>
+								<span class="text-sm text-ink-500">{local.description}</span>
+							</Show>
+							<Show when={local.fileInline && local.files.length > 0}>
+								<div class="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2">
+									<Show
+										when={local.files.length === 1 && local.files[0]}
+										fallback={
+											<span class="min-w-0 flex-1 text-sm text-ink-900">
+												{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
+											</span>
+										}
+									>
+										<>
+											{local.files[0] && fileIcon(local.files[0].file)}
+											<span class="min-w-0 flex-1 truncate text-sm font-medium text-ink-900">
+												{local.files[0]?.file.name}
+											</span>
+											<span class="shrink-0 text-xs text-ink-500">
+												{local.files[0] && formatFileSize(local.files[0].file.size)}
+											</span>
+										</>
+									</Show>
+									<button
+										type="button"
+										onClick={() => setViewModalOpen(true)}
+										class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+										aria-label="View files"
+									>
+										{icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+									</button>
+								</div>
+							</Show>
 						</div>
 					</Show>
-					<Show when={local.actions}>{local.actions}</Show>
-				</div>
-				</Show>
-				<Dialog
-					open={viewModalOpen()}
-					onClose={() => setViewModalOpen(false)}
-					size="md"
-					showCloseButton
-				>
-					<h2 class="text-lg font-semibold text-ink-900">
-						{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
-					</h2>
-					<ul class="mt-3 space-y-2" aria-label="Uploaded files">
-						<For each={local.files}>
-							{(item) => (
-								<li class="flex items-center gap-2 rounded-lg border border-surface-border bg-surface-base px-3 py-2">
-									{fileIcon(item.file)}
-									<span class="min-w-0 flex-1 truncate text-sm font-medium text-ink-900">
-										{item.file.name}
-									</span>
-									<span class="shrink-0 text-xs text-ink-500">
-										{formatFileSize(item.file.size)}
-									</span>
-									<span class="shrink-0 text-xs text-ink-500">
-										{item.status === 'done' && 'Uploaded'}
-										{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : '…')}
-										{item.status === 'error' && (item.error ?? 'Failed')}
-										{item.status === 'pending' && 'Pending'}
-									</span>
-									<div class="flex shrink-0 items-center gap-1">
-										{item.status === 'error' && local.onRetry && (
+					<Dialog
+						open={viewModalOpen()}
+						onClose={() => setViewModalOpen(false)}
+						size="md"
+						showCloseButton
+					>
+						<h2 class="text-lg font-semibold text-ink-900">
+							{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
+						</h2>
+						<ul class="mt-3 space-y-2" aria-label="Uploaded files">
+							<For each={local.files}>
+								{(item) => (
+									<li class="flex items-center gap-2 rounded-lg border border-surface-border bg-surface-base px-3 py-2">
+										{fileIcon(item.file)}
+										<span class="min-w-0 flex-1 truncate text-sm font-medium text-ink-900">
+											{item.file.name}
+										</span>
+										<span class="shrink-0 text-xs text-ink-500">
+											{formatFileSize(item.file.size)}
+										</span>
+										<span class="shrink-0 text-xs text-ink-500">
+											{item.status === 'done' && 'Uploaded'}
+											{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : '…')}
+											{item.status === 'error' && (item.error ?? 'Failed')}
+											{item.status === 'pending' && 'Pending'}
+										</span>
+										<div class="flex shrink-0 items-center gap-1">
+											{item.status === 'error' && local.onRetry && (
+												<button
+													type="button"
+													onClick={() => local.onRetry?.(item.id)}
+													class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+													aria-label={`Retry ${item.file.name}`}
+												>
+													{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+												</button>
+											)}
 											<button
 												type="button"
-												onClick={() => local.onRetry?.(item.id)}
-												class="rounded p-1 text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800 dark:hover:text-ink-200"
-												aria-label={`Retry ${item.file.name}`}
+												onClick={() => local.onRemove(item.id)}
+												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+												aria-label={`Remove ${item.file.name}`}
 											>
-												<RefreshCw class="h-4 w-4" />
+												{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
-										)}
-										<button
-											type="button"
-											onClick={() => local.onRemove(item.id)}
-											class="rounded p-1 text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800 dark:hover:text-ink-200"
-											aria-label={`Remove ${item.file.name}`}
-										>
-											<Trash2 class="h-4 w-4" />
-										</button>
-									</div>
-								</li>
-							)}
-						</For>
-					</ul>
-				</Dialog>
-				</>
-			)}
+										</div>
+									</li>
+								)}
+							</For>
+						</ul>
+					</Dialog>
+					</>
+				)}
 
 			{/* File list below (when not button+fileInline, or when dropzone / single file with trigger hidden) */}
 			<Show when={showFileListBelow()}>
@@ -548,25 +547,25 @@ export function FileUpload(props: FileUploadProps) {
 									</span>
 									<div class="flex shrink-0 items-center gap-1">
 										{item.status === 'uploading' && (
-											<LoaderCircle class="h-4 w-4 animate-spin text-ink-400" aria-hidden="true" />
+											icons.spinner({ class: 'h-4 w-4 animate-spin text-ink-400', 'aria-hidden': 'true' })
 										)}
 										{item.status === 'error' && local.onRetry && (
 											<button
 												type="button"
 												onClick={() => local.onRetry?.(item.id)}
-												class="rounded p-1 text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800 dark:hover:text-ink-200"
+												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
 												aria-label={`Retry ${item.file.name}`}
 											>
-												<RefreshCw class="h-4 w-4" />
+												{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
 										)}
 										<button
 											type="button"
 											onClick={() => local.onRemove(item.id)}
-											class="rounded p-1 text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-ink-800 dark:hover:text-ink-200"
+											class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
 											aria-label={`Remove ${item.file.name}`}
 										>
-											<Trash2 class="h-4 w-4" />
+											{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 										</button>
 									</div>
 								</div>
@@ -585,6 +584,12 @@ export function FileUpload(props: FileUploadProps) {
 				</ul>
 			</Show>
 
+			<Show when={local.actions && !(variant() === 'button' && local.fileInline)}>
+				<div class="mt-3 flex w-full items-center justify-between gap-2">
+					{local.actions}
+				</div>
+			</Show>
+
 			<Show when={summary() && !(variant() === 'button' && local.fileInline)}>
 				<p class="mt-2 text-xs text-ink-500">{summary()}</p>
 			</Show>
@@ -592,7 +597,9 @@ export function FileUpload(props: FileUploadProps) {
 			<Show when={local.description || limitsText()}>
 				<span id={descId()} class="sr-only">
 					{/* In button variant, description is visible — only include limits here to avoid double-announce */}
-					{variant() === 'button' ? limitsText() : <>{local.description}{local.description && limitsText() ? ' ' : ''}{limitsText()}</>}
+					{variant() === 'button'
+						? limitsText()
+						: <>{local.description}{local.description && limitsText() ? ' ' : ''}{limitsText()}</>}
 				</span>
 			</Show>
 

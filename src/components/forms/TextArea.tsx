@@ -79,11 +79,12 @@ export function TextArea(props: TextAreaProps) {
 	const maxLen = () => local.maxLength ?? 0
 	const atOrOverLimit = () => maxLen() > 0 && currentLength() >= maxLen()
 	const nearLimit = () => maxLen() > 0 && currentLength() >= maxLen() * 0.9 && currentLength() < maxLen()
+	const hasMaxLengthError = () => atOrOverLimit()
 	const countColorClass = () =>
 		atOrOverLimit()
 			? 'text-danger-600 dark:text-danger-400'
 			: nearLimit()
-				? 'text-amber-600 dark:text-amber-400'
+				? 'text-warning-600 dark:text-warning-400'
 				: 'text-ink-500'
 
 	let textareaRef: HTMLTextAreaElement | undefined
@@ -130,7 +131,7 @@ export function TextArea(props: TextAreaProps) {
 
 	return (
 		<KobalteTextField
-			value={valueString()}
+			value={local.value != null ? valueString() : undefined}
 			onChange={handleChange}
 			validationState={hasError() ? 'invalid' : undefined}
 			required={local.required}
@@ -139,15 +140,10 @@ export function TextArea(props: TextAreaProps) {
 		>
 			<Show when={!local.bare && local.label}>
 				<div class="flex items-center justify-between gap-2 mb-1.5">
-					<KobalteTextField.Label
-						class={cn(
-							'block text-md font-medium',
-							hasError() ? 'text-danger-600' : 'text-ink-700',
-						)}
-					>
+					<KobalteTextField.Label class={cn('block text-md font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 						{local.label}
 						<Show when={local.required}>
-							<span class="text-danger-500 dark:text-danger-400 ml-0.5" aria-hidden="true">*</span>
+							<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
 						</Show>
 					</KobalteTextField.Label>
 					<Show when={local.label && !local.required && local.optional}>
@@ -162,16 +158,16 @@ export function TextArea(props: TextAreaProps) {
 				onInput={handleInput}
 				rows={local.rows ?? 3}
 				maxLength={local.maxLength}
-				aria-invalid={hasError() ? 'true' : undefined}
+				aria-invalid={hasError() || hasMaxLengthError() ? 'true' : undefined}
 				aria-describedby={describedBy()}
 				aria-errormessage={hasError() ? errorId() : undefined}
 				class={cn(
-					'w-full py-3 px-4 rounded-lg transition-all outline-none border text-base text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 min-h-[80px] bg-surface-raised',
+					'w-full py-3 px-4 rounded-lg transition-all outline-none border text-base text-ink-900 placeholder:text-ink-400 min-h-[80px] bg-surface-raised',
 					resizeClass(),
-					hasError()
+					hasError() || hasMaxLengthError()
 						? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
-						: 'border-ink-300 focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-					'disabled:bg-surface-base disabled:text-ink-500 dark:disabled:text-ink-500 disabled:cursor-not-allowed',
+						: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
+					'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
 					local.inputClass,
 				)}
 				{...others}

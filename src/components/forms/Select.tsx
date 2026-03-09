@@ -1,8 +1,9 @@
 import { createSignal, createUniqueId, splitProps, Show, type JSX } from 'solid-js'
-import { Check, ChevronDown } from 'lucide-solid'
 import { Select as KobalteSelect } from '@kobalte/core/select'
 import { cn } from '../../utilities/classNames'
-import { type ComponentSize, inputSizeConfig } from '../../utilities/componentSize'
+import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
+import { useIcons } from '../../icons'
+import { useComponentSize } from '../../utilities/componentSizeContext'
 
 export interface SelectOption {
 	value: string
@@ -11,6 +12,11 @@ export interface SelectOption {
 	icon?: JSX.Element
 	/** Optional hex or CSS color for a status dot (e.g. #22c55e). When set, a small colored dot is shown before the label; useful for status/state fields. */
 	color?: string | null
+}
+
+function renderIcon(icon: JSX.Element | undefined) {
+	if (!icon) return icon
+	return icon instanceof Node ? icon.cloneNode(true) : icon
 }
 
 function statusColorStyle(color: string | null | undefined): string | undefined {
@@ -30,7 +36,7 @@ function StatusDot(props: { color?: string | null }) {
 			class="size-2.5 shrink-0 rounded-full border border-ink-200/80/80"
 			classList={{ 'bg-ink-400': !statusColorStyle(props.color) }}
 			style={style()}
-			aria-hidden
+			aria-hidden="true"
 		/>
 	)
 }
@@ -85,8 +91,10 @@ export const Select = (props: SelectProps) => {
 		'ref',
 		'id',
 	])
+	const icons = useIcons()
+	const contextSize = useComponentSize()
 	const [searchQuery, setSearchQuery] = createSignal('')
-	const sc = () => inputSizeConfig[local.size ?? 'md']
+	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
 
 	const hasError = () => !!local.error
 	const uid = createUniqueId()
@@ -140,7 +148,7 @@ export const Select = (props: SelectProps) => {
 				itemComponent={(itemProps) => (
 					<KobalteSelect.Item
 						item={itemProps.item}
-						class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 dark:data-[highlighted]:bg-primary-500/20 dark:data-[highlighted]:text-primary-200 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+						class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
 					>
 						<KobalteSelect.ItemLabel class="flex-1">
 							<span class="flex min-w-0 items-center gap-2">
@@ -148,13 +156,13 @@ export const Select = (props: SelectProps) => {
 									<StatusDot color={itemProps.item.rawValue.color} />
 								</Show>
 								<Show when={itemProps.item.rawValue.icon}>
-									<span class="flex-shrink-0 text-ink-500">{itemProps.item.rawValue.icon}</span>
+									<span class="flex-shrink-0 text-ink-500">{renderIcon(itemProps.item.rawValue.icon)}</span>
 								</Show>
 								<span class="min-w-0 truncate">{itemProps.item.rawValue.label}</span>
 							</span>
 						</KobalteSelect.ItemLabel>
 						<KobalteSelect.ItemIndicator class="inline-flex items-center">
-							<Check class="w-4 h-4 text-primary-500" />
+							{icons.check({ class: 'w-4 h-4 text-primary-500', 'aria-hidden': 'true' })}
 						</KobalteSelect.ItemIndicator>
 					</KobalteSelect.Item>
 				)}
@@ -164,7 +172,7 @@ export const Select = (props: SelectProps) => {
 						<KobalteSelect.Label class="block text-md font-medium text-ink-700">
 							{local.label}
 							<Show when={local.required}>
-								<span class="ml-0.5 text-danger-500 dark:text-danger-400" aria-hidden="true">*</span>
+								<span class="ml-0.5 text-danger-500" aria-hidden="true">*</span>
 							</Show>
 						</KobalteSelect.Label>
 						<Show when={local.label && !local.required && local.optional}>
@@ -178,8 +186,8 @@ export const Select = (props: SelectProps) => {
 						'w-full flex flex-col min-h-0 rounded-lg border transition-all overflow-hidden',
 						sc().h,
 						hasError()
-							? 'border-danger-500 focus-within:ring-2 focus-within:ring-danger-500 focus-within:border-transparent'
-							: 'border-ink-300 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent',
+							? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500 focus-within:border-transparent'
+							: 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 focus-within:border-transparent',
 						'bg-surface-raised'
 					)}
 				>
@@ -188,13 +196,13 @@ export const Select = (props: SelectProps) => {
 						aria-describedby={describedBy()}
 						aria-errormessage={hasError() ? errorId() : undefined}
 						class={cn(
-							'w-full h-full min-h-0 min-w-0 flex items-center gap-1 rounded-lg transition-all outline-none bg-transparent text-ink-900 text-left border-0 focus:ring-0',
+							'w-full h-full min-w-0 flex items-center gap-1 rounded-lg transition-all outline-none bg-transparent text-ink-900 text-left border-0 focus:ring-0',
 							sc().py, sc().text, sc().pl, sc().pr,
 							hasError()
 								? 'focus:border-transparent'
 								: '',
-							'disabled:bg-surface-base disabled:text-ink-500 dark:disabled:text-ink-500 disabled:cursor-not-allowed',
-							'data-[placeholder-shown]:text-ink-400 dark:data-[placeholder-shown]:text-ink-500',
+							'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
+							'data-[placeholder-shown]:text-ink-400',
 							local.triggerClass
 						)}
 					>
@@ -208,7 +216,7 @@ export const Select = (props: SelectProps) => {
 											<StatusDot color={opt.color} />
 										</Show>
 										<Show when={opt.icon}>
-											<span class="shrink-0 text-ink-500">{opt.icon}</span>
+											<span class="shrink-0 text-ink-500">{renderIcon(opt.icon)}</span>
 										</Show>
 										<span class="min-w-0 truncate">{opt.label}</span>
 									</span>
@@ -216,7 +224,7 @@ export const Select = (props: SelectProps) => {
 							}}
 						</KobalteSelect.Value>
 						<KobalteSelect.Icon class="inline-flex shrink-0 w-4 items-center justify-center text-ink-400">
-							<ChevronDown class="h-3.5 w-3.5" aria-hidden="true" />
+							{icons.chevronDown({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 						</KobalteSelect.Icon>
 					</KobalteSelect.Trigger>
 				</div>
@@ -253,7 +261,10 @@ export const Select = (props: SelectProps) => {
 									value={searchQuery()}
 									onInput={(e) => setSearchQuery(e.currentTarget.value)}
 									placeholder="Search..."
-									class="h-9 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+									class={cn(
+										'h-9 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 outline-none focus:ring-2 focus:ring-inset focus:border-transparent',
+										hasError() ? 'focus:ring-danger-500' : 'focus:ring-primary-500'
+									)}
 								/>
 							</div>
 						</Show>

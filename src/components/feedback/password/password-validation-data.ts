@@ -30,12 +30,9 @@ export const COMMON_WORDS = [
 	'welcome123',
 ] as const
 
-// Longer walks cover shorter prefixes (e.g. 'qwertyuiop' covers 'qwerty').
-// Only unique, non-substring walks are listed.
 export const KEYBOARD_WALKS = [
-	'qwertyuiop',  // covers 'qwerty'
-	'asdfghjkl',   // covers 'asdfgh', 'asdf'
-	'zxcvbnm',     // covers 'zxcvbn'
+	'qwertyuiop',
+	'asdfghjkl',
 	'qazwsx',
 	'1qaz2wsx',
 	'qweasd',
@@ -50,8 +47,6 @@ export const KEYBOARD_WALKS = [
 	'xsw2zaq',
 ] as const
 
-// Full forward + reverse covers all shorter subsequences (e.g. '0123456789' covers '1234', '012', etc.).
-// '1234567890' and '0987654321' wrap around (9→0) and are NOT substrings of the straight sequences.
 export const SEQUENTIAL_DIGITS = [
 	'0123456789',
 	'1234567890',

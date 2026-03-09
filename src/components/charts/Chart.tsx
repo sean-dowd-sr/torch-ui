@@ -1,4 +1,4 @@
-import { onMount, onCleanup, createEffect, createSignal, createRoot, splitProps } from 'solid-js'
+import { onMount, onCleanup, createEffect, createSignal, createRoot, splitProps, untrack } from 'solid-js'
 import type { ChartConfiguration } from 'chart.js'
 import { cn } from '../../utilities/classNames'
 
@@ -38,15 +38,20 @@ export interface ChartProps {
 	class?: string
 }
 
-/** Reads current theme from body class. */
+/** Reads current theme from html element class. */
 function isDark(): boolean {
 	if (typeof document === 'undefined') return false
-	return document.body.classList.contains('dark')
+	return document.documentElement.classList.contains('dark')
 }
 
 /** Shared dark-mode signal — one MutationObserver for all Chart instances.
  *  Created inside createRoot so the signal is ownerless/global and not tied
- *  to the reactive root of whichever component first calls getSharedDark(). */
+ *  to the reactive root of whichever component first calls getSharedDark().
+ *
+ *  Module-level state: persists for the lifetime of the module. In test
+ *  environments that share module instances across tests, the observer from a
+ *  previous test will persist. Reset sharedDarkSignal = null and
+ *  sharedDarkRefCount = 0 in test teardown if needed. */
 let sharedDarkSignal: { dark: () => boolean; subscribe: () => void; unsubscribe: () => void } | null = null
 let sharedDarkRefCount = 0
 
@@ -61,7 +66,7 @@ function getSharedDark() {
 					sharedDarkRefCount++
 					if (sharedDarkRefCount === 1 && typeof document !== 'undefined') {
 						observer = new MutationObserver(() => setDark(isDark()))
-						observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+						observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 					}
 				},
 				unsubscribe() {
@@ -156,10 +161,7 @@ function buildConfig(
 	const gridColor = THEME.gridColor(dark)
 	const tickColor = THEME.tickColor(dark)
 	const isScatterOrBubble = type === 'scatter' || type === 'bubble'
-	// Chart.js generics are loose — ChartConfiguration<ChartType>['data']['datasets'] is a union of
-	// all chart-type dataset arrays. We infer the element type so individual dataset objects can be
-	// built without casting to the full union. The `as DatasetItem` casts below are safe because
-	// buildConfig is always called with a concrete type that matches the dataset shape.
+
 	type ChartDataConfig = ChartConfiguration<ChartType>['data']
 	type DatasetItem = NonNullable<ChartDataConfig>['datasets'] extends (infer D)[] ? D : never
 	const datasets: DatasetItem[] = data.datasets.map((ds) => {
@@ -235,7 +237,8 @@ export function Chart(props: ChartProps) {
 	const [chartReady, setChartReady] = createSignal(false)
 	const sharedDark = getSharedDark()
 	const dark = sharedDark.dark
-	let currentType: ChartType = local.type
+	const [currentType, setCurrentType] = createSignal<ChartType>(local.type)
+	let skipNextUpdate = false
 
 	function destroyChart() {
 		if (chartInstance) {
@@ -252,28 +255,39 @@ export function Chart(props: ChartProps) {
 		if (type === 'doughnut' || type === 'pie') {
 			applySegmentBorders(chartInstance, type, dark())
 		}
-		currentType = type
+		setCurrentType(type)
 	}
 
 	onMount(async () => {
 		if (!canvasEl) return
-		const mod = await import('chart.js/auto')
-		ChartConstructor = mod.Chart
-		createChart(local.type)
-		sharedDark.subscribe()
-		setChartReady(true)
+		try {
+			const mod = await import('chart.js/auto')
+			ChartConstructor = mod.Chart
+			createChart(local.type)
+			sharedDark.subscribe()
+			skipNextUpdate = true
+			setChartReady(true)
+		} catch (e) {
+			if (import.meta.env.DEV) console.error('Chart: failed to load chart.js/auto', e)
+		}
 	})
 
-	// Single update path for data, options, fill, type, and theme changes.
+
 	createEffect(() => {
 		if (!chartReady()) return
+
 		const currentDark = dark()
 		const opts = local.options
 		const fill = local.fill
 		const type = local.type
+		const data = local.data
 
-		// Type changed — must destroy + recreate (Chart.js requirement).
-		if (type !== currentType) {
+		if (skipNextUpdate) {
+			skipNextUpdate = false
+			return
+		}
+
+		if (type !== untrack(currentType)) {
 			createChart(type)
 			return
 		}
@@ -281,18 +295,17 @@ export function Chart(props: ChartProps) {
 		const ci = chartInstance
 		if (!ci) return
 
-		// Empty datasets — clear the chart.
-		if (!local.data.datasets.length) {
+		if (!data.datasets.length) {
 			ci.data.labels = []
 			ci.data.datasets = []
 			ci.update('none')
 			return
 		}
 
-		const config = buildConfig(type, local.data, currentDark, opts, fill)
+		const config = buildConfig(type, data, currentDark, opts, fill)
 		ci.options = config.options!
-		ci.data.labels = local.data.labels
-		ci.data.datasets = local.data.datasets.map((ds, i) => {
+		ci.data.labels = data.labels
+		ci.data.datasets = data.datasets.map((ds, i) => {
 			const prev = ci.data.datasets[i] as unknown as Record<string, unknown> | undefined
 			return {
 				...(prev ?? {}),
@@ -324,6 +337,7 @@ export function Chart(props: ChartProps) {
 			aria-label={local['aria-label']}
 			aria-labelledby={local['aria-labelledby']}
 			role={hasAccessibleName() ? 'img' : undefined}
+			tabIndex={hasAccessibleName() ? 0 : undefined}
 		>
 			<canvas ref={canvasEl} />
 		</div>

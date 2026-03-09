@@ -1,4 +1,4 @@
-import { type JSX, Show, For, splitProps } from 'solid-js'
+import { type JSX, Show, For, splitProps, createMemo } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 
 export type TimelineItemStatus = 'completed' | 'active' | 'pending' | 'error'
@@ -39,15 +39,15 @@ export interface TimelineProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 
 const statusDotClass: Record<TimelineItemStatus, string> = {
 	completed: 'bg-success-500 text-white',
 	active: 'bg-primary-500 text-white ring-4 ring-primary-500/20',
-	pending: 'bg-surface-border text-ink-400 border-2 border-ink-300',
+	pending: 'bg-surface-raised text-ink-400 border-2 border-surface-border',
 	error: 'bg-danger-500 text-white',
 }
 
 const statusConnectorClass: Record<TimelineItemStatus, string> = {
-	completed: 'border-success-300 dark:border-success-700',
-	active: 'border-primary-300 dark:border-primary-700',
-	pending: 'border-ink-200 dark:border-ink-700',
-	error: 'border-danger-300 dark:border-danger-700',
+	completed: 'border-success-300',
+	active: 'border-primary-300',
+	pending: 'border-surface-border',
+	error: 'border-danger-300',
 }
 
 function CheckIcon() {
@@ -90,15 +90,15 @@ export function Timeline(props: TimelineProps) {
 	const showConnector = () => local.showConnector !== false
 	const timeLeft = () => local.timeLeft ?? false
 
-	const compact = () => variant() === 'compact'
-	const outlined = () => variant() === 'outlined'
+	const compact = createMemo(() => variant() === 'compact')
+	const outlined = createMemo(() => variant() === 'outlined')
 
-	const connectorBorderStyle = () => {
+	const connectorBorderStyle = createMemo(() => {
 		const style = connector()
 		if (style === 'dashed') return 'border-dashed'
 		if (style === 'dotted') return 'border-dotted'
 		return 'border-solid'
-	}
+	})
 
 	return (
 		<div
@@ -149,7 +149,7 @@ export function Timeline(props: TimelineProps) {
 												'flex-1 border-l-2 my-1',
 												connectorBorderStyle(),
 												item.color
-													? 'border-ink-200 dark:border-ink-700'
+													? 'border-surface-border'
 													: statusConnectorClass[status()],
 											)}
 											style={{ 'min-height': compact() ? '1rem' : '1.5rem' }}

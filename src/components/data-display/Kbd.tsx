@@ -68,7 +68,7 @@ export function Kbd(props: KbdProps) {
 	return (
 		<kbd
 			class={cn(
-				'inline-flex items-center justify-center font-mono font-medium leading-none text-ink-600',
+				'inline-flex items-center justify-center font-mono font-medium leading-none text-ink-700',
 				variantClasses[variant()],
 				sizeClasses[size()],
 				local.class,
@@ -97,7 +97,7 @@ export function KbdShortcut(props: KbdShortcutProps) {
 					<>
 						<Show when={i() > 0}>
 							<span
-								class="mx-0.5 select-none font-sans text-[10px] text-ink-400"
+								class="mx-0.5 select-none font-sans text-[10px] text-ink-500"
 								aria-hidden="true"
 							>
 								{sep()}

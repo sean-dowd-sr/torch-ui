@@ -1,11 +1,13 @@
-import { type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps, onMount } from 'solid-js'
 import { Collapsible as KobalteCollapsible, type CollapsibleContentProps as KobalteCollapsibleContentProps, type CollapsibleTriggerProps as KobalteCollapsibleTriggerProps } from '@kobalte/core/collapsible'
-import { ChevronDown } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export const CollapsibleRoot = KobalteCollapsible
 export const CollapsibleTrigger = KobalteCollapsible.Trigger
 export const CollapsibleContent = KobalteCollapsible.Content
+
+export type CollapsibleStyledVariant = 'default' | 'minimal'
 
 const COLLAPSIBLE_STYLE_ID = 'torchui-collapsible-styles'
 
@@ -35,22 +37,26 @@ function ensureCollapsibleStyles() {
 	document.head.appendChild(style)
 }
 
-// Inject styles once on module load (client-side only)
-// Note: In SSR, keyframes won't exist until client module runs, so first interaction may be unanimated
-if (typeof document !== 'undefined') {
-	ensureCollapsibleStyles()
-}
-
 export interface CollapsibleContentProps extends KobalteCollapsibleContentProps {
+	variant?: CollapsibleStyledVariant
 	class?: string
 	children?: JSX.Element
 }
 
 export function CollapsibleContentStyled(props: CollapsibleContentProps) {
-	const [local, others] = splitProps(props, ['class', 'children'])
+	const [local, others] = splitProps(props, ['variant', 'class', 'children'])
+	onMount(ensureCollapsibleStyles)
+	const variant = () => local.variant ?? 'default'
 	return (
 		<KobalteCollapsible.Content
-			class={cn('collapsible-content overflow-hidden', local.class)}
+			class={cn(
+				'collapsible-content overflow-hidden',
+				variant() === 'default' && [
+					'data-[expanded]:border data-[expanded]:border-surface-border data-[expanded]:border-t-0',
+					'data-[expanded]:rounded-b-lg data-[expanded]:bg-surface-raised',
+				],
+				local.class,
+			)}
 			{...others}
 		>
 			{local.children}
@@ -59,26 +65,40 @@ export function CollapsibleContentStyled(props: CollapsibleContentProps) {
 }
 
 export interface CollapsibleTriggerStyledProps extends KobalteCollapsibleTriggerProps {
+	variant?: CollapsibleStyledVariant
 	class?: string
 	children?: JSX.Element
 }
 
 export function CollapsibleTriggerStyled(props: CollapsibleTriggerStyledProps) {
-	const [local, others] = splitProps(props, ['class', 'children'])
+	const [local, others] = splitProps(props, ['variant', 'class', 'children'])
+	const variant = () => local.variant ?? 'default'
+	const icons = useIcons()
 	return (
 		<KobalteCollapsible.Trigger
 			class={cn(
-				'flex w-full items-center justify-between gap-2 rounded-lg border border-surface-border bg-surface-base px-4 py-3 text-left text-sm font-medium text-ink-800',
-				'hover:bg-surface-overlay',
-				'data-[expanded]:rounded-b-none data-[expanded]:bg-surface-overlay',
+				'flex w-full items-center justify-between gap-2 text-left',
+				variant() === 'default'
+					? [
+						'rounded-lg border border-surface-border bg-surface-base px-4 py-3 text-sm font-medium text-ink-800',
+						'hover:bg-surface-overlay',
+						'data-[expanded]:rounded-b-none data-[expanded]:bg-surface-overlay',
+					]
+					: [
+						'rounded-lg px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-ink-500',
+						'hover:bg-transparent hover:text-ink-700',
+						'data-[expanded]:text-ink-700',
+					],
 				'data-[expanded]:[&>svg]:rotate-180',
-				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+				variant() === 'default'
+					? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
+					: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset',
 				local.class
 			)}
 			{...others}
 		>
 			{local.children}
-			<ChevronDown class="h-4 w-4 shrink-0 transition-transform duration-200" aria-hidden="true" />
+			{icons.chevronDown({ class: 'h-4 w-4 shrink-0 transition-transform duration-200', 'aria-hidden': 'true' })}
 		</KobalteCollapsible.Trigger>
 	)
 }

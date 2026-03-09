@@ -2,7 +2,7 @@ import { createSignal, onCleanup } from 'solid-js'
 
 const COPIED_RESET_MS = 2000
 
-const hasAsyncClipboard = () =>
+const hasAsyncClipboard =
     typeof navigator !== 'undefined' &&
     !!navigator.clipboard &&
     typeof navigator.clipboard.writeText === 'function'
@@ -16,16 +16,14 @@ export function useCopyToClipboard(): [
     () => boolean,
     () => 'idle' | 'copied' | 'error',
 ] {
-    const [copied, setCopied] = createSignal(false)
     const [status, setStatus] = createSignal<'idle' | 'copied' | 'error'>('idle')
+    const copied = () => status() === 'copied'
     let timeoutId: ReturnType<typeof setTimeout> | undefined
 
     function setCopiedWithReset() {
         if (timeoutId) clearTimeout(timeoutId)
-        setCopied(true)
         setStatus('copied')
         timeoutId = setTimeout(() => {
-            setCopied(false)
             setStatus('idle')
             timeoutId = undefined
         }, COPIED_RESET_MS)
@@ -33,7 +31,6 @@ export function useCopyToClipboard(): [
 
     function setError() {
         if (timeoutId) clearTimeout(timeoutId)
-        setCopied(false)
         setStatus('error')
         timeoutId = setTimeout(() => {
             setStatus('idle')
@@ -45,7 +42,6 @@ export function useCopyToClipboard(): [
         if (timeoutId) clearTimeout(timeoutId)
     })
 
-    /** execCommand fallback for older browsers / non-HTTPS / WebViews. */
     function fallbackCopy(text: string): boolean {
         if (typeof document === 'undefined' || !document.body) return false
         const ta = document.createElement('textarea')
@@ -58,7 +54,7 @@ export function useCopyToClipboard(): [
         try {
             ta.focus()
             ta.select()
-            ta.setSelectionRange(0, ta.value.length)
+            ta.setSelectionRange(0, ta.value.length) // mobile Safari fallback: select() alone is sometimes ignored on textareas
             return document.execCommand('copy')
         } catch {
             return false
@@ -68,7 +64,7 @@ export function useCopyToClipboard(): [
     }
 
     async function copy(text: string): Promise<boolean> {
-        if (hasAsyncClipboard()) {
+        if (hasAsyncClipboard) {
             try {
                 await navigator.clipboard.writeText(text)
                 setCopiedWithReset()

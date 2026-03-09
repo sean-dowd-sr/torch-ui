@@ -24,7 +24,7 @@ export type CodeProps = (InlineProps | BlockProps) & BaseProps
 export function Code(props: CodeProps) {
 	// mx-0.5: intentional horizontal spacing so inline code doesn't touch adjacent text.
 	const inlineClass =
-		'rounded bg-surface-overlay px-2 py-1 text-[0.9em] font-mono text-ink-800 mx-0.5'
+		'inline-flex items-baseline rounded bg-surface-overlay px-2 leading-none text-[0.9em] font-mono text-ink-800 mx-0.5'
 
 	const blockClass =
 		'flex items-center gap-2 rounded-lg border border-surface-border bg-surface-base px-3 py-2 text-sm font-mono text-ink-800'
@@ -39,13 +39,14 @@ export function Code(props: CodeProps) {
 		])
 
 		const copyText = () => (local.text ?? '').trim()
+		const displayText = () => (local.children ?? copyText())
 
 		return (
 			<div
 				class={cn('w-full relative', blockClass, local.copyable && 'pr-12', local.class)}
 				{...divProps}
 			>
-				<code class="flex-1 min-w-0 truncate block">{local.children}</code>
+				<code class="flex-1 min-w-0 truncate block">{displayText()}</code>
 
 				<Show when={local.copyable && copyText()}>
 					<div class="absolute right-2 top-1/2 -translate-y-1/2 shrink-0">

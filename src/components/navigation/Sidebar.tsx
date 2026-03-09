@@ -1,64 +1,85 @@
-import { type JSX, splitProps, Show, For } from 'solid-js'
+import { type JSX, type Component, splitProps, Show, For } from 'solid-js'
+import { createStore } from 'solid-js/store'
 import { cn } from '../../utilities/classNames'
+import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../layout/Collapsible'
 
 export interface SidebarItem {
-	/** Unique key for the item */
 	key: string
-	/** Display label for the item */
 	label: string
-	/** Icon to display (optional) */
 	icon?: JSX.Element
-	/** Whether the item is currently active */
 	active?: boolean
-	/** Whether the item is disabled */
 	disabled?: boolean
-	/** Badge to show (optional) */
 	badge?: string | number
-	/** Click handler */
 	onClick?: () => void
-	/** Link href (renders as anchor if provided) */
 	href?: string
-	/** Sub-items for nested navigation */
 	items?: SidebarItem[]
 }
 
+export interface SidebarGroup {
+	title: string
+	items: SidebarItem[]
+	/** Groups with active items auto-open regardless. */
+	defaultOpen?: boolean
+}
+
 export interface SidebarFooter {
-	/** Footer content */
 	content: JSX.Element
-	/** Whether footer is sticky to bottom (default: false) */
+	/** Sticky to bottom. Default false. */
 	sticky?: boolean
 }
 
 export interface SidebarProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
-	/** Array of navigation items */
-	items: SidebarItem[]
-	/** Sidebar title */
+	/** Optional JSX rendered at the very top of the sidebar, above the title and nav. */
+	header?: JSX.Element
+	/** Flat navigation items. Use `items` or `groups`, not both. */
+	items?: SidebarItem[]
+	/** Grouped navigation with collapsible section headers. */
+	groups?: SidebarGroup[]
+	/** Router-aware link component (e.g. `A` from @solidjs/router). Falls back to `<a>`. */
+	linkComponent?: Component<any>
 	title?: string
-	/** Whether to show the sidebar title */
 	showTitle?: boolean
-	/** Whether the sidebar is collapsible */
 	collapsible?: boolean
-	/** Whether the sidebar is collapsed */
 	collapsed?: boolean
-	/** Callback when collapse state changes */
 	onCollapseChange?: (collapsed: boolean) => void
-	/** Whether to show icons */
-	showIcons?: boolean | undefined
-	/** Whether to show badges */
-	showBadges?: boolean | undefined
-	/** Custom footer content */
+	showIcons?: boolean
+	showBadges?: boolean
 	footer?: JSX.Element | SidebarFooter
-	/** Variant styling */
 	variant?: 'default' | 'minimal' | 'padded'
 }
 
-/**
- * Sidebar component with nested navigation support.
- * Built with accessibility in mind and supports various styling options.
- */
+function hasActiveItem(items: SidebarItem[]): boolean {
+	for (const item of items) {
+		if (item.active) return true
+		if (item.items && hasActiveItem(item.items)) return true
+	}
+	return false
+}
+
+function ChevronIcon() {
+	return (
+		<svg
+			class="h-3.5 w-3.5 shrink-0 transition-transform rotate-90 [[data-expanded]>&]:rotate-0"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+		>
+			<path d="m6 9 6 6 6-6" />
+		</svg>
+	)
+}
+
+/** Sidebar navigation with flat items or grouped collapsible sections. */
 export function Sidebar(props: SidebarProps) {
 	const [local, others] = splitProps(props, [
+		'header',
 		'items',
+		'groups',
+		'linkComponent',
 		'title',
 		'showTitle',
 		'collapsible',
@@ -74,19 +95,23 @@ export function Sidebar(props: SidebarProps) {
 	const variantClasses = () => {
 		switch (local.variant) {
 			case 'minimal':
-				return 'border-r border-ink-200 bg-surface-base'
+				return 'border-r border-surface-border'
 			case 'padded':
-				return 'border-r border-ink-200 bg-surface-raised px-3 py-2'
+				return 'border-r border-surface-border px-3 py-2'
 			default:
-				return 'border-r border-ink-200 bg-surface-raised'
+				return 'border-r border-surface-border'
 		}
 	}
 
+	const hasStickyFooter = () =>
+		local.footer != null &&
+		typeof local.footer === 'object' &&
+		'sticky' in local.footer &&
+		(local.footer as SidebarFooter).sticky === true
+
 	const sidebarClass = () =>
 		cn(
-			local.footer && typeof local.footer === 'object' && 'sticky' in local.footer && local.footer.sticky === true
-				? 'flex flex-col h-full min-w-0'
-				: 'h-full overflow-x-hidden overflow-y-auto min-w-0',
+			hasStickyFooter() ? 'flex flex-col h-full min-w-0' : 'h-full overflow-x-hidden overflow-y-auto min-w-0',
 			variantClasses(),
 			local.collapsed ? 'w-16' : local.variant === 'padded' ? 'w-72' : 'w-64',
 			'transition-all duration-300 ease-in-out',
@@ -95,32 +120,65 @@ export function Sidebar(props: SidebarProps) {
 
 	const titleClass = () =>
 		cn(
-			'px-4 py-3 text-lg font-semibold text-ink-900 border-b border-ink-200',
+			'px-4 py-3 text-lg font-semibold text-ink-900',
 			local.collapsed ? 'hidden' : 'block'
 		)
 
 	const navigationClass = () =>
 		cn(
-			local.footer && typeof local.footer === 'object' && 'sticky' in local.footer && local.footer.sticky === true
-				? 'flex-1 overflow-x-hidden overflow-y-auto'
-				: '',
-			local.variant === 'padded' ? 'py-1' : 'py-4'
+			hasStickyFooter() ? 'flex-1 overflow-x-hidden overflow-y-auto' : '',
+			local.variant === 'padded' ? 'py-1' : 'p-3'
 		)
 
 	const footerClass = () =>
 		cn(
-			'border-t border-ink-200 p-4',
+			'border-t border-surface-border p-4',
 			local.collapsed ? 'hidden' : 'block'
 		)
+
+	const [groupOpenByTitle, setGroupOpenByTitle] = createStore<Record<string, boolean>>({})
+
+	const renderLink = (
+		item: SidebarItem,
+		cls: string,
+		children: JSX.Element
+	) => {
+		const LinkTag = local.linkComponent
+		if (LinkTag) {
+			return (
+				<LinkTag
+					href={item.href}
+					class={cls}
+					onClick={item.onClick}
+					aria-current={item.active ? 'page' : undefined}
+				>
+					{children}
+				</LinkTag>
+			)
+		}
+		return (
+			<a
+				href={item.href}
+				class={cls}
+				onClick={item.onClick}
+				aria-current={item.active ? 'page' : undefined}
+			>
+				{children}
+			</a>
+		)
+	}
 
 	const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
 		const itemClass = () =>
 			cn(
-				'flex items-center w-full min-w-0 px-3 py-2 text-sm rounded-md transition-colors',
-				'hover:bg-surface-hover focus:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-				item.active 
-					? 'bg-primary-600 text-white font-medium' 
-					: 'text-ink-700 hover:text-ink-900 dark:hover:text-ink-900',
+				'flex items-center w-full min-w-0 rounded-lg transition-colors',
+				local.variant === 'minimal'
+					? 'px-3 py-1.5 text-xs font-light'
+					: 'px-3 py-2 text-sm',
+				'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset',
+				item.active
+					? 'text-primary-600 dark:text-primary-400'
+					: 'text-ink-700 hover:text-ink-900',
 				item.disabled && 'opacity-50 cursor-not-allowed',
 				level > 0 && 'ml-4'
 			)
@@ -130,147 +188,145 @@ export function Sidebar(props: SidebarProps) {
 				'w-5 h-5 flex-shrink-0',
 				(local.showIcons ?? true) && !local.collapsed && 'mr-3',
 				(local.showIcons ?? true) && local.collapsed && 'mx-auto',
-				item.active ? 'text-white' : 'text-ink-500'
+				item.active ? 'text-primary-600 dark:text-primary-400' : 'text-ink-500'
 			)
 
 		const badgeClass = () =>
 			cn(
-				'px-2 py-1 text-xs rounded-full font-medium flex-shrink-0',
+				'px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0',
 				(local.showBadges ?? true) && !local.collapsed && 'ml-auto',
 				item.active
-					? 'bg-white text-primary-600'
+					? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400'
 					: 'bg-surface-dim text-ink-600'
 			)
 
 		const ItemContent = () => (
 			<>
-				{/* Icon */}
 				<Show when={item.icon && (local.showIcons ?? true)}>
-					<div class={iconClass()}>
-						{item.icon}
-					</div>
+					<div class={iconClass()}>{item.icon}</div>
 				</Show>
-
-				{/* Label */}
-				<span class="truncate">{item.label}</span>
-
-				{/* Badge */}
-				<Show when={item.badge && (local.showBadges ?? true) && !local.collapsed}>
-					<span class={badgeClass()}>
-						{item.badge}
-					</span>
+				<Show when={!local.collapsed}>
+					<span class="truncate">{item.label}</span>
+				</Show>
+				<Show when={item.badge != null && (local.showBadges ?? true) && !local.collapsed}>
+					<span class={badgeClass()}>{item.badge}</span>
 				</Show>
 			</>
 		)
 
-		// Handle nested items
 		if (item.items && item.items.length > 0) {
 			return (
-				<li role="listitem">
-					<div class="space-y-1">
-						{/* Parent item */}
-						{item.href ? (
-							<a
-								href={item.href}
-								class={itemClass()}
-								aria-current={item.active ? 'page' : undefined}
-							>
-								<ItemContent />
-							</a>
-						) : (
-							<button
-								type="button"
-								class={itemClass()}
-								onClick={item.onClick}
-								disabled={item.disabled}
-								aria-current={item.active ? 'page' : undefined}
-							>
-								<ItemContent />
-							</button>
-						)}
-
-						{/* Nested items */}
+				<li>
+					<div class="space-y-0.5">
+						{item.href
+							? renderLink(item, itemClass(), <ItemContent />)
+							: (
+								<button
+									type="button"
+									class={itemClass()}
+									onClick={item.onClick}
+									disabled={item.disabled}
+									aria-current={item.active ? 'page' : undefined}
+								>
+									<ItemContent />
+								</button>
+							)}
 						<Show when={!local.collapsed}>
-							<div class="ml-4 space-y-1">
-								{renderNavigationItems(item.items, level + 1)}
-							</div>
+							<ul class="ml-4 space-y-0.5">
+								<For each={item.items}>
+									{(child) => renderSidebarItem(child, level + 1)}
+								</For>
+							</ul>
 						</Show>
 					</div>
 				</li>
 			)
 		}
 
-		// Handle regular items
 		return (
-			<li role="listitem">
-				{item.href ? (
-					<a
-						href={item.href}
-						class={itemClass()}
-						onClick={item.onClick}
-						aria-current={item.active ? 'page' : undefined}
-					>
-						<ItemContent />
-					</a>
-				) : (
-					<button
-						type="button"
-						class={itemClass()}
-						onClick={item.onClick}
-						disabled={item.disabled}
-						aria-current={item.active ? 'page' : undefined}
-					>
-						<ItemContent />
-					</button>
-				)}
+			<li>
+				{item.href
+					? renderLink(item, itemClass(), <ItemContent />)
+					: (
+						<button
+							type="button"
+							class={itemClass()}
+							onClick={item.onClick}
+							disabled={item.disabled}
+							aria-current={item.active ? 'page' : undefined}
+						>
+							<ItemContent />
+						</button>
+					)}
 			</li>
 		)
 	}
 
-	const renderNavigationItems = (items: SidebarItem[], level: number = 0) => {
+	const renderGroup = (group: SidebarGroup) => {
+		const isOpen = () => hasActiveItem(group.items) || (groupOpenByTitle[group.title] ?? (group.defaultOpen ?? false))
 		return (
-			<div class="space-y-1 min-w-0">
-				<For each={items}>
-					{(item) => {
-						if (item.items && item.items.length > 0) {
-							return (
-								<div class="space-y-1 min-w-0">
-									{renderSidebarItem(item, level)}
-								</div>
-							)
-						}
-						return renderSidebarItem(item, level)
-					}}
-				</For>
-			</div>
+			<CollapsibleRoot
+				class="mb-1"
+				open={isOpen()}
+				onOpenChange={(next) => setGroupOpenByTitle(group.title, next)}
+			>
+				<CollapsibleTrigger
+					class={cn(
+						'flex w-full items-center justify-between gap-1 rounded-lg px-2 py-1.5',
+						'text-[11px] font-semibold uppercase tracking-wider',
+						'text-ink-500',
+						'hover:bg-surface-overlay hover:text-ink-700',
+						'data-[expanded]:text-ink-700',
+						'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset'
+					)}
+				>
+					<span>{group.title}</span>
+					<ChevronIcon />
+				</CollapsibleTrigger>
+				<CollapsibleContentStyled variant="minimal" class="pt-0.5">
+					<ul class="space-y-0.5">
+						<For each={group.items}>
+							{(item) => renderSidebarItem(item)}
+						</For>
+					</ul>
+				</CollapsibleContentStyled>
+			</CollapsibleRoot>
 		)
 	}
 
 	return (
 		<div class={sidebarClass()} {...others}>
-			{/* Header */}
+			<Show when={local.header}>
+				<div class="shrink-0">{local.header}</div>
+			</Show>
 			<Show when={local.title && local.showTitle !== false}>
 				<div class={titleClass()}>
 					{!local.collapsed && local.title}
 				</div>
 			</Show>
 
-			{/* Navigation */}
-			<nav 
-				class={navigationClass()} 
+			<nav
+				class={navigationClass()}
 				aria-label={local.title || 'Sidebar navigation'}
 			>
-				<ul class="space-y-1" role="list">
-					{renderNavigationItems(local.items)}
-				</ul>
+				<Show when={local.groups} fallback={
+					<ul class="space-y-0.5" role="list">
+						<For each={local.items}>
+							{(item) => renderSidebarItem(item)}
+						</For>
+					</ul>
+				}>
+					<For each={local.groups}>
+						{(group) => renderGroup(group)}
+					</For>
+				</Show>
 			</nav>
 
-			{/* Footer */}
 			<Show when={local.footer}>
 				<div class={footerClass()}>
 					{!local.collapsed && local.footer && (
-						typeof local.footer === 'object' && 'content' in local.footer 
-							? local.footer.content 
+						typeof local.footer === 'object' && 'content' in local.footer
+							? (local.footer as SidebarFooter).content
 							: local.footer
 					)}
 				</div>

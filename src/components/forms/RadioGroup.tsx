@@ -1,6 +1,7 @@
 import { For, splitProps, Show } from 'solid-js'
 import { RadioGroup as KobalteRadioGroup } from '@kobalte/core/radio-group'
 import { cn } from '../../utilities/classNames'
+import { type ComponentSize } from '../../types/component-size'
 
 export interface RadioGroupOption {
 	value: string
@@ -12,24 +13,32 @@ export interface RadioGroupOption {
 export interface RadioGroupProps {
 	/** Group label (e.g. "Choose one"). */
 	label?: string
-	/** Optional description below the label. */
-	description?: string
+	/** Hint text below the control. */
+	helperText?: string
 	/** Error message and invalid styling. */
 	error?: string
+	/** When true, never render label row or error/helper text (control only). */
+	bare?: boolean
 	/** When true, show required indicator on label. */
 	required?: boolean
+	/** When true, show "optional" on the label row when not required. Default false. */
+	optional?: boolean
 	/** Options to display (value + label, optional description). */
 	options: RadioGroupOption[]
 	/** Selected value (controlled). */
 	value?: string
 	/** Called when selection changes. */
-	onChange?: (value: string) => void
+	onValueChange?: (value: string) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	/** Disables all options. */
 	disabled?: boolean
 	/** Form name. */
 	name?: string
 	/** Layout: vertical list (default) or horizontal. */
 	orientation?: 'vertical' | 'horizontal'
+	/** Component size. Default 'md'. */
+	size?: ComponentSize
 	/** Additional class for the root. */
 	class?: string
 }
@@ -37,15 +46,19 @@ export interface RadioGroupProps {
 export function RadioGroup(props: RadioGroupProps) {
 	const [local, others] = splitProps(props, [
 		'label',
-		'description',
+		'helperText',
 		'error',
+		'bare',
 		'required',
+		'optional',
 		'options',
 		'value',
-		'onChange',
+		'onValueChange',
+		'onErrorClear',
 		'disabled',
 		'name',
 		'orientation',
+		'size',
 		'class',
 	])
 
@@ -55,7 +68,10 @@ export function RadioGroup(props: RadioGroupProps) {
 		<div class={cn('w-full', local.class)}>
 			<KobalteRadioGroup
 				value={local.value}
-				onChange={local.onChange}
+				onChange={(v) => {
+					if (local.error && local.onErrorClear) local.onErrorClear()
+					local.onValueChange?.(v)
+				}}
 				disabled={local.disabled}
 				validationState={hasError() ? 'invalid' : undefined}
 				name={local.name}
@@ -88,8 +104,10 @@ export function RadioGroup(props: RadioGroupProps) {
 								class={cn(
 									'inline-flex items-start gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
 									'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
-									'data-[highlighted]:bg-ink-50 dark:data-[highlighted]:bg-ink-800/50',
-									'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'
+									'data-[highlighted]:bg-surface-overlay',
+									hasError()
+										? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger-500'
+										: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500'
 								)}
 							>
 								<KobalteRadioGroup.ItemInput class="sr-only" />
@@ -97,7 +115,7 @@ export function RadioGroup(props: RadioGroupProps) {
 									class={cn(
 										'mt-0.5 h-4 w-4 shrink-0 rounded-full flex items-center justify-center transition-colors box-border',
 										// Unselected: gray ring, transparent interior
-										'border-2 border-ink-400 bg-transparent',
+										'border-2 border-surface-border bg-transparent',
 										// Selected: primary ring, transparent interior; dot is the ItemIndicator
 										'data-[checked]:border-primary-500 data-[checked]:bg-transparent',
 										'data-[disabled]:opacity-50'
@@ -119,9 +137,9 @@ export function RadioGroup(props: RadioGroupProps) {
 						)}
 					</For>
 				</div>
-				<Show when={local.description && !hasError()}>
+				<Show when={local.helperText && !hasError()}>
 					<KobalteRadioGroup.Description class="mt-2 text-sm text-ink-500">
-						{local.description}
+						{local.helperText}
 					</KobalteRadioGroup.Description>
 				</Show>
 				<Show when={hasError()}>

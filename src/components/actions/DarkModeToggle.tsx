@@ -1,32 +1,95 @@
-import { createSignal, onMount, Show } from 'solid-js'
-import { Sun, Moon } from 'lucide-solid'
+import { createSignal, createEffect, onCleanup, onMount, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { Button } from './Button'
+import { Switch } from '../forms/Switch'
+import { useIcons } from '../../icons'
+
+export type ColorScheme = 'light' | 'dark'
 
 export interface DarkModeToggleProps {
-	/** Visual style. 'icon' renders a button with sun/moon icon (default). 'switch' renders a pill toggle. */
 	variant?: 'icon' | 'switch'
-	/** Extra classes on the root element */
-	class?: string
-	/** Element to toggle the dark class on. Defaults to document.documentElement (the html element) */
+	/** Controlled value. When provided, internal state is bypassed. */
+	value?: ColorScheme
+	/** Called when the user toggles. Use with `value` for controlled mode. */
+	onValueChange?: (scheme: ColorScheme) => void
+	/** Element to toggle the `dark` class on. Default: `document.documentElement`. */
 	target?: () => HTMLElement
+	/** localStorage key for persistence. Set to `false` to disable. Default `'torch-theme'`. */
+	storageKey?: string | false
+	/** Set `data-switching-theme` on body during toggle to suppress CSS transitions. Default: true. */
+	suppressTransitions?: boolean
+	class?: string
 }
 
 export function DarkModeToggle(props: DarkModeToggleProps) {
-	const [dark, setDark] = createSignal(false)
+	const [scheme, setScheme] = createSignal<ColorScheme>('light')
+	const icons = useIcons()
+	const dark = () => scheme() === 'dark'
+	const key = () => props.storageKey ?? 'torch-theme'
+	const el = () => props.target?.() ?? document.documentElement
 
-	onMount(() => {
-		const stored = localStorage.getItem('torch-theme')
-		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-		const isDark = stored ? stored === 'dark' : prefersDark
-		setDark(isDark)
-		;(props.target?.() ?? document.documentElement).classList.toggle('dark', isDark)
+	let clearSuppressTimeout: number | undefined
+
+	onCleanup(() => {
+		if (clearSuppressTimeout !== undefined) {
+			window.clearTimeout(clearSuppressTimeout)
+			document.body.removeAttribute('data-switching-theme')
+		}
 	})
 
+	createEffect(() => {
+		if (props.value !== undefined) {
+			setScheme(props.value)
+			const target = props.target?.() ?? document.documentElement
+			if (target) target.classList.toggle('dark', props.value === 'dark')
+		}
+	})
+
+	onMount(() => {
+		if (props.value !== undefined) {
+			setScheme(props.value)
+			el().classList.toggle('dark', props.value === 'dark')
+			return
+		}
+		const k = key()
+		const stored = k !== false ? localStorage.getItem(k) : null
+		const mq = window.matchMedia('(prefers-color-scheme: dark)')
+		const initial: ColorScheme = stored ? (stored === 'dark' ? 'dark' : 'light') : mq.matches ? 'dark' : 'light'
+		setScheme(initial)
+		el().classList.toggle('dark', initial === 'dark')
+
+		const handleChange = (e: MediaQueryListEvent) => {
+			const currentStored = key() !== false ? localStorage.getItem(key() as string) : null
+			if (!currentStored && props.value === undefined) {
+				setScheme(e.matches ? 'dark' : 'light')
+				el().classList.toggle('dark', e.matches)
+			}
+		}
+		mq.addEventListener('change', handleChange)
+		onCleanup(() => mq.removeEventListener('change', handleChange))
+	})
+
+	function applyScheme(next: ColorScheme) {
+		const suppress = props.suppressTransitions !== false
+		if (suppress) {
+			document.body.setAttribute('data-switching-theme', '')
+			if (clearSuppressTimeout !== undefined) window.clearTimeout(clearSuppressTimeout)
+			clearSuppressTimeout = window.setTimeout(() => {
+				document.body.removeAttribute('data-switching-theme')
+				clearSuppressTimeout = undefined
+			}, 100)
+		}
+		if (props.value === undefined) {
+			setScheme(next)
+			el().classList.toggle('dark', next === 'dark')
+			const k = key()
+			if (k !== false) localStorage.setItem(k, next)
+		}
+		props.onValueChange?.(next)
+	}
+
 	function toggle() {
-		const next = !dark()
-		setDark(next)
-		;(props.target?.() ?? document.documentElement).classList.toggle('dark', next)
-		localStorage.setItem('torch-theme', next ? 'dark' : 'light')
+		applyScheme(dark() ? 'light' : 'dark')
 	}
 
 	const variant = () => props.variant ?? 'icon'
@@ -35,46 +98,34 @@ export function DarkModeToggle(props: DarkModeToggleProps) {
 		<Show
 			when={variant() === 'switch'}
 			fallback={
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="sm"
+					iconOnly
+					icon={dark()
+						? icons.sun({ class: 'h-4 w-4', 'aria-hidden': 'true' })
+						: icons.moon({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+					label={dark() ? 'Switch to Light mode' : 'Switch to Dark mode'}
+					aria-pressed={dark() ? 'true' : 'false'}
 					onClick={toggle}
-					aria-label={dark() ? 'Switch to light mode' : 'Switch to dark mode'}
-					aria-pressed={dark()}
-					class={cn(
-						'inline-flex items-center justify-center rounded-lg p-2 text-ink-500 transition-colors',
-						'hover:bg-surface-overlay hover:text-ink-700',
-						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
-						props.class,
-					)}
-				>
-					{dark() ? <Sun class="h-4 w-4" /> : <Moon class="h-4 w-4" />}
-				</button>
+					class={props.class}
+				/>
 			}
 		>
-			<button
-				type="button"
-				role="switch"
-				onClick={toggle}
-				aria-checked={dark()}
-				aria-label={dark() ? 'Switch to light mode' : 'Switch to dark mode'}
-				class={cn(
-					'relative inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200',
-					'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-offset-2',
-					dark() ? 'bg-primary-500' : 'bg-surface-dim',
-					props.class,
-				)}
-			>
-				<span
-					class={cn(
-						'pointer-events-none flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm ring-0 transition-transform duration-200',
-						dark() ? 'translate-x-7' : 'translate-x-0',
-					)}
-				>
-					{dark()
-						? <Moon class="h-3 w-3 text-primary-600" />
-						: <Sun class="h-3 w-3 text-ink-400" />}
-				</span>
-			</button>
+			<Switch
+				data-theme-toggle=""
+				fullWidth={false}
+				class="flex h-9 w-auto items-center"
+				controlClass={cn(props.class, 'data-[checked]:border-surface-border')}
+				variant="icon"
+				trackColor="var(--color-ink-400)"
+				trackCheckedColor="var(--color-ink-400)"
+				checked={dark()}
+				onValueChange={(checked) => applyScheme(checked ? 'dark' : 'light')}
+				aria-label={dark() ? 'Switch to Light mode' : 'Switch to Dark mode'}
+				thumbOffIcon={icons.sun({ class: 'h-2.5 w-2.5 text-ink-700', 'aria-hidden': 'true' })}
+				thumbOnIcon={icons.moon({ class: 'h-2.5 w-2.5 text-ink-700', 'aria-hidden': 'true' })}
+			/>
 		</Show>
 	)
 }

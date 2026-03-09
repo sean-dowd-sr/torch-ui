@@ -1,8 +1,9 @@
 import { type JSX, splitProps, Show, createSignal } from 'solid-js'
-import { Eye, EyeOff } from 'lucide-solid'
 import { TextField as KobalteTextField } from '@kobalte/core/text-field'
 import { cn } from '../../utilities/classNames'
-import { type ComponentSize, inputSizeConfig } from '../../utilities/componentSize'
+import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
+import { useIcons } from '../../icons'
+import { useComponentSize } from '../../utilities/componentSizeContext'
 
 export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
 	label?: string
@@ -20,17 +21,13 @@ export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
 	size?: ComponentSize
 	/** When true and type is "password", show a show/hide toggle (eye icon) to reveal the password. Default false. */
 	revealable?: boolean
-	/** Content at the start of the input (e.g. "$", or an icon). */
+	/** Content at the start of the input (e.g. "$", a currency label, or an icon). */
 	startAdornment?: JSX.Element
-	/** Content at the end of the input (e.g. "USD", or an icon). */
+	/** Content at the end of the input (e.g. "USD", a unit label, or an icon). */
 	endAdornment?: JSX.Element
-	/** Icon at the start (same slot as startAdornment). Use for search, etc. */
-	startIcon?: JSX.Element
-	/** Icon at the end (same slot as endAdornment). */
-	endIcon?: JSX.Element
-	/** @deprecated Use startIcon or startAdornment. */
+	/** @deprecated Use startAdornment. */
 	leftIcon?: JSX.Element
-	/** @deprecated Use endIcon or endAdornment. */
+	/** @deprecated Use endAdornment. */
 	rightIcon?: JSX.Element
 	/** Applied to the native input element when you need to style the control itself. */
 	inputClass?: string
@@ -52,8 +49,6 @@ export function Input(props: InputProps) {
 		'type',
 		'startAdornment',
 		'endAdornment',
-		'startIcon',
-		'endIcon',
 		'leftIcon',
 		'rightIcon',
 		'onValueChange',
@@ -66,9 +61,11 @@ export function Input(props: InputProps) {
 		'ref',
 		'disabled',
 	])
+	const icons = useIcons()
+	const contextSize = useComponentSize()
 
 	const hasError = () => !!local.error
-	const sc = () => inputSizeConfig[local.size ?? 'md']
+	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
 
 	const handleChange = (val: string) => {
 		if (local.error && local.onErrorClear) {
@@ -83,22 +80,22 @@ export function Input(props: InputProps) {
 		}
 	}
 
-	const startContent = () => local.startAdornment ?? local.startIcon ?? local.leftIcon
+	const startContent = () => local.startAdornment ?? local.leftIcon
 	const isPasswordRevealable = () => local.type === 'password' && local.revealable === true
 	const [showPassword, setShowPassword] = createSignal(false)
 	const effectiveType = () =>
 		isPasswordRevealable() && showPassword() ? 'text' : (local.type ?? 'text')
 	const endContent = () => {
 		if (isPasswordRevealable()) return null
-		return local.endAdornment ?? local.endIcon ?? local.rightIcon
+		return local.endAdornment ?? local.rightIcon
 	}
 	const hasStart = () => !!startContent()
 	const hasEnd = () => !!endContent() || isPasswordRevealable()
-	const adornmentClass = 'absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-ink-500 dark:text-ink-400 pointer-events-none z-10'
+	const adornmentClass = 'absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-ink-500 pointer-events-none z-10'
 
 	return (
 		<KobalteTextField
-			value={typeof local.value === 'string' ? local.value : local.value == null ? '' : String(local.value)}
+			value={local.value != null ? String(local.value) : undefined}
 			onChange={handleChange}
 			validationState={hasError() ? 'invalid' : undefined}
 			required={local.required}
@@ -111,7 +108,7 @@ export function Input(props: InputProps) {
 						<KobalteTextField.Label
 							class={cn(
 								'block text-md font-medium',
-								hasError() ? 'text-danger-600' : 'text-ink-700 dark:text-ink-300'
+								hasError() ? 'text-danger-600' : 'text-ink-700'
 							)}
 						>
 							{local.label}
@@ -126,7 +123,7 @@ export function Input(props: InputProps) {
 					<div class="flex items-center gap-2 flex-shrink-0">
 						<Show when={local.labelTrailing}>{local.labelTrailing}</Show>
 						<Show when={local.label && !local.required && local.optional}>
-							<span class="text-xs text-ink-500 dark:text-ink-400">optional</span>
+							<span class="text-xs text-ink-500">optional</span>
 						</Show>
 					</div>
 				</div>
@@ -148,14 +145,14 @@ export function Input(props: InputProps) {
 					type={effectiveType()}
 					onInput={handleInput}
 					class={cn(
-						'w-full rounded-lg transition-all outline-none border text-ink-900 dark:text-ink-100 placeholder:text-ink-400 dark:placeholder:text-ink-500 bg-surface-raised',
+						'w-full rounded-lg transition-all outline-none border text-ink-900 placeholder:text-ink-400 bg-surface-raised',
 						sc().h, sc().py, sc().text,
 						hasStart() ? sc().plAdorn : sc().pl,
 						hasEnd() ? sc().prAdorn : sc().pr,
 						hasError()
 							? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
-							: 'border-ink-300 dark:border-ink-800 focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-						'disabled:bg-surface-base disabled:text-ink-500 dark:disabled:text-ink-500 disabled:cursor-not-allowed',
+							: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
+						'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
 						local.inputClass
 					)}
 					{...others}
@@ -174,18 +171,20 @@ export function Input(props: InputProps) {
 						type="button"
 						onClick={() => setShowPassword((v) => !v)}
 						class={cn(
-							'absolute top-1/2 -translate-y-1/2 flex items-center justify-center rounded p-1 z-10 text-ink-500 dark:text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 hover:bg-ink-100 dark:hover:bg-ink-800',
+							'absolute top-1/2 -translate-y-1/2 flex items-center justify-center rounded p-1 z-10 text-ink-500 hover:text-ink-700 hover:bg-surface-overlay',
 							sc().adornEnd, sc().text
 						)}
 						aria-label={showPassword() ? 'Hide password' : 'Show password'}
 					>
-						{showPassword() ? <EyeOff class="h-4 w-4" aria-hidden="true" /> : <Eye class="h-4 w-4" aria-hidden="true" />}
+						{showPassword()
+							? icons.eyeOff({ class: 'h-4 w-4', 'aria-hidden': 'true' })
+							: icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 					</button>
 				</Show>
 			</div>
 
 			<Show when={!local.bare && local.helperText && !hasError()}>
-				<KobalteTextField.Description class="mt-2 text-sm text-ink-500 dark:text-ink-400">
+				<KobalteTextField.Description class="mt-2 text-sm text-ink-500">
 					{local.helperText}
 				</KobalteTextField.Description>
 			</Show>

@@ -1,6 +1,6 @@
-import { type JSX, Show, Switch, Match, splitProps } from 'solid-js'
-import { Loader2, LoaderCircle } from 'lucide-solid'
+import { type JSX, Show, splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 import {
 	SkeletonCard,
 	SkeletonTable,
@@ -26,7 +26,7 @@ export interface LoadingProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	iconOnly?: boolean
 	/** For spinner: size of the icon. Ignored when icon is provided. */
 	size?: 'sm' | 'md' | 'lg'
-	/** For spinner: custom icon element (e.g. from lucide-solid). Add animate-spin and size classes. */
+	/** For spinner: custom icon element. Add animate-spin and size classes. */
 	icon?: JSX.Element
 	/** For spinner: minimum height (default 200px when not iconOnly). */
 	minHeight?: string | number
@@ -44,6 +44,7 @@ export function Loading(props: LoadingProps) {
 		'minHeight',
 		'aria-label',
 	])
+	const icons = useIcons()
 
 	const variant = () => local.variant ?? 'spinner'
 	if (variant() === 'spinner') {
@@ -60,10 +61,7 @@ export function Loading(props: LoadingProps) {
 					? undefined
 					: '200px'
 		const defaultIcon = () => (
-			<LoaderCircle
-				class={cn('shrink-0 animate-spin text-ink-400', sizeClasses())}
-				aria-hidden="true"
-			/>
+			icons.spinner({ class: cn('shrink-0 animate-spin text-ink-400', sizeClasses()), 'aria-hidden': 'true' })
 		)
 		const resolvedIcon = () => local.icon ?? defaultIcon()
 		const label = () => local['aria-label'] ?? (iconOnly() ? (local.message ?? 'Loading') : undefined)
@@ -92,12 +90,15 @@ export function Loading(props: LoadingProps) {
 	// Skeleton layout: composed from SkeletonBlocks that map to Card, Table, Section, etc.
 	return (
 		<div {...others} class={cn(local.class)} role="status" aria-live="polite" aria-atomic="true" aria-label="Loading">
-			<Switch>
-				<Match when={variant() === 'dashboard'}><DashboardSkeletonLayout /></Match>
-				<Match when={variant() === 'tablePage'}><TablePageSkeletonLayout /></Match>
-				<Match when={variant() === 'admin'}><AdminSkeletonLayout /></Match>
-				<Match when={true}><GenericSkeletonLayout /></Match>
-			</Switch>
+			{variant() === 'dashboard' ? (
+				<DashboardSkeletonLayout />
+			) : variant() === 'tablePage' ? (
+				<TablePageSkeletonLayout />
+			) : variant() === 'admin' ? (
+				<AdminSkeletonLayout />
+			) : (
+				<GenericSkeletonLayout />
+			)}
 		</div>
 	)
 }

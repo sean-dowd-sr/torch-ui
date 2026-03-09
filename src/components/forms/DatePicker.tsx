@@ -6,14 +6,18 @@ import {
 	splitProps,
 	createUniqueId,
 } from 'solid-js'
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from 'lucide-solid'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { cn } from '../../utilities/classNames'
+import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
+import { useComponentSize } from '../../utilities/componentSizeContext'
+import { useIcons } from '../../icons'
 
 /** Value is ISO date string YYYY-MM-DD or empty string. */
 export interface DatePickerProps {
 	value?: string
 	onValueChange?: (value: string) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	placeholder?: string
 	disabled?: boolean
 	/** Min date YYYY-MM-DD */
@@ -27,6 +31,8 @@ export interface DatePickerProps {
 	required?: boolean
 	/** When true, show "optional" on the label row when not required. Default false. */
 	optional?: boolean
+	/** Component size. Default 'md'. */
+	size?: ComponentSize
 	class?: string
 	id?: string
 }
@@ -71,10 +77,13 @@ function getCalendarDays(year: number, month: number): Date[][] {
 
 export function DatePicker(props: DatePickerProps) {
 	const [local] = splitProps(props, [
-		'value', 'onValueChange', 'placeholder', 'disabled',
+		'value', 'onValueChange', 'onErrorClear', 'placeholder', 'disabled',
 		'min', 'max', 'label', 'error', 'helperText', 'bare',
-		'required', 'optional', 'class', 'id',
+		'required', 'optional', 'size', 'class', 'id',
 	])
+	const icons = useIcons()
+	const contextSize = useComponentSize()
+	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
 
 	const generatedId = createUniqueId()
 	const inputId = () => local.id || `datepicker-${generatedId}`
@@ -118,6 +127,7 @@ export function DatePicker(props: DatePickerProps) {
 
 	function selectDate(d: Date) {
 		if (isDisabled(d)) return
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		local.onValueChange?.(toISODate(d))
 		setOpen(false)
 	}
@@ -127,6 +137,7 @@ export function DatePicker(props: DatePickerProps) {
 
 	function selectToday() {
 		if (todayDisabled()) return
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		local.onValueChange?.(todayISO())
 		setOpen(false)
 	}
@@ -196,7 +207,7 @@ export function DatePicker(props: DatePickerProps) {
 						for={inputId()}
 						class={cn(
 							'block text-sm font-medium',
-							hasError() ? 'text-danger-600 dark:text-danger-400' : 'text-ink-700',
+							hasError() ? 'text-danger-600' : 'text-ink-700',
 						)}
 					>
 						{local.label}
@@ -212,7 +223,7 @@ export function DatePicker(props: DatePickerProps) {
 				onOpenChange={(next) => {
 					setOpen(next)
 					if (next) {
-						const d = valueDate() ?? new Date()
+						const d = valueDate() ?? minDate() ?? new Date()
 						setViewMonthYear({ year: d.getFullYear(), month: d.getMonth() })
 					}
 					setViewMode('calendar')
@@ -226,18 +237,18 @@ export function DatePicker(props: DatePickerProps) {
 						id={inputId()}
 						disabled={local.disabled}
 						aria-describedby={msgId()}
-						aria-invalid={hasError() ? true : undefined}
+						aria-invalid={hasError() ? 'true' : undefined}
 						class={cn(
-							'inline-flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
-							'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+							'inline-flex w-full items-center gap-2 rounded-lg border transition-colors',
+							sc().h, sc().py, sc().pl, sc().text,
+							displayValue() && !local.disabled ? 'pr-8' : sc().pr,
 							hasError()
-								? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600'
-								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400 dark:hover:border-ink-500',
+									? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger-500 focus-visible:border-transparent'
+									: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 focus-visible:border-transparent',
 							local.disabled && 'cursor-not-allowed opacity-50',
-							displayValue() && !local.disabled && 'pr-8',
 						)}
 					>
-						<CalendarIcon class="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+						{icons.calendar({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })}
 						<span class={cn('truncate', displayValue() ? 'text-ink-900' : 'text-ink-400')}>
 							{displayValue() || (local.placeholder ?? 'Select date')}
 						</span>
@@ -249,7 +260,7 @@ export function DatePicker(props: DatePickerProps) {
 							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors"
 							aria-label="Clear date"
 						>
-							<X class="h-3.5 w-3.5" />
+							{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 						</button>
 					</Show>
 				</div>
@@ -274,7 +285,7 @@ export function DatePicker(props: DatePickerProps) {
 										class="flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors"
 										aria-label="Back to calendar"
 									>
-										<ChevronLeft class="h-4 w-4" />
+										{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 									</button>
 								) : (
 									<button
@@ -287,7 +298,7 @@ export function DatePicker(props: DatePickerProps) {
 										)}
 										aria-label="Previous month"
 									>
-										<ChevronLeft class="h-4 w-4" />
+										{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 									</button>
 								)}
 
@@ -322,7 +333,7 @@ export function DatePicker(props: DatePickerProps) {
 												)}
 												aria-label="Previous year"
 											>
-												<ChevronLeft class="h-4 w-4" />
+												{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
 											<button
 												type="button"
@@ -341,7 +352,7 @@ export function DatePicker(props: DatePickerProps) {
 												)}
 												aria-label="Next year"
 											>
-												<ChevronRight class="h-4 w-4" />
+												{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
 										</>
 									)}
@@ -351,7 +362,7 @@ export function DatePicker(props: DatePickerProps) {
 								</div>
 
 								{viewMode() !== 'calendar' ? (
-									<div class="w-7" aria-hidden />
+									<div class="w-7" aria-hidden="true" />
 								) : (
 									<button
 										type="button"
@@ -363,7 +374,7 @@ export function DatePicker(props: DatePickerProps) {
 										)}
 										aria-label="Next month"
 									>
-										<ChevronRight class="h-4 w-4" />
+										{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 									</button>
 								)}
 							</div>
@@ -397,14 +408,14 @@ export function DatePicker(props: DatePickerProps) {
 																	aria-current={selected ? 'date' : undefined}
 																	class={cn(
 																		'relative z-10 h-7 w-7 rounded-full text-xs transition-colors',
-																		'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+																		'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
 																		selected
 																			? 'bg-primary-500 text-white font-semibold hover:bg-primary-600'
 																			: !currentMonth
-																				? 'text-ink-300 dark:text-ink-600 hover:bg-surface-overlay'
+																				? 'text-ink-300 hover:bg-surface-overlay'
 																				: isToday
 																					? 'text-primary-600 font-semibold hover:bg-surface-overlay dark:text-primary-400'
-																					: 'text-ink-800 dark:text-ink-200 hover:bg-surface-overlay',
+																					: 'text-ink-800 hover:bg-surface-overlay',
 																		disabled && 'cursor-not-allowed opacity-30',
 																	)}
 																>
@@ -506,7 +517,7 @@ export function DatePicker(props: DatePickerProps) {
 			<Show when={local.error || local.helperText}>
 				<p
 					id={msgId()}
-					class={cn('mt-1.5 text-xs', hasError() ? 'text-danger-600 dark:text-danger-400' : 'text-ink-500')}
+					class={cn('mt-1.5 text-xs', hasError() ? 'text-danger-600' : 'text-ink-500')}
 				>
 					{local.error ?? local.helperText}
 				</p>

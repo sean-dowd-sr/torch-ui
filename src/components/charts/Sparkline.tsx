@@ -1,4 +1,4 @@
-import { onMount, onCleanup, createEffect, createSignal, splitProps } from 'solid-js'
+import { onMount, onCleanup, createEffect, createMemo, createSignal, splitProps } from 'solid-js'
 import type { ChartConfiguration } from 'chart.js'
 import { cn } from '../../utilities/classNames'
 
@@ -39,7 +39,7 @@ export function Sparkline(props: SparklineProps) {
 	const color = () => local.color ?? DEFAULT_COLOR
 	const fill = () => local.fill !== false
 	/** Derive a 25% opacity fill from the line color. Supports rgb/rgba/hex; other formats fall back to default. */
-	const fillColor = () => {
+	const fillColor = createMemo(() => {
 		const c = color()
 		if (c.startsWith('rgba')) {
 			const match = c.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/)
@@ -58,78 +58,99 @@ export function Sparkline(props: SparklineProps) {
 				}
 			}
 		}
+		if (import.meta.env.DEV) {
+			console.warn(`Sparkline: unsupported color format "${c}" for fill — use rgb(), rgba(), or hex. Falling back to default fill.`)
+		}
 		return DEFAULT_FILL
-	}
+	})
 
 	let ChartCtor: typeof import('chart.js').Chart | null = null
+	let skipNextUpdate = false
 
 	onMount(async () => {
 		if (!canvasEl) return
-		const { Chart } = await import('chart.js/auto')
-		ChartCtor = Chart
-		const config: ChartConfiguration<'line'> = {
-			type: 'line',
-			data: {
-				labels: local.data.map((_, i) => i.toString()),
-				datasets: [
-					{
-						data: local.data,
-						borderColor: color(),
-						backgroundColor: fill() ? fillColor() : undefined,
-						fill: fill(),
-						tension: local.tension ?? 0.3,
-						borderWidth: 1.5,
-						pointRadius: local.showPoint !== false ? 2.5 : 0,
-						pointHoverRadius: 4,
-						pointBackgroundColor: color(),
-						pointBorderColor: color(),
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				plugins: {
-					legend: { display: false },
-					tooltip: { enabled: false },
+		try {
+			const { Chart } = await import('chart.js/auto')
+			ChartCtor = Chart
+			const config: ChartConfiguration<'line'> = {
+				type: 'line',
+				data: {
+					labels: local.data.map((_, i) => i.toString()),
+					datasets: [
+						{
+							data: local.data,
+							borderColor: color(),
+							backgroundColor: fill() ? fillColor() : undefined,
+							fill: fill(),
+							tension: local.tension ?? 0.3,
+							borderWidth: 1.5,
+							pointRadius: local.showPoint !== false ? 2.5 : 0,
+							pointHoverRadius: 4,
+							pointBackgroundColor: color(),
+							pointBorderColor: color(),
+						},
+					],
 				},
-				scales: {
-					x: { display: false },
-					y: {
-						display: false,
-						grace: '5%',
-						beginAtZero: false,
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: { display: false },
+						tooltip: { enabled: false },
 					},
+					scales: {
+						x: { display: false },
+						y: {
+							display: false,
+							grace: '5%',
+							beginAtZero: false,
+						},
+					},
+					interaction: { intersect: false, mode: 'index' },
 				},
-				interaction: { intersect: false, mode: 'index' },
-			},
+			}
+			chartInstance = new ChartCtor(canvasEl, config)
+			skipNextUpdate = true
+			setChartReady(true)
+		} catch (e) {
+			if (import.meta.env.DEV) console.error('Sparkline: failed to load chart.js/auto', e)
 		}
-		chartInstance = new ChartCtor(canvasEl, config)
-		setChartReady(true)
 	})
 
 	createEffect(() => {
 		if (!chartReady()) return
-		const ci = chartInstance!
-		if (!local.data.length) {
+
+		const data = local.data
+		const c = color()
+		const fillEnabled = fill()
+		const fc = fillColor()
+		const showPt = local.showPoint !== false ? 2.5 : 0
+		const tension = local.tension ?? 0.3
+
+		if (skipNextUpdate) {
+			skipNextUpdate = false
+			return
+		}
+
+		const ci = chartInstance
+		if (!ci) return
+		if (!data.length) {
 			ci.data.labels = []
 			ci.data.datasets[0].data = []
 			ci.update('none')
 			return
 		}
-		const nextLen = local.data.length
+		const nextLen = data.length
 		if ((ci.data.labels?.length ?? 0) !== nextLen) {
 			ci.data.labels = Array.from({ length: nextLen }, (_, i) => String(i))
 		}
-		ci.data.datasets[0].data = local.data
-		ci.data.datasets[0].borderColor = color()
-		ci.data.datasets[0].backgroundColor = fill() ? fillColor() : undefined
-		// Chart.js base dataset type doesn't include line-specific props (fill, pointRadius);
-		// they exist at runtime on line datasets. Cast is necessary until Chart.js ships better generics.
+		ci.data.datasets[0].data = data
+		ci.data.datasets[0].borderColor = c
+		ci.data.datasets[0].backgroundColor = fillEnabled ? fc : undefined
 		const ds = ci.data.datasets[0] as { fill?: boolean; pointRadius?: number; tension?: number }
-		ds.fill = fill()
-		ds.pointRadius = local.showPoint !== false ? 2.5 : 0
-		ds.tension = local.tension ?? 0.3
+		ds.fill = fillEnabled
+		ds.pointRadius = showPt
+		ds.tension = tension
 		ci.update('none')
 	})
 
@@ -150,7 +171,7 @@ export function Sparkline(props: SparklineProps) {
 			aria-labelledby={local['aria-labelledby']}
 			role={hasAccessibleName() ? 'img' : undefined}
 		>
-			<canvas ref={canvasEl}>{local['aria-label'] ?? 'Sparkline chart'}</canvas>
+			<canvas ref={canvasEl} />
 		</div>
 	)
 }

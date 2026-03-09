@@ -1,6 +1,7 @@
 import { createMemo } from 'solid-js'
 import { Input, Select } from './'
-import { parseRelativeDateDefault, formatRelativeDateDefault } from '../../utilities/relativeDateDefault'
+import { parseRelativeDateDefault, formatRelativeDateDefault } from './relativeDateDefault'
+import { Inline } from '../layout'
 import { cn } from '../../utilities/classNames'
 
 const SIGN_OPTIONS = [
@@ -34,29 +35,27 @@ export function RelativeDateDefaultInput(props: RelativeDateDefaultInputProps) {
 	const daysStr = () => String(days())
 
 	return (
-		<div class={cn('flex flex-nowrap items-center gap-2', props.class)}>
+		<Inline class={cn('flex-nowrap', props.class)}>
 			<span class="shrink-0 text-sm font-medium text-ink-700">
 				{props.prefixLabel ?? 'Today'}
 			</span>
-			<div class="flex shrink-0 items-center gap-2">
-				<Select
-					value={sign()}
-					onValueChange={setSign}
-					options={[...SIGN_OPTIONS]}
-					class="w-36 min-w-0 rounded-lg"
-				/>
-				<Input
-					bare
-					type="number"
-					min={0}
-					step={1}
-					value={daysStr()}
-					onValueChange={setDaysFromInput}
-					placeholder="0"
-					class="w-24 rounded-lg pr-2"
-				/>
-			</div>
+			<Select
+				value={sign()}
+				onValueChange={setSign}
+				options={[...SIGN_OPTIONS]}
+				class="w-36 min-w-0 rounded-lg"
+			/>
+			<Input
+				bare
+				type="number"
+				min={0}
+				step={1}
+				value={daysStr()}
+				onValueChange={setDaysFromInput}
+				placeholder="0"
+				class="w-24 rounded-lg pr-2"
+			/>
 			<span class="shrink-0 text-sm text-ink-500">{props.suffixLabel ?? 'day(s)'}</span>
-		</div>
+		</Inline>
 	)
 }

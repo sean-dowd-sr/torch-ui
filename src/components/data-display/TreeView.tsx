@@ -1,6 +1,6 @@
 import { type JSX, Show, For, createSignal, splitProps } from 'solid-js'
-import { ChevronRight } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export interface TreeNode {
 	/** Unique identifier */
@@ -49,6 +49,7 @@ export function TreeView(props: TreeViewProps) {
 		'showLines',
 		'class',
 	])
+	const icons = useIcons()
 
 	const [internalSelected, setInternalSelected] = createSignal<string | undefined>(
 		local.defaultSelected,
@@ -87,7 +88,7 @@ export function TreeView(props: TreeViewProps) {
 					const selected = () => isSelected(node.id)
 
 					return (
-						<li role="treeitem" aria-expanded={hasChildren() ? expanded() : undefined} aria-selected={selected()}>
+						<li role="treeitem" aria-expanded={hasChildren() ? (expanded() ? 'true' : 'false') : undefined} aria-selected={selected() ? 'true' : 'false'}>
 							<button
 								type="button"
 								disabled={node.disabled}
@@ -115,7 +116,7 @@ export function TreeView(props: TreeViewProps) {
 									'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 									selected()
 										? 'bg-primary-50 text-primary-700 font-medium dark:bg-primary-500/15 dark:text-primary-400'
-										: 'text-ink-700 hover:bg-surface-overlay hover:text-ink-900 dark:hover:text-ink-900',
+										: 'text-ink-700 hover:bg-surface-overlay hover:text-ink-900',
 									node.disabled && 'cursor-not-allowed opacity-40',
 								)}
 								style={{ 'padding-left': `${level * indent() + 8}px` }}
@@ -123,13 +124,10 @@ export function TreeView(props: TreeViewProps) {
 								{/* Expand/collapse chevron */}
 								<span class={cn('flex h-4 w-4 shrink-0 items-center justify-center')}>
 									<Show when={hasChildren()} fallback={<span class="h-4 w-4" />}>
-										<ChevronRight
-											class={cn(
-												'h-3.5 w-3.5 text-ink-400 transition-transform duration-150',
-												expanded() && 'rotate-90',
-											)}
-											aria-hidden="true"
-										/>
+										{icons.chevronRight({
+											class: cn('h-3.5 w-3.5 text-ink-400 transition-transform duration-150', expanded() && 'rotate-90'),
+											'aria-hidden': 'true',
+										})}
 									</Show>
 								</span>
 
@@ -149,12 +147,12 @@ export function TreeView(props: TreeViewProps) {
 								<div
 									class={cn(
 										showLines() && level < 2
-											? 'relative ml-[calc(var(--indent-offset)+8px)] border-l border-ink-200 dark:border-ink-700 pl-0'
+												? 'relative ml-[calc(var(--indent-offset)+8px)] border-l border-surface-border pl-0'
 											: '',
 									)}
 									style={{ '--indent-offset': `${level * indent() + 14}px` } as any}
 								>
-									{renderNodes(node.children!, level + 1)}
+									{renderNodes(node.children ?? [], level + 1)}
 								</div>
 							</Show>
 						</li>

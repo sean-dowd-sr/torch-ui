@@ -1,7 +1,7 @@
 import { type JSX, For, Show, splitProps } from 'solid-js'
-import { ChevronRight } from 'lucide-solid'
 import { Breadcrumbs as KobalteBreadcrumbs } from '@kobalte/core/breadcrumbs'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export interface BreadcrumbItem {
 	/** Label to show. */
@@ -20,7 +20,8 @@ export interface BreadcrumbsProps {
 }
 
 function DefaultSeparator(): JSX.Element {
-	return <ChevronRight class="h-4 w-4 shrink-0 text-ink-400" aria-hidden="true" />
+	const icons = useIcons()
+	return icons.chevronRight({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })
 }
 
 export function Breadcrumbs(props: BreadcrumbsProps) {
@@ -51,7 +52,7 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
 								>
 									<KobalteBreadcrumbs.Link
 										href={item.href!}
-										class="text-ink-600 hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+										class="text-ink-600 hover:text-ink-900 underline-offset-2 hover:underline"
 									>
 										{item.label}
 									</KobalteBreadcrumbs.Link>

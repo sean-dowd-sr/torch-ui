@@ -26,7 +26,7 @@ export interface TagProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'col
 
 const tagVariants: Record<TagVariant, string> = {
 	neutral:
-		'bg-ink-100 text-ink-700 border-ink-200',
+		'bg-surface-raised text-ink-600 border-surface-border',
 	primary:
 		'bg-primary-50 text-primary-700 border-primary-100 dark:bg-primary-500/20 dark:text-primary-200 dark:border-primary-500/40',
 	success:
@@ -78,7 +78,7 @@ export function Tag(props: TagProps) {
 		>
 			<Show when={local.statusColor}>
 				<span
-					class="size-2 shrink-0 rounded-full ring-1 ring-ink-200/80 dark:ring-ink-500/80"
+					class="size-2 shrink-0 rounded-full ring-1 ring-surface-border"
 					style={{ 'background-color': local.statusColor }}
 					aria-hidden={local.statusLabel ? undefined : 'true'}
 					role={local.statusLabel ? 'img' : undefined}

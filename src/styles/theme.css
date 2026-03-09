@@ -8,6 +8,17 @@
   --color-surface-dim: var(--surface-dim);
   --color-surface-border: var(--surface-border);
 
+  /* Font weights */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
   /* Ink */
   --color-ink-50: var(--ink-50);
   --color-ink-100: var(--ink-100);
@@ -97,13 +108,23 @@
   --ink-light:     #18181c;
   --ink-dark:      #f0f0f2;
   --surface-light: #fafafa;
-  --surface-dark:  #0f1112;
+  --surface-dark:  #020b13;
 
   --primary: #ff7547;
   --success: #0dcd51;
-  --warning: #e6ba05;
+  --warning: #ebd405;
   --danger:  #f12828;
   --info:    #10b3f4;
+
+  /* ── Component height scale ───────────────────────────────────
+     Override any of these to resize ALL interactive components
+     (buttons, inputs, selects, date pickers, etc.) at that size.
+     Values correspond to Tailwind h-7 … h-11 by default.      */
+  --torch-h-xs: 1.75rem;   /* 28px  h-7  */
+  --torch-h-sm: 2rem;      /* 32px  h-8  */
+  --torch-h-md: 2.25rem;   /* 36px  h-9  */
+  --torch-h-lg: 2.5rem;    /* 40px  h-10 */
+  --torch-h-xl: 2.75rem;   /* 44px  h-11 */
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -118,16 +139,16 @@
   --surface-border:  color-mix(in oklch, black 8%, var(--surface-light));
 
   /* Ink — derived from --ink-light, anchored at ink-900 */
-  --ink-50:  color-mix(in oklch, white 95%, var(--ink-light));
-  --ink-100: color-mix(in oklch, white 85%, var(--ink-light));
-  --ink-200: color-mix(in oklch, white 70%, var(--ink-light));
-  --ink-300: color-mix(in oklch, white 55%, var(--ink-light));
-  --ink-400: color-mix(in oklch, white 40%, var(--ink-light));
-  --ink-500: color-mix(in oklch, white 25%, var(--ink-light));
-  --ink-600: color-mix(in oklch, white 15%, var(--ink-light));
-  --ink-700: color-mix(in oklch, white 10%, var(--ink-light));
-  --ink-800: color-mix(in oklch, white 5%,  var(--ink-light));
-  --ink-850: color-mix(in oklch, white 2%,  var(--ink-light));
+  --ink-50:  color-mix(in oklch, white 99%, var(--ink-light));
+  --ink-100: color-mix(in oklch, white 97%, var(--ink-light));
+  --ink-200: color-mix(in oklch, white 92%, var(--ink-light));
+  --ink-300: color-mix(in oklch, white 80%, var(--ink-light));
+  --ink-400: color-mix(in oklch, white 60%, var(--ink-light));
+  --ink-500: color-mix(in oklch, white 35%, var(--ink-light));
+  --ink-600: color-mix(in oklch, white 25%, var(--ink-light));
+  --ink-700: color-mix(in oklch, white 12%, var(--ink-light));
+  --ink-800: color-mix(in oklch, white 7%,  var(--ink-light));
+  --ink-850: color-mix(in oklch, white 3%,  var(--ink-light));
   --ink-900: var(--ink-light);
   --ink-950: color-mix(in oklch, black 30%, var(--ink-light));
 
@@ -202,7 +223,8 @@
 /* ─────────────────────────────────────────────────────────────
    DARK MODE
 ───────────────────────────────────────────────────────────── */
-.dark {
+.dark,
+.code-block-dark {
   /* Surface — derived from --surface-dark */
   --surface-base:    var(--surface-dark);
   --surface-raised:  color-mix(in oklch, white 6%, var(--surface-dark));
@@ -210,17 +232,51 @@
   --surface-dim:     color-mix(in oklch, white 22%, var(--surface-dark));
   --surface-border:  color-mix(in oklch, white 22%, var(--surface-dark));
 
+  --color-surface-base: var(--surface-base);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-border: var(--surface-border);
+
   /* Ink — derived from --ink-dark, anchored at ink-900 (inverted: 900 = lightest) */
-  --ink-50:  color-mix(in oklch, black 90%, var(--ink-dark));
-  --ink-100: color-mix(in oklch, black 80%, var(--ink-dark));
-  --ink-200: color-mix(in oklch, black 60%, var(--ink-dark));
-  --ink-300: color-mix(in oklch, black 40%, var(--ink-dark));
-  --ink-400: color-mix(in oklch, black 20%, var(--ink-dark));
-  --ink-500: color-mix(in oklch, black 5%,  var(--ink-dark));
-  --ink-600: color-mix(in oklch, white 5%,  var(--ink-dark));
-  --ink-700: color-mix(in oklch, white 15%, var(--ink-dark));
-  --ink-800: color-mix(in oklch, white 25%, var(--ink-dark));
-  --ink-850: color-mix(in oklch, white 35%, var(--ink-dark));
+  --ink-50:  color-mix(in oklch, black 99%, var(--ink-dark));
+  --ink-100: color-mix(in oklch, black 97%, var(--ink-dark));
+  --ink-200: color-mix(in oklch, black 92%, var(--ink-dark));
+  --ink-300: color-mix(in oklch, black 80%, var(--ink-dark));
+  --ink-400: color-mix(in oklch, black 60%, var(--ink-dark));
+  --ink-500: color-mix(in oklch, black 40%, var(--ink-dark));
+  --ink-600: color-mix(in oklch, black 25%, var(--ink-dark));
+  --ink-700: color-mix(in oklch, black 12%, var(--ink-dark));
+  --ink-800: color-mix(in oklch, black 7%,  var(--ink-dark));
+  --ink-850: color-mix(in oklch, black 3%,  var(--ink-dark));
   --ink-900: var(--ink-dark);
   --ink-950: color-mix(in oklch, white 30%, var(--ink-dark));
+
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-850: var(--ink-850);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+}
+
+@keyframes banner-in {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes banner-out {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+
+@theme {
+  --animate-banner-in:  banner-in  0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-banner-out: banner-out 0.18s cubic-bezier(0.7, 0, 0.84, 0) both;
 }

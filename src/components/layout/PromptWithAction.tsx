@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { Link } from '../actions'
 
 export interface PromptWithActionProps {
 	/** Leading text (e.g. "Don't have an account?") */
@@ -27,7 +28,7 @@ export interface PromptWithActionButtonProps extends PromptWithActionProps {
 export type PromptWithActionAllProps = PromptWithActionLinkProps | PromptWithActionButtonProps
 
 const defaultActionClass =
-	'cursor-pointer font-medium text-primary-500 hover:underline focus:rounded focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:ring-offset-1 dark:text-primary-400 dark:focus:ring-primary-500/40'
+	'cursor-pointer font-medium text-primary-500 hover:underline rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 dark:text-primary-400'
 
 /** One line: prompt text plus a link or button action. */
 export function PromptWithAction(props: PromptWithActionAllProps): JSX.Element {
@@ -36,9 +37,9 @@ export function PromptWithAction(props: PromptWithActionAllProps): JSX.Element {
 		<p class={cn('mb-7 text-[0.9375rem] text-ink-500', props.class)}>
 			{props.prompt}{' '}
 			{props.href != null ? (
-				<a href={props.href} class={actionClass()}>
+				<Link href={props.href} class={actionClass()}>
 					{props.actionLabel}
-				</a>
+				</Link>
 			) : (
 				<button type="button" class={actionClass()} onClick={props.onClick}>
 					{props.actionLabel}

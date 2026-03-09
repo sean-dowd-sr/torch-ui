@@ -1,7 +1,7 @@
 import { type JSX, splitProps, Show, onMount } from 'solid-js'
 import { Menubar as KobalteMenuBar } from "@kobalte/core/menubar";
-import { ChevronDown } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 function injectMenuBarStyles() {
 	const id = 'torchui-menu-bar-styles'
@@ -41,6 +41,7 @@ export interface MenuBarTriggerProps {
 
 export function MenuBarTrigger(props: MenuBarTriggerProps) {
 	const [local, others] = splitProps(props, ['class', 'children', 'noChevron', 'variant', 'icon', 'iconPosition'])
+	const icons = useIcons()
 	const v = () => local.variant ?? 'default'
 	const ip = () => local.iconPosition ?? 'start'
 	const isStacked = () => ip() === 'top' || ip() === 'bottom'
@@ -78,10 +79,10 @@ export function MenuBarTrigger(props: MenuBarTriggerProps) {
 				<span class="flex h-4 w-4 shrink-0 items-center justify-center">{local.icon}</span>
 			</Show>
 			<Show when={!local.noChevron && !isStacked()}>
-				<ChevronDown
-					class="relative h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform duration-200 group-data-[expanded]:rotate-180"
-					aria-hidden="true"
-				/>
+				{icons.chevronDown({
+					class: 'relative h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform duration-200 group-data-[expanded]:rotate-180',
+					'aria-hidden': 'true',
+				})}
 			</Show>
 			<Show when={v() === 'underline'}>
 				<span
@@ -135,7 +136,7 @@ export function MenuBarItem(props: MenuBarItemProps) {
 			class={cn(
 				'relative flex cursor-default select-none rounded-lg px-3 py-2 text-sm outline-none transition-colors',
 				'text-ink-700 hover:bg-surface-overlay hover:text-ink-900',
-				'focus:bg-surface-overlay focus:text-ink-900',
+				'focus-visible:bg-surface-overlay focus-visible:text-ink-900',
 				'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
 				(ip() === 'start' || ip() === 'end') ? 'items-start gap-2.5' : 'flex-col items-center text-center gap-1.5',
 				ip() === 'end' && 'flex-row-reverse',
@@ -199,7 +200,7 @@ export function MenuBarLink(props: MenuBarLinkProps) {
 	return (
 		<a
 			href={props.disabled ? undefined : props.href}
-			aria-disabled={props.disabled || undefined}
+			aria-disabled={props.disabled ? 'true' : undefined}
 			tabIndex={props.disabled ? -1 : undefined}
 			onClick={props.disabled ? (e: Event) => e.preventDefault() : undefined}
 			class={cn(

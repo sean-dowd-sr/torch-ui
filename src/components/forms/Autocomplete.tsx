@@ -2,12 +2,13 @@
  * Autocomplete: text input with a dropdown of suggested options (combobox).
  * Built on Kobalte Combobox. For "free solo" or creatable, use custom options or a creatable pattern in the app layer.
  */
-import { createEffect, createMemo, createSignal, Show, splitProps } from 'solid-js'
+import { createEffect, createMemo, createSignal, Show, splitProps, onMount } from 'solid-js'
 import { type JSX } from 'solid-js'
-import { ChevronDown, X } from 'lucide-solid'
 import { Combobox as KobalteCombobox } from '@kobalte/core/combobox'
 import { cn } from '../../utilities/classNames'
-import { type ComponentSize, inputSizeConfig } from '../../utilities/componentSize'
+import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
+import { useIcons } from '../../icons'
+import { useComponentSize } from '../../utilities/componentSizeContext'
 
 const autocompleteStyles = `
 .torchui-combobox-content {
@@ -29,14 +30,14 @@ const autocompleteStyles = `
 }
 `
 
-let comboboxStylesInjected = false
-/** Injects animation styles once. Note: uses inline <style> which requires 'unsafe-inline' in CSP style-src. */
+const COMBOBOX_STYLE_ID = 'torchui-combobox-styles'
 function ensureComboboxStyles() {
-	if (comboboxStylesInjected || typeof document === 'undefined') return
+	if (typeof document === 'undefined') return
+	if (document.getElementById(COMBOBOX_STYLE_ID)) return
 	const style = document.createElement('style')
+	style.id = COMBOBOX_STYLE_ID
 	style.textContent = autocompleteStyles
 	document.head.appendChild(style)
-	comboboxStylesInjected = true
 }
 
 export interface AutocompleteOption {
@@ -62,6 +63,8 @@ export interface AutocompleteProps {
 	placeholder?: string
 	value?: string
 	onValueChange?: (value: string) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	class?: string
 	/** Disable the control and input. */
 	disabled?: boolean
@@ -86,8 +89,8 @@ export interface AutocompleteProps {
 /** Option shape passed to Combobox when we add disabled from getOptionDisabled. */
 type OptionWithDisabled = AutocompleteOption & { disabled?: boolean }
 
-export const Autocomplete = (props: AutocompleteProps) => {
-	const [local] = splitProps(props, [
+export function Autocomplete(props: AutocompleteProps) {
+	const [local, others] = splitProps(props, [
 		'label',
 		'error',
 		'helperText',
@@ -98,6 +101,7 @@ export const Autocomplete = (props: AutocompleteProps) => {
 		'placeholder',
 		'value',
 		'onValueChange',
+		'onErrorClear',
 		'class',
 		'disabled',
 		'disableClearable',
@@ -109,6 +113,8 @@ export const Autocomplete = (props: AutocompleteProps) => {
 		'renderOption',
 		'ref',
 	])
+	const icons = useIcons()
+	const contextSize = useComponentSize()
 	const hasError = () => !!local.error
 
 	const [inputValueState, setInputValueState] = createSignal('')
@@ -143,6 +149,7 @@ export const Autocomplete = (props: AutocompleteProps) => {
 	})
 
 	const handleChange = (option: OptionWithDisabled | null) => {
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		setDirty(false)
 		if (!option) {
 			if (local.inputValue === undefined) setInputValueState('')
@@ -154,6 +161,7 @@ export const Autocomplete = (props: AutocompleteProps) => {
 	}
 
 	const handleInputChange = (value: string) => {
+		if (local.error && local.onErrorClear) local.onErrorClear()
 		setDirty(true)
 		if (local.inputValue === undefined) setInputValueState(value)
 		local.onInputChange?.(value)
@@ -171,8 +179,8 @@ export const Autocomplete = (props: AutocompleteProps) => {
 		local.onValueChange?.('')
 	}
 
-	ensureComboboxStyles()
-	const sc = () => inputSizeConfig[local.size ?? 'md']
+	onMount(ensureComboboxStyles)
+	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
 
 	return (
 		<div ref={local.ref} class={cn('w-full', local.class)}>
@@ -218,14 +226,14 @@ export const Autocomplete = (props: AutocompleteProps) => {
 				<KobalteCombobox.Control
 					class={cn(
 						'w-full flex cursor-pointer items-center justify-between gap-2 rounded-lg transition-colors outline-none text-ink-900 bg-surface-raised border',
-						hasError() ? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500' : 'border-ink-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 focus-within:border-transparent',
+						hasError() ? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500' : 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 focus-within:border-transparent',
 						sc().h, sc().py, sc().text, sc().pl, sc().pr,
 						local.disabled &&
 							'cursor-not-allowed bg-surface-base text-ink-500 pointer-events-none'
 					)}
 				>
 					<KobalteCombobox.Input
-						class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 disabled:cursor-not-allowed"
+						class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:cursor-not-allowed"
 						placeholder={local.placeholder || 'Search...'}
 						disabled={local.disabled}
 					/>
@@ -234,20 +242,20 @@ export const Autocomplete = (props: AutocompleteProps) => {
 							type="button"
 							aria-label="Clear"
 							class={cn(
-								'shrink-0 rounded p-0.5 text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-900 hover:text-ink-600 dark:hover:text-ink-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset',
+								'shrink-0 rounded p-0.5 text-ink-400 hover:bg-surface-overlay hover:text-ink-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset',
 								!local.value && inputValue().length === 0 && 'invisible'
 							)}
 							tabIndex={!local.value && inputValue().length === 0 ? -1 : 0}
 							onClick={handleClear}
 						>
-							<X class="h-4 w-4" aria-hidden="true" />
+							{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 						</button>
 					</Show>
 					<KobalteCombobox.Trigger
-						class="shrink-0 rounded p-0.5 text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-900 hover:text-ink-600 dark:hover:text-ink-300"
+						class="shrink-0 rounded p-0.5 text-ink-400 hover:bg-surface-overlay hover:text-ink-600"
 						aria-label="Open options"
 					>
-						<ChevronDown class="h-4 w-4" aria-hidden="true" />
+						{icons.chevronDown({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 					</KobalteCombobox.Trigger>
 				</KobalteCombobox.Control>
 				<Show when={!local.bare && !hasError() && local.helperText}>

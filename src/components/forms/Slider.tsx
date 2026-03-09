@@ -3,21 +3,31 @@ import { splitProps, Show, For } from 'solid-js'
 import { Slider as KobalteSlider } from '@kobalte/core/slider'
 import { cn } from '../../utilities/classNames'
 
+export type SliderSize = 'sm' | 'md' | 'lg'
+
 export interface SliderProps {
 	/** Label for the slider. */
 	label?: string
-	/** Optional description. */
-	description?: string
+	/** Hint text below the control. */
+	helperText?: string
 	/** Error message and invalid styling. */
 	error?: string
+	/** When true, never render label row or error/helper text (control only). */
+	bare?: boolean
+	/** When true, show required indicator on label. */
+	required?: boolean
+	/** When true, show "optional" on the label row when not required. Default false. */
+	optional?: boolean
 	/** Controlled value(s). Single thumb: [number], range: [min, max]. */
 	value?: number[]
 	/** Default value(s) when uncontrolled. */
 	defaultValue?: number[]
 	/** Called when value changes. */
-	onChange?: (value: number[]) => void
+	onValueChange?: (value: number[]) => void
 	/** Called when user finishes dragging. */
-	onChangeEnd?: (value: number[]) => void
+	onValueChangeEnd?: (value: number[]) => void
+	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
+	onErrorClear?: () => void
 	/** Minimum value. Default 0. */
 	minValue?: number
 	/** Maximum value. Default 100. */
@@ -35,7 +45,7 @@ export interface SliderProps {
 	/** Content after the track (e.g. icon or max label). */
 	endContent?: JSX.Element
 	/** Track thickness (height for horizontal, width for vertical). Default sm. Length is controlled by container. */
-	size?: 'sm' | 'md' | 'lg'
+	size?: SliderSize
 	/** Track and thumb color. Default primary (theme). */
 	color?: 'primary' | 'indigo' | 'rose'
 	/** Optional marks (e.g. [0, 25, 50, 75, 100]) shown below the track, aligned with step positions. */
@@ -51,12 +61,16 @@ export interface SliderProps {
 export function Slider(props: SliderProps) {
 	const [local, others] = splitProps(props, [
 		'label',
-		'description',
+		'helperText',
 		'error',
+		'bare',
+		'required',
+		'optional',
 		'value',
 		'defaultValue',
-		'onChange',
-		'onChangeEnd',
+		'onValueChange',
+		'onValueChangeEnd',
+		'onErrorClear',
 		'minValue',
 		'maxValue',
 		'step',
@@ -120,14 +134,17 @@ export function Slider(props: SliderProps) {
 	const thumbCenterStyle = (): Record<string, string> =>
 		isHorizontal()
 			? { top: '50%', transform: 'translate(-50%, -50%)' }
-			: { left: '50%', transform: 'translate(-50%, -50%)' }
+			: { left: '50%', transform: 'translate(-50%, 50%)' }
 
 	return (
 		<KobalteSlider
 			value={local.value}
 			defaultValue={local.defaultValue ?? [50]}
-			onChange={local.onChange}
-			onChangeEnd={local.onChangeEnd}
+			onChange={(v) => {
+				if (local.error && local.onErrorClear) local.onErrorClear()
+				local.onValueChange?.(v)
+			}}
+			onChangeEnd={local.onValueChangeEnd}
 			minValue={local.minValue ?? 0}
 			maxValue={local.maxValue ?? 100}
 			step={local.step ?? 1}
@@ -160,7 +177,7 @@ export function Slider(props: SliderProps) {
 			<Show when={local.label && !isHorizontal()}>
 				<KobalteSlider.Label
 					class={cn(
-						'text-sm font-medium text-ink-700',
+						'text-sm font-medium text-ink-700 mb-2',
 						hasError() && 'text-danger-600 dark:text-danger-400'
 					)}
 				>
@@ -183,7 +200,7 @@ export function Slider(props: SliderProps) {
 						class={cn(
 							'relative shrink-0 overflow-visible rounded-full transition-colors',
 							trackBgClass(),
-							'group-[.is-disabled]/slider:bg-ink-100 dark:group-[.is-disabled]/slider:bg-ink-800',
+							'group-[.is-disabled]/slider:bg-surface-dim',
 							trackSizeClass(),
 							isHorizontal() ? 'w-full min-w-0' : 'h-full min-h-0'
 						)}
@@ -193,7 +210,7 @@ export function Slider(props: SliderProps) {
 								'absolute rounded-full transition-colors',
 								isHorizontal() ? 'inset-y-0 left-0' : 'inset-x-0',
 								fillThumbClass(),
-								'group-[.is-disabled]/slider:bg-ink-300 dark:group-[.is-disabled]/slider:bg-ink-600'
+								'group-[.is-disabled]/slider:bg-surface-border'
 							)}
 						/>
 						<For each={Array.from({ length: thumbCount() })}>
@@ -205,9 +222,9 @@ export function Slider(props: SliderProps) {
 										thumbSizeClass(),
 										fillThumbClass(),
 										'shadow-[0_1px_3px_rgba(0,0,0,0.12)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)]',
-										'ring-0 hover:ring-0 focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-ink-900',
+										'ring-0 hover:ring-0 focus-visible:ring-2',
 										focusRingClass(),
-										'group-[.is-disabled]/slider:bg-ink-300 dark:group-[.is-disabled]/slider:bg-ink-600 group-[.is-disabled]/slider:cursor-not-allowed group-[.is-disabled]/slider:shadow-none'
+										'group-[.is-disabled]/slider:bg-surface-border group-[.is-disabled]/slider:cursor-not-allowed group-[.is-disabled]/slider:shadow-none'
 									)}
 								>
 									<KobalteSlider.Input />
@@ -243,11 +260,11 @@ export function Slider(props: SliderProps) {
 				</Show>
 			</div>
 			<Show when={local.label && !isHorizontal()}>
-				<KobalteSlider.ValueLabel class="text-sm text-ink-500 text-center tabular-nums" />
+				<KobalteSlider.ValueLabel class="text-sm text-ink-500 text-center tabular-nums mt-2" />
 			</Show>
-			<Show when={local.description}>
+			<Show when={local.helperText}>
 				<KobalteSlider.Description class="mt-1 text-xs text-ink-500">
-					{local.description}
+					{local.helperText}
 				</KobalteSlider.Description>
 			</Show>
 			<Show when={local.error}>

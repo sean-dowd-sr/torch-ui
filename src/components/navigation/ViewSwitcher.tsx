@@ -1,8 +1,9 @@
 import { type JSX, For, Show, createEffect, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
-import { Pin } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
 import { DropdownMenuContent, DropdownMenuItem } from './DropdownMenu'
 import { DropdownMenu as KobalteDropdownMenu } from '@kobalte/core/dropdown-menu'
+import { useIcons } from '../../icons'
+import { Button } from '../actions'
 
 export type ViewScope = 'user' | 'tenant'
 
@@ -17,7 +18,7 @@ export interface ViewSwitcherItem {
 export interface ViewSwitcherProps {
 	views: ViewSwitcherItem[]
 	activeId: string
-	onChange: (id: string) => void
+	onValueChange: (id: string) => void
 	onAdd?: () => void
 	addIcon?: JSX.Element
 	maxVisible?: number
@@ -36,9 +37,10 @@ const ADD_BUTTON_WIDTH = 40
 /** View switcher with overflow dropdown (e.g. table views). Single use case: switch between views with optional count and overflow. */
 export function ViewSwitcher(props: ViewSwitcherProps) {
 	const [local] = splitProps(props, [
-		'views', 'activeId', 'onChange', 'onAdd', 'addIcon',
+		'views', 'activeId', 'onValueChange', 'onAdd', 'addIcon',
 		'maxVisible', 'moreLabel', 'variant', 'ariaLabel', 'class',
 	])
+	const icons = useIcons()
 
 	const [dynamicMax, setDynamicMax] = createSignal<number | null>(null)
 	let containerRef: HTMLDivElement | undefined
@@ -193,7 +195,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 		if (key === 'End') next = tabs.length - 1
 		tabs[next]?.focus()
 		const nextId = tabs[next]?.dataset.viewId
-		if (nextId) local.onChange(nextId)
+		if (nextId) local.onValueChange(nextId)
 	}
 
 	const containerClass = () =>
@@ -246,14 +248,14 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 											aria-current={isActive() ? 'page' : undefined}
 											tabIndex={isActive() ? 0 : -1}
 											onKeyDown={onTabKeyDown}
-											onClick={() => local.onChange(view.id)}
+											onClick={() => local.onValueChange(view.id)}
 										>
 											<Show when={view.pinned}>
-												<Pin size={12} class="shrink-0 text-ink-400" aria-hidden="true" />
+												{icons.pin({ width: 12, height: 12, class: 'shrink-0 text-ink-400', 'aria-hidden': 'true' })}
 											</Show>
 											<span class="min-w-0 truncate">{view.label}</span>
 											<Show when={typeof view.count === 'number'}>
-												<span class="shrink-0 rounded-full bg-ink-200/80 px-2 py-0.5 text-xs font-semibold text-ink-600">
+												<span class="shrink-0 rounded-full bg-surface-overlay/80 px-2 py-0.5 text-xs font-semibold text-ink-600">
 													{view.count}
 												</span>
 											</Show>
@@ -269,23 +271,23 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 							<KobalteDropdownMenu>
 								<KobalteDropdownMenu.Trigger as="button" type="button" class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-ink-600 hover:bg-surface-raised hover:text-ink-900">
 									{local.moreLabel ?? 'More'}
-									<span class="rounded-full bg-ink-200 px-2 py-0.5 text-xs font-semibold text-ink-600">
+									<span class="rounded-full bg-surface-overlay px-2 py-0.5 text-xs font-semibold text-ink-600">
 										{ov.length}
 									</span>
 								</KobalteDropdownMenu.Trigger>
 								<DropdownMenuContent>
 									<For each={ov}>
 										{(view) => (
-											<DropdownMenuItem onSelect={() => local.onChange(view.id)}>
+											<DropdownMenuItem onSelect={() => local.onValueChange(view.id)}>
 												<div class="flex w-full items-center justify-between gap-3">
 													<div class="flex min-w-0 flex-1 items-center gap-2">
 														<Show when={view.pinned}>
-															<Pin size={12} class="shrink-0 text-ink-400" aria-hidden="true" />
+															{icons.pin({ width: 12, height: 12, class: 'shrink-0 text-ink-400', 'aria-hidden': 'true' })}
 														</Show>
 														<span class="truncate">{view.label}</span>
 													</div>
 													<Show when={typeof view.count === 'number'}>
-														<span class="shrink-0 rounded-full bg-ink-200 px-2 py-0.5 text-xs font-semibold text-ink-600">
+														<span class="shrink-0 rounded-full bg-surface-overlay px-2 py-0.5 text-xs font-semibold text-ink-600">
 															{view.count}
 														</span>
 													</Show>
@@ -300,14 +302,15 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 				)
 			})()}
 			<Show when={local.onAdd}>
-				<button
-					type="button"
-					class="ml-2 inline-flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-lg border border-transparent text-ink-500 transition-colors hover:bg-surface-raised hover:text-ink-900"
-					aria-label="Add view"
+				<Button
+					iconOnly
+					variant="ghost"
+					size="xs"
+					icon={local.addIcon}
+					label="Add view"
 					onClick={local.onAdd}
-				>
-					{local.addIcon}
-				</button>
+					class="ml-2 self-center h-7 w-7 hover:bg-surface-raised hover:text-ink-900"
+				/>
 			</Show>
 		</div>
 	)

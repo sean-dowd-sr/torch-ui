@@ -1,13 +1,13 @@
-import { Show, onMount, type JSX, splitProps } from 'solid-js'
+import { Show, onMount, type JSX, splitProps, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { Button } from '../actions'
 import { cn } from '../../utilities/classNames'
 
 export type DrawerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
-export type DrawerSide = 'start' | 'end' | 'top' | 'bottom' | 'left' | 'right'
+export type DrawerSide = 'start' | 'end' | 'top' | 'bottom'
 
 /** Where to place the action buttons (Cancel/Save). Default bottom. */
-export type DrawerActionsPosition = 'bottom' | 'top-end'
+export type DrawerActionsPosition = 'bottom' | 'top-end' | 'top-start'
 
 export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 	open: boolean
@@ -37,6 +37,12 @@ export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 	lockScroll?: boolean
 	/** Inset from viewport edges (Tailwind spacing: 0, 2=0.5rem, 4=1rem, 6=1.5rem). No offset when size is full. Default 0. */
 	offset?: '0' | '2' | '4' | '6'
+	/** Called after the exit animation completes. Use this instead of onClose to defer clearing state so content doesn't change mid-animation. */
+	onCloseComplete?: () => void
+	/** Remove default p-6 padding from the content area. Use when children provide their own full-bleed layout. */
+	noPadding?: boolean
+	/** Optional class applied to the inner scrollable content div (the direct parent of children). */
+	contentClass?: string
 }
 
 // Width for start/end; height for top/bottom
@@ -193,22 +199,19 @@ export function Drawer(props: DrawerProps) {
 		'actionsPosition',
 		'lockScroll',
 		'offset',
+		'onCloseComplete',
+		'noPadding',
+		'contentClass',
 		'class',
 		'children',
 	])
 
 	onMount(ensureDrawerStyles)
 
-	// Normalize left/right to start/end for positioning
-	const side = (): 'start' | 'end' | 'top' | 'bottom' => {
-		const s = local.side ?? 'end'
-		if (s === 'left') return 'start'
-		if (s === 'right') return 'end'
-		return s
-	}
+	const side = () => local.side ?? 'end'
 	const isHorizontal = () => side() === 'start' || side() === 'end'
 	const sizeClass = () =>
-		isHorizontal() ? sizeWidthClasses[local.size ?? 'md'] : sizeHeightClasses[local.size ?? 'md']
+		isHorizontal() ? sizeWidthClasses[effectiveSize()] : sizeHeightClasses[effectiveSize()]
 	const showOverlay = () => local.overlay !== false
 	const closeOnOverlay = () => local.closeOnOverlayClick !== false
 	const hasFooter = () => showCancel() || local.onSave != null
@@ -238,13 +241,26 @@ export function Drawer(props: DrawerProps) {
 		closeReason = 'close'
 	}
 
-	// Check if drawer can be closed (controlled component needs onOpenChange)
-	const canClose = () => local.onOpenChange != null
+	// Check if drawer can be closed (either onOpenChange or onClose is sufficient)
+	const canClose = () => local.onOpenChange != null || local.onClose != null
 
 	// Show Cancel button and close button only when drawer is closable
 	const showCancel = () => canClose()
 
-	const currentSize = () => local.size ?? 'md'
+	// Freeze size during exit animation so sizeClass doesn't snap to md when parent clears state.
+	const [effectiveSize, setEffectiveSize] = createSignal<DrawerSize>(local.size ?? 'md')
+	createEffect(on(
+		() => [local.open, local.size] as const,
+		([open, size]) => { if (open) setEffectiveSize(size ?? 'md') }
+	))
+	// Fire onCloseComplete after the 200ms exit animation completes.
+	createEffect(on(() => local.open, (isOpen, wasOpen) => {
+		if (wasOpen === true && !isOpen) {
+			const t = setTimeout(() => local.onCloseComplete?.(), 200)
+			onCleanup(() => clearTimeout(t))
+		}
+	}))
+	const currentSize = () => effectiveSize()
 	const isFull = () => currentSize() === 'full'
 	const offset = (): DrawerOffset => local.offset ?? '0'
 	const hasInsetOffset = () => !isFull() && offset() !== '0'
@@ -326,14 +342,28 @@ export function Drawer(props: DrawerProps) {
 					}}
 					{...others}
 				>
-					{/* Header row when actions are top-end: actions + close (or just close if no footer) */}
-					<Show when={actionsPosition() === 'top-end' && (hasFooter() || (canClose() && local.showCloseButton !== false))}>
-						<div class="flex shrink-0 items-center justify-end gap-2 border-b border-surface-border px-6 py-4">
-							<Show when={hasFooter()}>{actionsBlock()}</Show>
+					{/* Header bar for top-end / top-start: inline buttons to avoid nested Show-in-function issues */}
+					<Show when={actionsPosition() === 'top-end' || actionsPosition() === 'top-start'}>
+						<div class={cn('flex shrink-0 items-center gap-2 border-b border-surface-border px-6 py-4', actionsPosition() === 'top-start' ? 'justify-start' : 'justify-end')}>
+							<Show when={showCancel()}>
+								<KobalteDialog.CloseButton
+									as={Button}
+									variant="ghost"
+									size="sm"
+									onClick={setCancelReason}
+								>
+									{local.cancelLabel ?? 'Cancel'}
+								</KobalteDialog.CloseButton>
+							</Show>
+							<Show when={local.onSave}>
+								<Button variant="primary" size="sm" class="rounded-lg" onClick={local.onSave}>
+									{local.saveLabel ?? 'Save'}
+								</Button>
+							</Show>
 							<Show when={canClose() && local.showCloseButton !== false}>
 								<KobalteDialog.CloseButton
 									aria-label="Close"
-									class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 dark:hover:text-ink-100"
+									class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 									onClick={setCloseReason}
 								>
 									{closeButtonEl()}
@@ -342,18 +372,18 @@ export function Drawer(props: DrawerProps) {
 						</div>
 					</Show>
 
-					<div class="relative flex flex-1 flex-col overflow-hidden p-6">
+					<div class={cn('relative flex flex-1 flex-col overflow-hidden', !local.noPadding && 'p-6')}>
 						{/* Close button in content area when actions are at bottom */}
 						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
 							<KobalteDialog.CloseButton
 								aria-label="Close"
-								class="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 dark:hover:text-ink-100"
+								class="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 								onClick={setCloseReason}
 							>
 								{closeButtonEl()}
 							</KobalteDialog.CloseButton>
 						</Show>
-						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0')}>
+						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
 							{local.children}
 						</div>
 					</div>

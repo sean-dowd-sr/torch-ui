@@ -10,7 +10,7 @@ export interface BadgeProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'c
 	variant?: BadgeVariant
 	/** Badge size; scales dot and pill. Default: md. */
 	size?: BadgeSize
-	/** Optional icon (e.g. from lucide-solid) shown inside the badge. Use for icon-only badge. */
+	/** Optional icon shown inside the badge. Use for icon-only badge. */
 	icon?: JSX.Element
 	/** Optional count or label shown inside the badge (e.g. "3"). When omitted and no icon, renders as a dot only. */
 	children?: JSX.Element
@@ -18,6 +18,8 @@ export interface BadgeProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'c
 	decorative?: boolean
 }
 
+// Intentionally uses ink-400 as a background for neutral — surface tokens are too
+// close to the page background for a status dot to read clearly against it.
 const variantClasses: Record<BadgeVariant, string> = {
 	neutral: 'bg-ink-400',
 	primary: 'bg-primary-500',
@@ -45,15 +47,17 @@ export function Badge(props: BadgeProps) {
 	const hasContent = () => local.children != null
 	const usePill = () => hasIcon() || hasContent()
 	const isDecorative = () => local.decorative !== false
-	const hasA11yName = () =>
-		(others as Record<string, unknown>)['aria-label'] != null ||
-		(others as Record<string, unknown>)['aria-labelledby'] != null
+	const hasA11yName = () => {
+		const o = others as Record<string, unknown>
+		return o['aria-label'] != null || o['aria-labelledby'] != null
+	}
 
 	return (
 		<span
 			aria-hidden={isDecorative() && !hasA11yName() ? 'true' : undefined}
 			class={cn(
-				'inline-flex shrink-0 items-center justify-center rounded-full border-2 border-white font-medium leading-none text-white shadow-sm',
+				'inline-flex shrink-0 items-center justify-center rounded-full border-2 border-surface-base font-medium leading-none text-white',
+				usePill() && 'shadow-sm',
 				hasIcon() && hasContent() && 'gap-0.5',
 				variantClasses[variant()],
 				usePill()

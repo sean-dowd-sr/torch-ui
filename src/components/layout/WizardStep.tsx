@@ -19,8 +19,8 @@ export const WizardStep: ParentComponent<WizardStepProps> = (props) => {
 			<div class="mb-1 flex items-center gap-3">
 				{props.stepNumber != null && (
 					<span
-						class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-sm font-semibold text-primary-600 dark:bg-primary-500/20 dark:text-primary-400"
-						aria-hidden
+						class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-500/15 text-sm font-semibold text-primary-600"
+						aria-hidden="true"
 					>
 						{props.stepNumber}
 					</span>

@@ -1,4 +1,4 @@
-import { Show, onMount, type JSX, splitProps, createEffect, on } from 'solid-js'
+import { Show, onMount, type JSX, splitProps, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { cn } from '../../utilities/classNames'
 
@@ -46,6 +46,8 @@ export interface DialogProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	animationDuration?: number
 	/** Duration in ms for exit animation. Default 80% of animationDuration. */
 	animationExitDuration?: number
+	/** Called after the exit animation completes. Use this instead of onClose to defer clearing state so content doesn't change mid-animation. */
+	onCloseComplete?: () => void
 }
 
 const sizeClasses: Record<DialogSize, string> = {
@@ -145,6 +147,7 @@ export function Dialog(props: DialogProps) {
 		'panelAnimation',
 		'animationDuration',
 		'animationExitDuration',
+		'onCloseComplete',
 		'class',
 		'children',
 		'header',
@@ -178,8 +181,22 @@ export function Dialog(props: DialogProps) {
 		'--dialog-exit-duration': `${exitDuration()}ms`,
 	})
 
-	const sizeClass = () => sizeClasses[local.size ?? 'md']
-	const isFull = () => (local.size ?? 'md') === 'full'
+	// Freeze size for exit animation: only update while open so closing doesn't
+	// snap to 'md' before the exit animation completes.
+	const [effectiveSize, setEffectiveSize] = createSignal<DialogSize>(local.size ?? 'md')
+	createEffect(on(
+		() => [local.open, local.size] as const,
+		([open, size]) => { if (open) setEffectiveSize(size ?? 'md') }
+	))
+	// Fire onCloseComplete after exit animation so consumers can defer state cleanup.
+	createEffect(on(() => local.open, (isOpen, wasOpen) => {
+		if (wasOpen === true && !isOpen) {
+			const t = setTimeout(() => local.onCloseComplete?.(), exitDuration())
+			onCleanup(() => clearTimeout(t))
+		}
+	}))
+	const sizeClass = () => sizeClasses[effectiveSize()]
+	const isFull = () => effectiveSize() === 'full'
 	const showOverlay = () => local.overlay !== false
 	const closeOnOverlay = () => local.closeOnOverlayClick !== false
 	const overlayAnimation = () => local.overlayAnimation ?? 'fade'
@@ -233,14 +250,22 @@ export function Dialog(props: DialogProps) {
 							{/* Visual panel */}
 							<div
 								class={cn(
-									'overflow-y-auto bg-surface-raised text-ink-900',
+									'bg-surface-raised text-ink-900',
 									isFull()
-										? 'h-full min-h-0 flex-1 flex flex-col p-0' // Full screen: no padding on container
-										: 'max-h-[90vh] rounded-lg border border-surface-border p-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,.2)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,.5)]', // Normal dialog
+										? 'h-full min-h-0 flex-1 flex flex-col' // Full screen: flex column, no overflow here
+										: 'overflow-y-auto max-h-[90vh] rounded-lg border border-surface-border p-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,.2)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,.5)]', // Normal dialog
 								)}
 							>
+								{/* Header row — sticky for full-screen, inline for normal */}
 								<Show when={hasHeaderRow()}>
-									<div class={cn('flex items-center justify-between gap-4', isFull() && 'p-4')}>
+									<div
+										class={cn(
+											'flex items-center justify-between gap-4',
+											isFull()
+												? 'shrink-0 border-b border-surface-border px-4 py-3'
+												: ''
+										)}
+									>
 										<Show when={local.header}>
 											<KobalteDialog.Title as="div" class="min-w-0 flex-1">
 												{local.header}
@@ -252,7 +277,7 @@ export function Dialog(props: DialogProps) {
 										<Show when={hasCloseRow()}>
 											<KobalteDialog.CloseButton
 												aria-label="Close"
-												class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 dark:hover:text-ink-200"
+												class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 											>
 												<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 													<path d="M18 6 6 18M6 6l12 12" />
@@ -261,11 +286,23 @@ export function Dialog(props: DialogProps) {
 										</Show>
 									</div>
 								</Show>
-								<div class={cn(hasHeaderRow() && (isFull() ? '' : 'mt-7'), isFull() && 'px-4 pb-4')}>
+								{/* Body — independently scrollable for full-screen */}
+								<div
+									class={cn(
+										isFull() ? 'flex-1 overflow-y-auto px-4 py-4' : (hasHeaderRow() ? 'mt-7' : '')
+									)}
+								>
 									{local.children}
 								</div>
+								{/* Footer */}
 								<Show when={local.footer}>
-									<div class={cn('mt-8 border-t border-surface-border pt-5', isFull() && 'px-4 pb-4')}>
+									<div
+										class={cn(
+											isFull()
+												? 'shrink-0 border-t border-surface-border px-4 py-4'
+												: 'mt-8 border-t border-surface-border pt-5'
+										)}
+									>
 										{local.footer}
 									</div>
 								</Show>

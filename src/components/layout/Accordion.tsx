@@ -1,8 +1,8 @@
-import { type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps, onMount } from 'solid-js'
 import { Accordion as KobalteAccordion } from '@kobalte/core/accordion'
 import type { AccordionContentProps as KobalteAccordionContentProps, AccordionTriggerProps as KobalteAccordionTriggerProps, AccordionItemProps as KobalteAccordionItemProps } from '@kobalte/core/accordion'
-import { ChevronDown } from 'lucide-solid'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export const AccordionRoot = KobalteAccordion
 export const AccordionItem = KobalteAccordion.Item
@@ -43,14 +43,13 @@ function ensureAccordionStyles() {
 	document.head.appendChild(style)
 }
 
-if (typeof document !== 'undefined') ensureAccordionStyles()
-
 export function AccordionContentStyled(props: AccordionContentProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
+	onMount(ensureAccordionStyles)
 	return (
 		<KobalteAccordion.Content
 			class={cn(
-				'accordion-content overflow-hidden border-b border-surface-border bg-surface-base/50',
+				'accordion-content overflow-hidden border-t border-surface-border bg-surface-base/50',
 				local.class
 			)}
 			{...others}
@@ -67,13 +66,14 @@ export interface AccordionTriggerStyledProps extends KobalteAccordionTriggerProp
 
 export function AccordionTriggerStyled(props: AccordionTriggerStyledProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
+	const icons = useIcons()
 	return (
 		<KobalteAccordion.Header as="h3" class="flex">
 			<KobalteAccordion.Trigger
 				class={cn(
-					'flex flex-1 items-center justify-between gap-2 rounded-t-lg px-4 py-3 text-left text-sm font-medium text-ink-800',
-					'hover:bg-ink-100 dark:hover:bg-ink-800',
-					'data-[expanded]:rounded-b-none data-[expanded]:bg-ink-100 dark:data-[expanded]:bg-ink-800',
+					'flex flex-1 items-center justify-between gap-2 px-4 py-3 text-left text-sm font-medium text-ink-800',
+					'hover:bg-surface-dim',
+					'data-[expanded]:bg-surface-dim',
 					'data-[expanded]:[&>svg]:rotate-180',
 					'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
 					'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
@@ -82,7 +82,7 @@ export function AccordionTriggerStyled(props: AccordionTriggerStyledProps) {
 				{...others}
 			>
 				{local.children}
-				<ChevronDown class="h-4 w-4 shrink-0 transition-transform duration-200" aria-hidden="true" />
+				{icons.chevronDown({ class: 'h-4 w-4 shrink-0 transition-transform duration-200', 'aria-hidden': 'true' })}
 			</KobalteAccordion.Trigger>
 		</KobalteAccordion.Header>
 	)
@@ -98,7 +98,7 @@ export function AccordionItemStyled(props: AccordionItemStyledProps) {
 	return (
 		<KobalteAccordion.Item
 			class={cn(
-				'w-full rounded-lg border border-surface-border',
+				'w-full overflow-hidden border border-surface-border first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:-mt-px',
 				'data-[disabled]:opacity-60 data-[disabled]:cursor-not-allowed',
 				local.class
 			)}

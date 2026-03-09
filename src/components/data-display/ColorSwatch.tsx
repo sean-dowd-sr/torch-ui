@@ -26,7 +26,7 @@ const variantClass: Record<ColorSwatchVariant, string> = {
 
 /** Renders a color swatch (Kobalte ColorSwatch). Value is a hex string. */
 export function ColorSwatch(props: ColorSwatchProps) {
-	const [local, rest] = splitProps(props, ['value', 'variant', 'colorName', 'class', 'style'])
+	const [local, a11y, rest] = splitProps(props, ['value', 'variant', 'colorName', 'class', 'style'], ['aria-label'])
 	const normalized = createMemo(() => normalizeHex(local.value ?? ''))
 	const color = createMemo(() => {
 		const hex = normalized()
@@ -34,16 +34,16 @@ export function ColorSwatch(props: ColorSwatchProps) {
 		try {
 			return parseColor(hexToHslString(hex))
 		} catch {
+			if (import.meta.env.DEV) console.warn(`ColorSwatch: invalid hex value "${hex}" — falling back to gray.`)
 			return parseColor('hsl(0, 0%, 50%)')
 		}
 	})
-	const shapeClass = () =>
-		variantClass[local.variant ?? 'rounded']
+	const shapeClass = createMemo(() => variantClass[local.variant ?? 'rounded'])
 	return (
 		<KobalteColorSwatch
 			value={color()}
 			colorName={local.colorName}
-			aria-label={rest['aria-label'] ?? local.colorName ?? normalized() ?? 'Color swatch'}
+			aria-label={a11y['aria-label'] ?? local.colorName ?? normalized() ?? 'Color swatch'}
 			class={cn(
 				'block shrink-0 border-2 border-surface-border shadow-sm',
 				shapeClass(),
