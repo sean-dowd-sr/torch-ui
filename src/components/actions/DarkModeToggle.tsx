@@ -67,6 +67,14 @@ export function DarkModeToggle(props: DarkModeToggleProps) {
 		}
 		mq.addEventListener('change', handleChange)
 		onCleanup(() => mq.removeEventListener('change', handleChange))
+
+		const handleExternalScheme = (e: Event) => {
+			if (props.value !== undefined) return
+			const next = (e as CustomEvent<ColorScheme>).detail
+			setScheme(next)
+		}
+		window.addEventListener('torch:scheme', handleExternalScheme)
+		onCleanup(() => window.removeEventListener('torch:scheme', handleExternalScheme))
 	})
 
 	function applyScheme(next: ColorScheme) {
@@ -86,6 +94,7 @@ export function DarkModeToggle(props: DarkModeToggleProps) {
 			if (k !== false) localStorage.setItem(k, next)
 		}
 		props.onValueChange?.(next)
+		window.dispatchEvent(new CustomEvent('torch:scheme', { detail: next }))
 	}
 
 	function toggle() {
@@ -118,8 +127,8 @@ export function DarkModeToggle(props: DarkModeToggleProps) {
 				class="flex h-9 w-auto items-center"
 				controlClass={cn(props.class, 'data-[checked]:border-surface-border')}
 				variant="icon"
-				trackColor="var(--color-ink-400)"
-				trackCheckedColor="var(--color-ink-400)"
+				trackColor="var(--surface-dim)"
+				trackCheckedColor="var(--surface-dim)"
 				checked={dark()}
 				onValueChange={(checked) => applyScheme(checked ? 'dark' : 'light')}
 				aria-label={dark() ? 'Switch to Light mode' : 'Switch to Dark mode'}

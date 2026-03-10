@@ -222,10 +222,10 @@ const subtleClasses: Record<ToastVariant, string> = {
 
 const solidClasses: Record<ToastVariant, string> = {
 	default: 'bg-surface-overlay text-ink-900 border border-surface-border',
-	success: 'bg-success-600 text-white border border-success-600 dark:bg-success-500 dark:border-success-500',
-	error: 'bg-danger-600 text-white border border-danger-600 dark:bg-danger-500 dark:border-danger-500',
-	warning: 'bg-warning-500 text-ink-900 border border-warning-500 dark:bg-warning-400 dark:border-warning-400',
-	info: 'bg-info-600 text-white border border-info-600 dark:bg-info-500 dark:border-info-500',
+	success: 'bg-success-600 text-white border border-success-600 dark:bg-success-700 dark:border-success-700',
+	error: 'bg-danger-600 text-white border border-danger-600 dark:bg-danger-700 dark:border-danger-700',
+	warning: 'bg-warning-500 text-ink-900 border border-warning-500 dark:bg-warning-600 dark:border-warning-600 dark:text-ink-900',
+	info: 'bg-info-600 text-white border border-info-600 dark:bg-info-700 dark:border-info-700',
 }
 
 const variantIconMap: Partial<Record<ToastVariant, keyof import('../../icons').TorchUIIcons>> = {

@@ -115,7 +115,7 @@ export function Image(props: ImageProps) {
 
 	const effectiveObjectFit = createMemo(() => {
 		if (local.scale) return mapScaleToObjectFit(local.scale)
-		return local.objectFit
+		return local.objectFit ?? 'cover'
 	})
 
 	const constraintStyles = createMemo((): JSX.CSSProperties => {
@@ -166,14 +166,16 @@ export function Image(props: ImageProps) {
 			local.class
 		)
 
-	const imageClass = () => {
-		const fit = effectiveObjectFit()
-		return cn(
+	const imageClass = () =>
+		cn(
 			'w-full h-full transition-opacity duration-300',
 			imageLoaded() ? 'opacity-100' : 'opacity-0',
-			fit && `object-${fit}`,
 			local.objectPosition
 		)
+
+	const imageStyle = (): JSX.CSSProperties => {
+		const fit = effectiveObjectFit()
+		return fit ? { 'object-fit': fit } : {}
 	}
 
 	const skeletonClass = () =>
@@ -230,6 +232,7 @@ export function Image(props: ImageProps) {
 						alt={local.alt}
 						loading={local.lazy ? 'lazy' : 'eager'}
 						class={imageClass()}
+						style={imageStyle()}
 					/>
 					<KobalteImage.Fallback>
 					<Show when={showFallback()}>

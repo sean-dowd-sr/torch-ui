@@ -90,6 +90,8 @@ interface MonthGridProps {
 	hover: Date | null
 	min: Date | null
 	max: Date | null
+	/** When set, all dates strictly before this date are disabled (used when picking end date). */
+	selectableFrom?: Date | null
 	onDayClick: (d: Date) => void
 	onDayHover: (d: Date | null) => void
 }
@@ -101,6 +103,7 @@ function MonthGrid(props: MonthGridProps) {
 	const isDisabled = (d: Date) => {
 		if (props.min && d < props.min) return true
 		if (props.max && d > props.max) return true
+		if (props.selectableFrom && d < props.selectableFrom) return true
 		return false
 	}
 	const isStart = (d: Date) => !!props.start && sameDay(d, props.start)
@@ -198,6 +201,8 @@ function MonthGrid(props: MonthGridProps) {
 	)
 }
 
+type ViewMode = 'calendar' | 'months' | 'years'
+
 export function DateRangePicker(props: DateRangePickerProps) {
 	const [local] = splitProps(props, [
 		'start', 'end', 'onValueChange', 'onErrorClear', 'placeholder', 'disabled',
@@ -218,21 +223,50 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	const maxDate = () => parseDate(local.max ?? '')
 	const dual = () => local.dualMonth !== false
 	const clearable = () => local.clearable !== false
+
 	const initView = () => {
 		const s = startDate()
 		const mn = minDate()
 		const base = s ?? mn ?? new Date()
 		return { year: base.getFullYear(), month: base.getMonth() }
 	}
-	const [viewLeft, setViewLeft] = createSignal(initView())
-	const viewRight = () => {
-		const { year, month } = viewLeft()
+	const initViewRight = () => {
+		const { year, month } = initView()
 		const next = new Date(year, month + 1, 1)
 		return { year: next.getFullYear(), month: next.getMonth() }
 	}
 
+	const [viewLeft, _setViewLeft] = createSignal(initView())
+	const [viewRight, _setViewRight] = createSignal(initViewRight())
+	const [viewModeLeft, setViewModeLeft] = createSignal<ViewMode>('calendar')
+	const [viewModeRight, setViewModeRight] = createSignal<ViewMode>('calendar')
+
+	/** Set left view, pushing right forward if it would collide. */
+	function setViewLeft(v: { year: number; month: number }) {
+		_setViewLeft(v)
+		const r = viewRight()
+		if (v.year > r.year || (v.year === r.year && v.month >= r.month)) {
+			const next = new Date(v.year, v.month + 1, 1)
+			_setViewRight({ year: next.getFullYear(), month: next.getMonth() })
+		}
+	}
+	/** Set right view, pulling left back if it would collide. */
+	function setViewRight(v: { year: number; month: number }) {
+		_setViewRight(v)
+		const l = viewLeft()
+		if (v.year < l.year || (v.year === l.year && v.month <= l.month)) {
+			const prev = new Date(v.year, v.month - 1, 1)
+			_setViewLeft({ year: prev.getFullYear(), month: prev.getMonth() })
+		}
+	}
+
 	createEffect(on(open, (isOpen) => {
-		if (!isOpen) {
+		if (isOpen) {
+			setViewLeft(initView())
+			_setViewRight(initViewRight())
+			setViewModeLeft('calendar')
+			setViewModeRight('calendar')
+		} else {
 			setPickingEnd(false)
 			setHover(null)
 		}
@@ -245,11 +279,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
 			setPickingEnd(true)
 		} else {
 			const s = startDate()
-			if (s && d < s) {
-				local.onValueChange?.(toISODate(d), toISODate(s))
-			} else {
-				local.onValueChange?.(local.start ?? toISODate(d), toISODate(d))
-			}
+			if (s && d < s) return
+			local.onValueChange?.(local.start ?? toISODate(d), toISODate(d))
 			setPickingEnd(false)
 			setOpen(false)
 		}
@@ -260,19 +291,73 @@ export function DateRangePicker(props: DateRangePickerProps) {
 		setPickingEnd(false)
 	}
 
-	function prevMonth() {
+	// ── Left column navigation ──────────────────────────────────────────
+	function prevLeft() {
 		const { year, month } = viewLeft()
 		const d = new Date(year, month - 1, 1)
 		setViewLeft({ year: d.getFullYear(), month: d.getMonth() })
 	}
-	function nextMonth() {
-		const { year, month } = dual() ? viewRight() : viewLeft()
+	function nextLeft() {
+		const { year, month } = viewLeft()
 		const d = new Date(year, month + 1, 1)
-		const newLeft = dual()
-			? new Date(viewLeft().year, viewLeft().month + 1, 1)
-			: d
-		setViewLeft({ year: newLeft.getFullYear(), month: newLeft.getMonth() })
+		setViewLeft({ year: d.getFullYear(), month: d.getMonth() })
 	}
+	function setLeftMonth(m: number) {
+		setViewLeft({ year: viewLeft().year, month: m })
+		setViewModeLeft('calendar')
+	}
+	function setLeftYear(y: number) {
+		setViewLeft({ year: y, month: viewLeft().month })
+		setViewModeLeft('calendar')
+	}
+
+	// ── Right column navigation ─────────────────────────────────────────
+	function prevRight() {
+		const { year, month } = viewRight()
+		const d = new Date(year, month - 1, 1)
+		setViewRight({ year: d.getFullYear(), month: d.getMonth() })
+	}
+	function nextRight() {
+		const { year, month } = viewRight()
+		const d = new Date(year, month + 1, 1)
+		setViewRight({ year: d.getFullYear(), month: d.getMonth() })
+	}
+	function setRightMonth(m: number) {
+		setViewRight({ year: viewRight().year, month: m })
+		setViewModeRight('calendar')
+	}
+	function setRightYear(y: number) {
+		setViewRight({ year: y, month: viewRight().month })
+		setViewModeRight('calendar')
+	}
+
+	// ── Single-month mode navigation (reused from DatePicker pattern) ───
+	function prevMonth() {
+		const { year, month } = viewLeft()
+		const d = new Date(year, month - 1, 1)
+		_setViewLeft({ year: d.getFullYear(), month: d.getMonth() })
+	}
+	function nextMonth() {
+		const { year, month } = viewLeft()
+		const d = new Date(year, month + 1, 1)
+		_setViewLeft({ year: d.getFullYear(), month: d.getMonth() })
+	}
+
+	const isMonthDisabledFor = (viewYear: number, m: number) => {
+		const mn = minDate()
+		const mx = maxDate()
+		if (mn && new Date(viewYear, m + 1, 0).getTime() < mn.getTime()) return true
+		if (mx && new Date(viewYear, m, 1).getTime() > mx.getTime()) return true
+		return false
+	}
+	const yearsListFor = (viewYear: number) => {
+		const minY = minDate()?.getFullYear() ?? viewYear - 20
+		const maxY = maxDate()?.getFullYear() ?? viewYear + 5
+		return Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i)
+	}
+
+	const navBtnClass = 'flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
+	const monthYearBtnClass = 'rounded-md px-2 py-1 text-sm font-semibold text-ink-900 hover:bg-surface-overlay transition-colors'
 
 	const displayValue = () => {
 		const s = local.start ? formatDisplay(local.start) : ''
@@ -284,6 +369,61 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 	const hasError = () => !!local.error
 	const msgId = () => (local.error || local.helperText) ? `${inputId()}-msg` : undefined
+
+	/** Renders a month/year picker panel for one column. */
+	const ColumnPicker = (colProps: {
+		viewYear: number
+		viewMonth: number
+		viewMode: ViewMode
+		onSelectMonth: (m: number) => void
+		onSelectYear: (y: number) => void
+	}) => (
+		<>
+			<Show when={colProps.viewMode === 'months'}>
+				<div class="grid grid-cols-3 gap-1">
+					<For each={MONTH_NAMES}>
+						{(name, mi) => (
+							<button
+								type="button"
+								onClick={() => colProps.onSelectMonth(mi())}
+								disabled={isMonthDisabledFor(colProps.viewYear, mi())}
+								class={cn(
+									'rounded-lg py-2 text-xs font-medium transition-colors',
+									isMonthDisabledFor(colProps.viewYear, mi())
+										? 'cursor-not-allowed opacity-30'
+										: mi() === colProps.viewMonth
+											? 'bg-primary-500 text-white'
+											: 'text-ink-700 hover:bg-surface-overlay',
+								)}
+							>
+								{name.slice(0, 3)}
+							</button>
+						)}
+					</For>
+				</div>
+			</Show>
+			<Show when={colProps.viewMode === 'years'}>
+				<div class="grid max-h-48 grid-cols-3 gap-1 overflow-y-auto">
+					<For each={yearsListFor(colProps.viewYear)}>
+						{(y) => (
+							<button
+								type="button"
+								onClick={() => colProps.onSelectYear(y)}
+								class={cn(
+									'rounded-lg py-2 text-xs font-medium transition-colors',
+									y === colProps.viewYear
+										? 'bg-primary-500 text-white'
+										: 'text-ink-700 hover:bg-surface-overlay',
+								)}
+							>
+								{y}
+							</button>
+						)}
+					</For>
+				</div>
+			</Show>
+		</>
+	)
 
 	return (
 		<div class={cn('w-full', local.class)}>
@@ -306,10 +446,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 			<KobaltePopover
 				open={open()}
-				onOpenChange={(next) => {
-					setOpen(next)
-					if (next) setViewLeft(initView())
-				}}
+				onOpenChange={(next) => { setOpen(next) }}
 				gutter={8}
 			>
 				<div class="relative">
@@ -356,64 +493,155 @@ export function DateRangePicker(props: DateRangePickerProps) {
 							'data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95',
 						)}
 					>
-						<div class={cn('p-3', dual() ? 'w-[580px]' : 'w-[268px]')}>
-							{/* Header */}
-							<div class={cn('flex items-center justify-between', dual() ? 'mb-3' : 'mb-2')}>
-								<button
-									type="button"
-									onClick={prevMonth}
-									class="flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-									aria-label="Previous month"
-								>
-									{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								</button>
-								<div class={cn('flex', dual() ? 'gap-8' : '')}>
-									<div class="text-sm font-semibold text-ink-900 min-w-[140px] text-center">
-										{MONTH_NAMES[viewLeft().month]} {viewLeft().year}
-									</div>
-									<Show when={dual()}>
-										<div class="text-sm font-semibold text-ink-900 min-w-[140px] text-center">
-											{MONTH_NAMES[viewRight().month]} {viewRight().year}
+						<div class={cn('p-3', dual() ? 'w-[596px]' : 'w-[268px]')}>
+
+							{/* ── Dual-month layout ──────────────────────────────── */}
+							<Show when={dual()}>
+								<div class="flex gap-4">
+									{/* Left column */}
+									<div class="flex-1 min-w-0">
+										{/* Left header */}
+										<div class="flex items-center justify-between mb-2">
+											<button type="button" onClick={prevLeft} class={navBtnClass} aria-label="Previous month">
+												{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+											</button>
+											<div class="flex items-center justify-center gap-0.5">
+												<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
+													{MONTH_NAMES[viewLeft().month]}
+												</button>
+												<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'years' ? 'calendar' : 'years')} class={monthYearBtnClass}>
+													{viewLeft().year}
+												</button>
+											</div>
+											<button type="button" onClick={nextLeft} class={navBtnClass} aria-label="Next month">
+												{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+											</button>
 										</div>
+										{/* Left content */}
+										<Show when={viewModeLeft() === 'calendar'} fallback={
+											<ColumnPicker
+												viewYear={viewLeft().year}
+												viewMonth={viewLeft().month}
+												viewMode={viewModeLeft()}
+												onSelectMonth={setLeftMonth}
+												onSelectYear={setLeftYear}
+											/>
+										}>
+											<MonthGrid
+												year={viewLeft().year}
+												month={viewLeft().month}
+												start={startDate()}
+												end={endDate()}
+												hover={hover()}
+												min={minDate()}
+												max={maxDate()}
+												selectableFrom={pickingEnd() ? startDate() : null}
+												onDayClick={handleDayClick}
+												onDayHover={setHover}
+											/>
+										</Show>
+									</div>
+
+									{/* Divider */}
+									<div class="w-px bg-surface-border self-stretch" />
+
+									{/* Right column */}
+									<div class="flex-1 min-w-0">
+										{/* Right header */}
+										<div class="flex items-center justify-between mb-2">
+											<button type="button" onClick={prevRight} class={navBtnClass} aria-label="Previous month">
+												{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+											</button>
+											<div class="flex items-center justify-center gap-0.5">
+												<button type="button" onClick={() => setViewModeRight(viewModeRight() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
+													{MONTH_NAMES[viewRight().month]}
+												</button>
+												<button type="button" onClick={() => setViewModeRight(viewModeRight() === 'years' ? 'calendar' : 'years')} class={monthYearBtnClass}>
+													{viewRight().year}
+												</button>
+											</div>
+											<button type="button" onClick={nextRight} class={navBtnClass} aria-label="Next month">
+												{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+											</button>
+										</div>
+										{/* Right content */}
+										<Show when={viewModeRight() === 'calendar'} fallback={
+											<ColumnPicker
+												viewYear={viewRight().year}
+												viewMonth={viewRight().month}
+												viewMode={viewModeRight()}
+												onSelectMonth={setRightMonth}
+												onSelectYear={setRightYear}
+											/>
+										}>
+											<MonthGrid
+												year={viewRight().year}
+												month={viewRight().month}
+												start={startDate()}
+												end={endDate()}
+												hover={hover()}
+												min={minDate()}
+												max={maxDate()}
+												selectableFrom={pickingEnd() ? startDate() : null}
+												onDayClick={handleDayClick}
+												onDayHover={setHover}
+											/>
+										</Show>
+									</div>
+								</div>
+							</Show>
+
+							{/* ── Single-month layout ─────────────────────────────── */}
+							<Show when={!dual()}>
+								{/* Single header */}
+								<div class="flex items-center justify-between mb-2">
+									<Show when={viewModeLeft() !== 'calendar'} fallback={
+										<button type="button" onClick={prevMonth} class={navBtnClass} aria-label="Previous month">
+											{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+										</button>
+									}>
+										<button type="button" onClick={() => setViewModeLeft('calendar')} class={navBtnClass} aria-label="Back to calendar">
+											{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+										</button>
+									</Show>
+									<div class="flex items-center justify-center gap-0.5">
+										<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
+											{MONTH_NAMES[viewLeft().month]}
+										</button>
+										<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'years' ? 'calendar' : 'years')} class={monthYearBtnClass}>
+											{viewLeft().year}
+										</button>
+									</div>
+									<Show when={viewModeLeft() === 'calendar'} fallback={<div class="w-7" />}>
+										<button type="button" onClick={nextMonth} class={navBtnClass} aria-label="Next month">
+											{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+										</button>
 									</Show>
 								</div>
-								<button
-									type="button"
-									onClick={nextMonth}
-									class="flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-									aria-label="Next month"
-								>
-									{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								</button>
-							</div>
-
-							{/* Calendars */}
-							<div class={cn('flex gap-6', !dual() && 'flex-col')}>
-								<MonthGrid
-									year={viewLeft().year}
-									month={viewLeft().month}
-									start={startDate()}
-									end={endDate()}
-									hover={hover()}
-									min={minDate()}
-									max={maxDate()}
-									onDayClick={handleDayClick}
-									onDayHover={setHover}
-								/>
-								<Show when={dual()}>
+								{/* Single content */}
+								<Show when={viewModeLeft() === 'calendar'} fallback={
+									<ColumnPicker
+										viewYear={viewLeft().year}
+										viewMonth={viewLeft().month}
+										viewMode={viewModeLeft()}
+										onSelectMonth={(m) => { _setViewLeft({ year: viewLeft().year, month: m }); setViewModeLeft('calendar') }}
+										onSelectYear={(y) => { _setViewLeft({ year: y, month: viewLeft().month }); setViewModeLeft('calendar') }}
+									/>
+								}>
 									<MonthGrid
-										year={viewRight().year}
-										month={viewRight().month}
+										year={viewLeft().year}
+										month={viewLeft().month}
 										start={startDate()}
 										end={endDate()}
 										hover={hover()}
 										min={minDate()}
 										max={maxDate()}
+										selectableFrom={pickingEnd() ? startDate() : null}
 										onDayClick={handleDayClick}
 										onDayHover={setHover}
 									/>
 								</Show>
-							</div>
+							</Show>
 
 							{/* Footer */}
 							<div class="mt-3 flex items-center justify-between border-t border-surface-border pt-3">

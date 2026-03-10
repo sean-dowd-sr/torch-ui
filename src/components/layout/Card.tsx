@@ -1,5 +1,6 @@
 import type { JSX, ParentComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Skeleton } from '../feedback/Skeleton'
 import { Dynamic } from 'solid-js/web'
 import { Avatar } from '../data-display/Avatar'
 import { cn } from '../../utilities/classNames'
@@ -118,10 +119,12 @@ export interface CardAvatarTitleProps {
 	imageUrl?: string | null
 	/** Avatar size. */
 	avatarSize?: 'sm' | 'md'
+	/** Show skeleton shimmer instead of avatar and name. */
+	loading?: boolean
 	class?: string
 }
 
-/** Row with Avatar and name. Use for "card with avatar and user name". */
+/** Row with Avatar and name. Use for "card with avatar and user name". Pass loading to show skeleton shimmer. */
 export function CardAvatarTitle(props: CardAvatarTitleProps): JSX.Element {
 	return (
 		<div
@@ -130,14 +133,18 @@ export function CardAvatarTitle(props: CardAvatarTitleProps): JSX.Element {
 				props.class,
 			)}
 		>
-			<Avatar
-				name={props.name}
-				imageUrl={props.imageUrl}
-				size={props.avatarSize ?? 'md'}
-			/>
-			<span class="font-medium text-ink-900">
-				{props.name}
-			</span>
+			<Skeleton round="full" loaded={!props.loading}>
+				<Avatar
+					name={props.name}
+					imageUrl={props.imageUrl}
+					size={props.avatarSize ?? 'md'}
+				/>
+			</Skeleton>
+			<Skeleton loaded={!props.loading} block>
+				<span class="font-medium text-ink-900">
+					{props.name}
+				</span>
+			</Skeleton>
 		</div>
 	)
 }

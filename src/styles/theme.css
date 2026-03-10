@@ -110,11 +110,11 @@
   --surface-light: #fafafa;
   --surface-dark:  #020b13;
 
-  --primary: #ff7547;
-  --success: #0dcd51;
-  --warning: #ebd405;
-  --danger:  #f12828;
-  --info:    #10b3f4;
+  --primary: #F74E28;
+  --success: #2CA748;
+  --warning: #DC9A16;
+  --danger:  #E83535;
+  --info:    #2195E8;
 
   /* ── Component height scale ───────────────────────────────────
      Override any of these to resize ALL interactive components

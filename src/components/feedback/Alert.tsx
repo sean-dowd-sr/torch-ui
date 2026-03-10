@@ -36,7 +36,7 @@ const statusAppearanceClasses: StatusAppearanceMap = {
 		subtle:
 			'border-danger-500 bg-danger-50 text-danger-700 dark:border-danger-800 dark:bg-danger-950 dark:text-danger-100',
 		solid:
-			'border-danger-500 bg-danger-500 text-white dark:border-danger-600 dark:bg-danger-600',
+			'border-danger-500 bg-danger-500 text-white dark:border-danger-700 dark:bg-danger-700',
 		outline:
 			'border-danger-500 bg-transparent text-danger-700 dark:border-danger-500 dark:bg-transparent dark:text-danger-300',
 		transparent:
@@ -46,7 +46,7 @@ const statusAppearanceClasses: StatusAppearanceMap = {
 		subtle:
 			'border-success-500 bg-success-50 text-success-700 dark:border-success-800 dark:bg-success-950 dark:text-success-100',
 		solid:
-			'border-success-500 bg-success-500 text-white dark:border-success-600 dark:bg-success-600',
+			'border-success-500 bg-success-500 text-white dark:border-success-700 dark:bg-success-700',
 		outline:
 			'border-success-500 bg-transparent text-success-700 dark:border-success-500 dark:bg-transparent dark:text-success-300',
 		transparent:
@@ -56,7 +56,7 @@ const statusAppearanceClasses: StatusAppearanceMap = {
 		subtle:
 			'border-warning-500 bg-warning-50 text-warning-700 dark:border-warning-800 dark:bg-warning-950 dark:text-warning-100',
 		solid:
-			'border-warning-500 bg-warning-400 text-ink-900 dark:border-warning-500 dark:bg-warning-500',
+			'border-warning-500 bg-warning-400 text-ink-900 dark:border-warning-600 dark:bg-warning-600 dark:text-ink-900',
 		outline:
 			'border-warning-500 bg-transparent text-warning-700 dark:border-warning-500 dark:bg-transparent dark:text-warning-300',
 		transparent:
@@ -66,7 +66,7 @@ const statusAppearanceClasses: StatusAppearanceMap = {
 		subtle:
 			'border-info-500 bg-info-50 text-info-700 dark:border-info-800 dark:bg-info-950 dark:text-info-100',
 		solid:
-			'border-info-500 bg-info-500 text-white dark:border-info-600 dark:bg-info-600',
+			'border-info-500 bg-info-500 text-white dark:border-info-700 dark:bg-info-700',
 		outline:
 			'border-info-500 bg-transparent text-info-700 dark:border-info-500 dark:bg-transparent dark:text-info-300',
 		transparent:
