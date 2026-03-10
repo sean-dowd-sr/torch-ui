@@ -126,7 +126,7 @@ The injected `<style>` is **intentionally never removed**. The ID guard handles 
 
 ## 11. Drag-to-Reorder
 
-Use **`createSortableDrag`** for any sortable list or reorderable chip group. Do not reach for `@thisbeyond/solid-dnd` or any other drag library — the bespoke primitive handles our specific layout needs (both vertical lists and wrapping 2D grids).
+Use **`createSortableDrag`** for any sortable list or reorderable chip group. This handles our specific layout needs (both vertical lists and wrapping 2D grids).
 
 **Required DOM attributes:**
 - `data-sortable-container` on the list/grid wrapper element
