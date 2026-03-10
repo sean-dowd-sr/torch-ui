@@ -62,6 +62,7 @@ export {
 	MegaMenuDivider,
 	MegaMenuFooter,
 	MegaMenuFooterLink,
+	MegaMenuBarLink,
 	type MegaMenuBarProps,
 	type MegaMenuTriggerProps,
 	type MegaMenuContentProps,
