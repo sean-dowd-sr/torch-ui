@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+﻿import type { JSX } from 'solid-js'
 import { createUniqueId, createSignal, onMount, onCleanup, Show, For, splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { mergeRefs } from '../../utilities/mergeRefs'
@@ -429,7 +429,7 @@ export function FileUpload(props: FileUploadProps) {
 								onClick={() => inputEl?.click()}
 								disabled={local.disabled || atLimit()}
 								class={cn(
-									'inline-flex items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm font-medium text-ink-700 hover:bg-surface-overlay transition-colors',
+									'inline-flex items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm font-medium text-ink-700 hover:bg-surface-overlay transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 									(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
 								)}
 							>
@@ -462,7 +462,7 @@ export function FileUpload(props: FileUploadProps) {
 									<button
 										type="button"
 										onClick={() => setViewModalOpen(true)}
-										class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+										class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 										aria-label="View files"
 									>
 										{icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -502,7 +502,7 @@ export function FileUpload(props: FileUploadProps) {
 												<button
 													type="button"
 													onClick={() => local.onRetry?.(item.id)}
-													class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+													class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 													aria-label={`Retry ${item.file.name}`}
 												>
 													{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -511,7 +511,7 @@ export function FileUpload(props: FileUploadProps) {
 											<button
 												type="button"
 												onClick={() => local.onRemove(item.id)}
-												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 												aria-label={`Remove ${item.file.name}`}
 											>
 												{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -553,7 +553,7 @@ export function FileUpload(props: FileUploadProps) {
 											<button
 												type="button"
 												onClick={() => local.onRetry?.(item.id)}
-												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 												aria-label={`Retry ${item.file.name}`}
 											>
 												{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -562,7 +562,7 @@ export function FileUpload(props: FileUploadProps) {
 										<button
 											type="button"
 											onClick={() => local.onRemove(item.id)}
-											class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700"
+											class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 											aria-label={`Remove ${item.file.name}`}
 										>
 											{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}

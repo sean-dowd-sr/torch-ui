@@ -1,6 +1,6 @@
 import { type JSX, Show, splitProps, onMount, createContext, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
-import { NavigationMenu as KobalteNavigationMenu } from '@kobalte/core/navigation-menu'
+import { NavigationMenu as KobalteNavigationMenu, type NavigationMenuMenuProps } from '@kobalte/core/navigation-menu'
 import { cn } from '../../utilities/classNames'
 import { useIcons } from '../../icons'
 
@@ -11,33 +11,55 @@ const VariantContext = createContext<MenuVariant>('default')
 /** ─── Injected styles ───────────────────────────────────────────────────────── */
 function injectMegaMenuStyles() {
 	const id = 'torchui-mega-menu-styles'
-	if (typeof document === 'undefined') return
 	let el = document.getElementById(id) as HTMLStyleElement | null
-	if (!el) {
-		el = document.createElement('style')
-		el.id = id
-		document.head.appendChild(el)
-	}
+	if (el) return
+	el = document.createElement('style')
+	el.id = id
+	document.head.appendChild(el)
 	el.textContent = `
 		.torchui-mm-viewport {
+			position: relative;
 			transform-origin: var(--kb-menu-content-transform-origin);
 			pointer-events: none;
 			opacity: 0;
 			overflow-x: clip;
 			overflow-y: visible;
-			transition: opacity 180ms ease, height 200ms ease, width 200ms ease;
+			transition: width 200ms ease, height 200ms ease;
+			animation: torchui-mm-viewport-hide 180ms ease-in forwards;
+			outline: none;
 		}
-		.torchui-mm-viewport[data-expanded] { pointer-events: auto; opacity: 1; }
+		.torchui-mm-viewport[data-expanded] {
+			pointer-events: auto;
+			opacity: 1;
+			animation: torchui-mm-viewport-show 200ms ease-out;
+		}
+		@keyframes torchui-mm-viewport-show {
+			from { opacity: 0; transform: rotateX(-8deg) scale(0.97); }
+			to   { opacity: 1; transform: rotateX(0deg)  scale(1);    }
+		}
+		@keyframes torchui-mm-viewport-hide {
+			from { opacity: 1; transform: rotateX(0deg)  scale(1);    }
+			to   { opacity: 0; transform: rotateX(-4deg) scale(0.97); }
+		}
+		.torchui-mm-arrow {
+			color: var(--color-surface-raised);
+			filter: drop-shadow(0 -1px 0 var(--color-surface-border));
+			transition: transform 200ms ease;
+		}
 		.torchui-mm-content { 
 			position: absolute; 
 			top: 0; 
 			left: 0; 
 			z-index: 1; 
+			min-width: max-content;
 			animation-duration: 100ms; 
 			animation-timing-function: ease; 
 			animation-fill-mode: forwards; 
 			pointer-events: none;
+			outline: none;
 		}
+		.torchui-mm-viewport[data-fullwidth] .torchui-mm-content { width: 100%; min-width: unset; }
+		.torchui-mm-viewport[data-fullwidth] { transform-origin: top left; }
 		.torchui-mm-content:not([data-expanded]):not([data-motion]) { opacity: 0; pointer-events: none; }
 		.torchui-mm-content[data-expanded]              { pointer-events: auto; z-index: 2; }
 		.torchui-mm-content[data-motion="from-end"]     { animation-name: torchui-mm-from-end;   z-index: 2; }
@@ -48,7 +70,7 @@ function injectMegaMenuStyles() {
 		@keyframes torchui-mm-from-start { from { opacity: 0; transform: translateX(-20px) } to { opacity: 1; transform: translateX(0) } }
 		@keyframes torchui-mm-to-end     { from { opacity: 1; transform: translateX(0) } to { opacity: 0; transform: translateX( 20px) } }
 		@keyframes torchui-mm-to-start   { from { opacity: 1; transform: translateX(0) } to { opacity: 0; transform: translateX(-20px) } }
-		.torchui-mm-root { display: flex; gap: 0.25rem; position: relative; height: 100%; align-items: stretch; width: max-content; }
+		.torchui-mm-root { display: flex; gap: 0.25rem; position: relative; height: 100%; align-items: stretch; width: 100%; min-width: max-content; }
 		.torchui-mm-root > div { height: 100%; }
 		.torchui-mm-root > div > li { height: 100%; display: flex; }
 		.torchui-mm-root[data-variant="underline"] { align-items: stretch; }
@@ -68,6 +90,8 @@ export interface MegaMenuBarProps {
 	variant?: MenuVariant
 	/** Stretch the dropdown to full viewport width */
 	fullWidth?: boolean
+	/** Reference to the full nav container element (e.g. the max-w-7xl div) for fullWidth anchor sizing */
+	containerRef?: HTMLElement
 	/** Horizontal alignment of nav items */
 	justify?: 'start' | 'center' | 'end'
 	/** Standard Kobalte NavigationMenu props */
@@ -77,14 +101,15 @@ export interface MegaMenuBarProps {
 }
 
 export function MegaMenuBar(props: MegaMenuBarProps) {
-	const [local, others] = splitProps(props, ['class', 'children', 'variant', 'fullWidth', 'justify'])
+	const [local, others] = splitProps(props, ['class', 'children', 'variant', 'fullWidth', 'containerRef', 'justify'])
 	const variant = () => local.variant ?? 'default'
 	const isUnderline = () => variant() === 'underline'
+	let wrapperRef!: HTMLDivElement
 
-	onMount(injectMegaMenuStyles)
+	onMount(() => { injectMegaMenuStyles() })
 
 	return (
-		<div class={cn(
+		<div ref={wrapperRef} class={cn(
 			'relative flex h-full self-stretch',
 			variant() === 'underline' ? 'items-stretch' : 'items-center',
 			local.justify === 'center' && 'justify-center',
@@ -95,6 +120,12 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 			<KobalteNavigationMenu
 				data-variant={variant()}
 				class="torchui-mm-root"
+				getAnchorRect={local.fullWidth ? (() => {
+					const el = local.containerRef ?? wrapperRef
+					const rect = el.getBoundingClientRect()
+					return { x: rect.left, y: rect.bottom, width: rect.width, height: 0 }
+				}) : undefined}
+				sameWidth={local.fullWidth}
 				{...others}
 			>
 				<VariantContext.Provider value={variant()}>
@@ -103,25 +134,21 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 
 				{/* Viewport anchor */}
 				<div
-					class={cn(
-						'absolute top-full z-[9999] pointer-events-none',
-						local.fullWidth
-							? 'left-1/2 -translate-x-1/2 w-[100vw] max-w-[100vw] flex justify-center'
-							: 'left-0 flex w-full justify-center',
-					)}
+					class="z-[9999] pointer-events-none absolute top-full left-0 flex w-full justify-center"
 					style={{ perspective: '800px' }}
 				>
 					<KobalteNavigationMenu.Viewport
+						data-fullwidth={local.fullWidth ? '' : undefined}
 						class={cn(
 							'torchui-mm-viewport',
 							'relative border border-surface-border bg-surface-raised shadow-lg',
-							isUnderline() ? 'mt-0' : 'mt-3',
+							local.fullWidth ? 'mt-0' : isUnderline() ? 'mt-0' : 'mt-3',
 							local.fullWidth
-								? 'w-screen rounded-none h-[var(--kb-navigation-menu-viewport-height)]'
+								? 'w-full rounded-b-xl rounded-t-none h-[var(--kb-navigation-menu-viewport-height)]'
 								: 'rounded-xl h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)]',
 						)}
 					>
-						<KobalteNavigationMenu.Arrow />
+						<KobalteNavigationMenu.Arrow class="torchui-mm-arrow" />
 					</KobalteNavigationMenu.Viewport>
 				</div>
 			</KobalteNavigationMenu>
@@ -130,7 +157,7 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 }
 
 /** ─── MegaMenuMenu ──────────────────────────────────────────────────────────── */
-export function MegaMenuMenu(props: { class?: string } & Record<string, any>) {
+export function MegaMenuMenu(props: NavigationMenuMenuProps & { class?: string }) {
 	const [local, others] = splitProps(props, ['class'])
 	const variant = useContext(VariantContext)
 	return (
@@ -148,6 +175,7 @@ export function MegaMenuMenu(props: { class?: string } & Record<string, any>) {
 export interface MegaMenuTriggerProps {
 	class?: string
 	children?: JSX.Element
+	/** Hide the chevron indicator. Also suppressed automatically when iconPosition is 'top' or 'bottom'. */
 	noChevron?: boolean
 	/** Overrides the bar-level variant for this trigger only */
 	variant?: MenuVariant
@@ -168,8 +196,9 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 	return (
 		<KobalteNavigationMenu.Trigger
 			class={cn(
-				'group relative flex flex-row items-center gap-1.5 text-sm font-medium text-ink-700 transition-colors',
-				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+				'group relative flex items-center gap-1.5 text-sm font-medium text-ink-700 transition-colors',
+				'outline-none',
+				v() !== 'underline' && 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-primary-500/50',
 				v() === 'default' && [
 					!isStacked() && 'h-9',
 					'rounded-md px-3 py-2',
@@ -177,7 +206,7 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 					'data-[expanded]:bg-surface-overlay data-[expanded]:text-ink-900',
 				],
 				v() === 'underline' && [
-					'h-full rounded-none px-4',
+					'h-full rounded-none px-3',
 					isStacked() && 'py-2',
 					'border-b-2 border-transparent',
 					'hover:border-primary-500 hover:text-primary-600',
@@ -233,12 +262,14 @@ export interface MegaMenuContentProps {
 export function MegaMenuContent(props: MegaMenuContentProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
-		<KobalteNavigationMenu.Content
-			class={cn('torchui-mm-content', local.class)}
-			{...others}
-		>
-			{local.children}
-		</KobalteNavigationMenu.Content>
+		<KobalteNavigationMenu.Portal>
+			<KobalteNavigationMenu.Content
+				class={cn('torchui-mm-content', local.class)}
+				{...others}
+			>
+				{local.children}
+			</KobalteNavigationMenu.Content>
+		</KobalteNavigationMenu.Portal>
 	)
 }
 
@@ -257,17 +288,13 @@ export function MegaMenuPanel(props: MegaMenuPanelProps) {
 	const cols = () => props.columns ?? 3
 	const gridClass = () => ({ 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4' }[cols()] ?? 'grid-cols-3')
 
-	if (props.fullWidth) {
-		return (
-			<div class={cn('w-full px-6 py-5', props.class)}>
-				<div class={cn('mx-auto grid gap-x-8 gap-y-2', gridClass())} style={{ 'max-width': props.maxWidth ?? '1280px' }}>
-					{props.children}
-				</div>
+	return props.fullWidth ? (
+		<div class={cn('w-full px-6 py-5', props.class)}>
+			<div class={cn('mx-auto grid gap-x-8 gap-y-2', gridClass())} style={{ 'max-width': props.maxWidth ?? '1280px' }}>
+				{props.children}
 			</div>
-		)
-	}
-
-	return (
+		</div>
+	) : (
 		<div class={cn('grid gap-x-6 gap-y-2 p-5', gridClass(), props.class)}>
 			{props.children}
 		</div>
@@ -286,7 +313,7 @@ export function MegaMenuColumn(props: { class?: string; children: JSX.Element })
 /** ─── MegaMenuSection ───────────────────────────────────────────────────────── */
 export function MegaMenuSection(props: { label: string; class?: string; children: JSX.Element }) {
 	return (
-		<div class={cn('', props.class)}>
+		<div class={cn(props.class)}>
 			<div class="mb-1 px-3 text-[11px] font-semibold uppercase tracking-widest text-ink-400">
 				{props.label}
 			</div>
@@ -321,7 +348,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			}}
 			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
-				'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors',
+				'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.active ? 'bg-primary-50 dark:bg-primary-500/10' : 'hover:bg-surface-overlay',
 				props.disabled && 'pointer-events-none opacity-40',
 				props.class,
@@ -375,7 +402,7 @@ export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
 			component={props.href ? 'a' : 'div'}
 			href={props.href}
 			class={cn(
-				'group relative flex flex-col justify-between overflow-hidden rounded-xl p-5 outline-none transition-opacity hover:opacity-90',
+				'group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-5 outline-none transition-opacity hover:opacity-90',
 				'focus-visible:ring-2 focus-visible:ring-white/70',
 				props.backgroundClass ?? 'bg-gradient-to-br from-primary-500 to-primary-600',
 				props.class,
@@ -387,7 +414,7 @@ export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
 			<div class="relative">
 				<p class="text-sm font-semibold text-white">{props.title}</p>
 				<Show when={props.description}>
-					<p class="mt-1 text-xs text-white/70 leading-relaxed">{props.description}</p>
+					<p class="mt-1 text-xs text-white/70 leading-relaxed" style={{ 'max-width': '160px' }}>{props.description}</p>
 				</Show>
 			</div>
 			<div class="relative mt-4 flex items-center gap-1 text-xs font-semibold text-white">
@@ -402,7 +429,7 @@ export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
 
 /** ─── MegaMenuDivider ───────────────────────────────────────────────────────── */
 export function MegaMenuDivider(props: { class?: string }) {
-	return <div role="separator" aria-orientation="horizontal" class={cn('h-px bg-surface-border', props.class)} />
+	return <div role="separator" aria-orientation="horizontal" class={cn('my-2 h-px bg-surface-border', props.class)} />
 }
 
 /** ─── MegaMenuFooter ────────────────────────────────────────────────────────── */
@@ -434,6 +461,7 @@ export function MegaMenuFooterLink(props: { href?: string; onClick?: () => void;
 			onClick={props.onClick}
 			class={cn(
 				'text-xs font-medium text-ink-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors',
+				'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.class,
 			)}
 		>
@@ -461,10 +489,10 @@ export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 				href={props.href}
 				class={cn(
 					'flex items-center text-sm font-medium text-ink-700 transition-colors',
-					'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+					'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 					v() === 'default' && 'h-9 rounded-md px-3 py-2 hover:bg-surface-overlay hover:text-ink-900',
 					v() === 'underline' && [
-						'h-full rounded-none px-4',
+						'h-full rounded-none px-3',
 						'border-b-2 border-transparent',
 						'hover:border-primary-500 hover:text-primary-600',
 					],

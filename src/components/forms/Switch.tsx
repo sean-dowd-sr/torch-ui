@@ -60,6 +60,14 @@ export interface SwitchProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 	ref?: (el: HTMLDivElement) => void
 }
 
+const SIZE_MAP: Record<NonNullable<SwitchProps['size']>, { track: string; thumb: string; checked: string; top: string }> = {
+	xs: { track: 'h-4 w-8',  thumb: 'h-3 w-3',  checked: 'group-data-[checked]:translate-x-4', top: '1px' },
+	sm: { track: 'h-5 w-9',  thumb: 'h-4 w-4',  checked: 'group-data-[checked]:translate-x-4', top: '1px' },
+	md: { track: 'h-6 w-11', thumb: 'h-5 w-5',  checked: 'group-data-[checked]:translate-x-5', top: '1px' },
+	lg: { track: 'h-8 w-14', thumb: 'h-6 w-6',  checked: 'group-data-[checked]:translate-x-7', top: '3px' },
+	xl: { track: 'h-9 w-16', thumb: 'h-7 w-7',  checked: 'group-data-[checked]:translate-x-8', top: '3px' },
+}
+
 export function Switch(props: SwitchProps) {
 	const [local, others] = splitProps(props, [
 		'label',
@@ -89,6 +97,7 @@ export function Switch(props: SwitchProps) {
 
 	const hasError = () => !!local.error
 	const iconVariant = () => local.variant === 'icon'
+	const sz = () => SIZE_MAP[local.size ?? 'md']
 	const [isChecked, setIsChecked] = createSignal(!!(local.checked ?? local.defaultChecked))
 
 	// Keep internal state in sync with controlled usage.
@@ -143,111 +152,33 @@ export function Switch(props: SwitchProps) {
 				value={local.value ?? 'on'}
 			>
 				<Show
-					when={local.label}
-					fallback={
-						<>
-							<div class="flex items-center gap-2">
-								<KobalteSwitch.Input class="sr-only" />
-								<KobalteSwitch.Control
-									style={trackStyle()}
-									class={cn(
-										'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-surface-border transition-colors group',
-										'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 focus-visible:border-transparent',
-										'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
-										'bg-surface-dim data-[checked]:bg-success-500 data-[checked]:border-success-500',
-										hasError() &&
-											'border-danger-500 focus-visible:ring-danger-500 data-[checked]:border-danger-500',
-										local.controlClass
-									)}
-								>
-									<KobalteSwitch.Thumb
-										style={{
-											top: 'calc(var(--spacing) * 0.25)',
-											left: 'calc(var(--spacing) * 0.25)',
-										}}
-										class={cn(
-											'pointer-events-none absolute flex h-5 w-5 items-center justify-center rounded-full bg-surface-base shadow ring-0 transition-transform',
-											'translate-x-0 group-data-[checked]:translate-x-5',
-										)}
-									>
-										{iconVariant() && (local.thumbOffIcon || local.thumbOnIcon) ? (
-											<>
-												<span class={cn('block', 'group-data-[checked]:hidden')}>
-													{local.thumbOffIcon}
-												</span>
-												<span class={cn('hidden', 'group-data-[checked]:block')}>
-													{local.thumbOnIcon}
-												</span>
-											</>
-										) : null}
-									</KobalteSwitch.Thumb>
-								</KobalteSwitch.Control>
-							</div>
-
-							<Show when={local.helperText && !hasError()}>
-								<KobalteSwitch.Description class="mt-1.5 text-sm text-ink-500">
-									{local.helperText}
-								</KobalteSwitch.Description>
-							</Show>
-
-							<Show when={hasError()}>
-								<KobalteSwitch.ErrorMessage class="mt-1.5 text-sm text-danger-600">
-									{local.error}
-								</KobalteSwitch.ErrorMessage>
-							</Show>
-						</>
-					}
-				>
-					<div class="flex items-start justify-between gap-3">
-						<div class="min-w-0">
-							<KobalteSwitch.Label
-								class={cn(
-									'text-sm font-medium cursor-pointer select-none',
-									hasError() ? 'text-danger-600' : 'text-ink-700',
-									local.disabled && 'opacity-50 cursor-not-allowed'
-								)}
-							>
-								{local.label}
-								<Show when={local.required}>
-									<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
-								</Show>
-							</KobalteSwitch.Label>
-
-							<Show when={local.helperText && !hasError()}>
-								<KobalteSwitch.Description class="mt-1 text-sm text-ink-500">
-									{local.helperText}
-								</KobalteSwitch.Description>
-							</Show>
-
-							<Show when={hasError()}>
-								<KobalteSwitch.ErrorMessage class="mt-1 text-sm text-danger-600">
-									{local.error}
-								</KobalteSwitch.ErrorMessage>
-							</Show>
-						</div>
-
-						<div class="shrink-0">
-							<KobalteSwitch.Input class="sr-only" />
+				when={local.label}
+				fallback={
+					<>
+						<div class="flex items-center gap-2">
+							<KobalteSwitch.Input class="peer sr-only" />
 							<KobalteSwitch.Control
 								style={trackStyle()}
 								class={cn(
-									'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-surface-border transition-colors group',
-									'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 focus-visible:border-transparent',
+									'group relative inline-flex shrink-0 cursor-pointer rounded-full border border-surface-border transition-colors',
+									sz().track,
+									'outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-primary-500',
 									'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
 									'bg-surface-dim data-[checked]:bg-success-500 data-[checked]:border-success-500',
 									hasError() &&
-										'border-danger-500 focus-visible:ring-danger-500 data-[checked]:border-danger-500',
+										'border-danger-500 peer-focus-visible:ring-danger-500 data-[checked]:border-danger-500',
 									local.controlClass
 								)}
 							>
 								<KobalteSwitch.Thumb
 									style={{
-										top: 'calc(var(--spacing) * 0.25)',
-										left: 'calc(var(--spacing) * 0.25)',
+										top: sz().top,
+										left: '1px',
 									}}
 									class={cn(
-										'pointer-events-none absolute flex h-5 w-5 items-center justify-center rounded-full bg-surface-base shadow ring-0 transition-transform',
-										'translate-x-0 group-data-[checked]:translate-x-5',
+										'pointer-events-none absolute flex items-center justify-center rounded-full bg-surface-base shadow ring-0 transition-transform',
+										sz().thumb,
+										'translate-x-0', sz().checked,
 									)}
 								>
 									{iconVariant() && (local.thumbOffIcon || local.thumbOnIcon) ? (
@@ -263,9 +194,91 @@ export function Switch(props: SwitchProps) {
 								</KobalteSwitch.Thumb>
 							</KobalteSwitch.Control>
 						</div>
+
+						<Show when={local.helperText && !hasError()}>
+							<KobalteSwitch.Description class="mt-1.5 text-sm text-ink-500">
+								{local.helperText}
+							</KobalteSwitch.Description>
+						</Show>
+
+						<Show when={hasError()}>
+							<KobalteSwitch.ErrorMessage class="mt-1.5 text-sm text-danger-600">
+								{local.error}
+							</KobalteSwitch.ErrorMessage>
+						</Show>
+					</>
+				}
+			>
+				<div class="flex items-start justify-between gap-3">
+					<div class="min-w-0">
+						<KobalteSwitch.Label
+							class={cn(
+								'text-sm font-medium cursor-pointer select-none',
+								hasError() ? 'text-danger-600' : 'text-ink-700',
+								local.disabled && 'opacity-50 cursor-not-allowed'
+							)}
+						>
+							{local.label}
+							<Show when={local.required}>
+								<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
+							</Show>
+						</KobalteSwitch.Label>
+
+						<Show when={local.helperText && !hasError()}>
+							<KobalteSwitch.Description class="mt-1 text-sm text-ink-500">
+								{local.helperText}
+							</KobalteSwitch.Description>
+						</Show>
+
+						<Show when={hasError()}>
+							<KobalteSwitch.ErrorMessage class="mt-1 text-sm text-danger-600">
+								{local.error}
+							</KobalteSwitch.ErrorMessage>
+						</Show>
 					</div>
-				</Show>
-			</KobalteSwitch>
-		</div>
+
+					<div class="shrink-0">
+						<KobalteSwitch.Input class="peer sr-only" />
+						<KobalteSwitch.Control
+							style={trackStyle()}
+							class={cn(
+								'group relative inline-flex shrink-0 cursor-pointer rounded-full border border-surface-border transition-colors',
+								sz().track,
+								'outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-primary-500',
+								'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+								'bg-surface-dim data-[checked]:bg-success-500 data-[checked]:border-success-500',
+								hasError() &&
+									'border-danger-500 peer-focus-visible:ring-danger-500 data-[checked]:border-danger-500',
+								local.controlClass
+							)}
+						>
+							<KobalteSwitch.Thumb
+								style={{
+									top: sz().top,
+									left: '1px',
+								}}
+								class={cn(
+									'pointer-events-none absolute flex items-center justify-center rounded-full bg-surface-base shadow ring-0 transition-transform',
+									sz().thumb,
+									'translate-x-0', sz().checked,
+								)}
+							>
+								{iconVariant() && (local.thumbOffIcon || local.thumbOnIcon) ? (
+									<>
+										<span class={cn('block', 'group-data-[checked]:hidden')}>
+											{local.thumbOffIcon}
+										</span>
+										<span class={cn('hidden', 'group-data-[checked]:block')}>
+											{local.thumbOnIcon}
+										</span>
+									</>
+								) : null}
+							</KobalteSwitch.Thumb>
+						</KobalteSwitch.Control>
+					</div>
+				</div>
+			</Show>
+		</KobalteSwitch>
+	</div>
 	)
 }

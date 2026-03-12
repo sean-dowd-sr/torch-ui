@@ -35,7 +35,6 @@ export interface ToastContextValue {
 
 let toastSeq = 0
 const newToastId = () => `toast-${++toastSeq}`
-const MAX_TOASTS = 5
 
 interface TimerEntry {
 	timer: ReturnType<typeof setTimeout> | null
@@ -60,16 +59,19 @@ export interface ToastProviderProps {
 	defaultAppearance?: ToastAppearance
 	/** Hotkey to jump to toast region. Default Alt+T. */
 	hotkey?: string
+	/** Maximum number of toasts shown at once. Oldest is removed when exceeded. Default 5. */
+	maxToasts?: number
 }
 
 export function ToastProvider(props: ToastProviderProps) {
-	const [local] = splitProps(props, ['children', 'position', 'defaultAppearance', 'hotkey'])
+	const [local] = splitProps(props, ['children', 'position', 'defaultAppearance', 'hotkey', 'maxToasts'])
 
 	const [toasts, setToasts] = createSignal<ToastItem[]>([])
 	const timers = new Map<string, TimerEntry>()
 	const [regionRef, setRegionRef] = createSignal<HTMLDivElement | null>(null)
 	const position = () => local.position ?? 'bottom-right'
 	const hotkey = () => local.hotkey ?? 'Alt+T'
+	const maxToasts = () => local.maxToasts ?? 5
 
 	const startTimer = (id: string, duration: number) => {
 		const existing = timers.get(id)
@@ -134,8 +136,8 @@ export function ToastProvider(props: ToastProviderProps) {
 			onAction: options?.onAction,
 		}
 		const prev = toasts()
-		const next = [...prev, item].slice(-MAX_TOASTS)
-		if (prev.length >= MAX_TOASTS) {
+		const next = [...prev, item].slice(-maxToasts())
+		if (prev.length >= maxToasts()) {
 			const nextIds = new Set(next.map((t) => t.id))
 			for (const t of prev) {
 				if (!nextIds.has(t.id)) clearTimer(t.id)
@@ -224,7 +226,7 @@ const solidClasses: Record<ToastVariant, string> = {
 	default: 'bg-surface-overlay text-ink-900 border border-surface-border',
 	success: 'bg-success-600 text-white border border-success-600 dark:bg-success-700 dark:border-success-700',
 	error: 'bg-danger-600 text-white border border-danger-600 dark:bg-danger-700 dark:border-danger-700',
-	warning: 'bg-warning-500 text-ink-900 border border-warning-500 dark:bg-warning-600 dark:border-warning-600 dark:text-ink-900',
+	warning: 'bg-warning-500 text-white border border-warning-500 dark:bg-warning-600 dark:border-warning-600 dark:text-white',
 	info: 'bg-info-600 text-white border border-info-600 dark:bg-info-700 dark:border-info-700',
 }
 
@@ -325,15 +327,14 @@ function ToastItemView(props: { toast: ToastItem; onDismiss: () => void; onPause
 						{t().actionLabel}
 					</button>
 				</Show>
-				<Button
-					iconOnly
-					variant="ghost"
-					size="xs"
-					icon={icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-					label="Dismiss"
+				<button
+					type="button"
+					aria-label="Dismiss"
 					onClick={local.onDismiss}
-					class="opacity-60 hover:opacity-100"
-				/>
+					class="shrink-0 rounded p-0.5 opacity-60 hover:opacity-100 hover:bg-current/10 active:bg-current/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 transition-opacity"
+				>
+					{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+				</button>
 			</div>
 			<Show when={t().showProgress !== false && t().duration && t().duration! > 0}>
 				<div class="absolute bottom-0 left-0 h-1 w-full overflow-hidden rounded-b-lg">

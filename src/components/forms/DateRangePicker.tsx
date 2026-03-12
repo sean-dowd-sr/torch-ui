@@ -1,5 +1,6 @@
 import { createSignal, createMemo, Show, For, splitProps, createUniqueId, createEffect, on } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
+import { TimeSelect } from './TimeSelect'
 import { cn } from '../../utilities/classNames'
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 import { useComponentSize } from '../../utilities/componentSizeContext'
@@ -32,6 +33,12 @@ export interface DateRangePickerProps {
 	clearable?: boolean
 	/** Component size. Default 'md'. */
 	size?: ComponentSize
+	/** When true, include HH:MM time pickers for start and end. Value format becomes YYYY-MM-DDTHH:MM. */
+	showTime?: boolean
+	/** Time display format when showTime is true. Default: '12h'. */
+	timeFormat?: '12h' | '24h'
+	/** Minute increment for the time picker. Default: 1 (every minute). */
+	minuteStep?: number
 	class?: string
 	id?: string
 }
@@ -146,7 +153,7 @@ function MonthGrid(props: MonthGridProps) {
 					)}
 				</For>
 			</div>
-			<div class="grid grid-cols-7">
+			<div class="grid grid-cols-7 gap-y-1">
 				<For each={days()}>
 					{(day) => {
 						const rangeStart = () => isRangeStart(day)
@@ -207,7 +214,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	const [local] = splitProps(props, [
 		'start', 'end', 'onValueChange', 'onErrorClear', 'placeholder', 'disabled',
 		'min', 'max', 'label', 'error', 'helperText', 'bare',
-		'required', 'optional', 'dualMonth', 'clearable', 'size', 'class', 'id',
+		'required', 'optional', 'dualMonth', 'clearable', 'size', 'class', 'id', 'showTime', 'timeFormat', 'minuteStep',
 	])
 	const icons = useIcons()
 	const contextSize = useComponentSize()
@@ -217,8 +224,53 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	const [open, setOpen] = createSignal(false)
 	const [hover, setHover] = createSignal<Date | null>(null)
 	const [pickingEnd, setPickingEnd] = createSignal(false)
-	const startDate = () => parseDate(local.start ?? '')
-	const endDate = () => parseDate(local.end ?? '')
+	const [pendingStartHour, setPendingStartHour] = createSignal(0)
+	const [pendingStartMinute, setPendingStartMinute] = createSignal(0)
+	const [pendingEndHour, setPendingEndHour] = createSignal(23)
+	const [pendingEndMinute, setPendingEndMinute] = createSignal(59)
+
+	const is12h = () => local.timeFormat !== '24h'
+	const displayStartHour12 = () => { const h = pendingStartHour(); return h === 0 ? 12 : h > 12 ? h - 12 : h }
+	const displayStartAmPm = () => pendingStartHour() < 12 ? 'AM' : 'PM'
+	const displayEndHour12 = () => { const h = pendingEndHour(); return h === 0 ? 12 : h > 12 ? h - 12 : h }
+	const displayEndAmPm = () => pendingEndHour() < 12 ? 'AM' : 'PM'
+	function toggleStartAmPm() {
+		const h = pendingStartHour()
+		handleStartTimeChange(h < 12 ? h + 12 : h - 12, pendingStartMinute())
+	}
+	function handleStartHour12Change(h12: number) {
+		const isAm = pendingStartHour() < 12
+		handleStartTimeChange(isAm ? (h12 === 12 ? 0 : h12) : (h12 === 12 ? 12 : h12 + 12), pendingStartMinute())
+	}
+	function toggleEndAmPm() {
+		const h = pendingEndHour()
+		handleEndTimeChange(h < 12 ? h + 12 : h - 12, pendingEndMinute())
+	}
+	function handleEndHour12Change(h12: number) {
+		const isAm = pendingEndHour() < 12
+		handleEndTimeChange(isAm ? (h12 === 12 ? 0 : h12) : (h12 === 12 ? 12 : h12 + 12), pendingEndMinute())
+	}
+
+	function handleStartTimeChange(h: number, m: number) {
+		setPendingStartHour(h)
+		setPendingStartMinute(m)
+		const dateStr = local.start ? local.start.split('T')[0] : ''
+		if (dateStr) local.onValueChange?.(
+			`${dateStr}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+			local.end ?? ''
+		)
+	}
+	function handleEndTimeChange(h: number, m: number) {
+		setPendingEndHour(h)
+		setPendingEndMinute(m)
+		const dateStr = local.end ? local.end.split('T')[0] : ''
+		if (dateStr) local.onValueChange?.(
+			local.start ?? '',
+			`${dateStr}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+		)
+	}
+	const startDate = () => parseDate((local.start ?? '').split('T')[0])
+	const endDate = () => parseDate((local.end ?? '').split('T')[0])
 	const minDate = () => parseDate(local.min ?? '')
 	const maxDate = () => parseDate(local.max ?? '')
 	const dual = () => local.dualMonth !== false
@@ -266,6 +318,19 @@ export function DateRangePicker(props: DateRangePickerProps) {
 			_setViewRight(initViewRight())
 			setViewModeLeft('calendar')
 			setViewModeRight('calendar')
+			if (local.showTime) {
+				if (local.start?.includes('T')) {
+					const [, t] = local.start.split('T')
+					const [h, m] = t.split(':').map(Number)
+					setPendingStartHour(h || 0); setPendingStartMinute(m || 0)
+				} else { setPendingStartHour(0); setPendingStartMinute(0) }
+				const maxMinute = Math.floor(59 / (local.minuteStep ?? 1)) * (local.minuteStep ?? 1)
+				if (local.end?.includes('T')) {
+					const [, t] = local.end.split('T')
+					const [h, m] = t.split(':').map(Number)
+					setPendingEndHour(h || 23); setPendingEndMinute(m || maxMinute)
+				} else { setPendingEndHour(23); setPendingEndMinute(maxMinute) }
+			}
 		} else {
 			setPickingEnd(false)
 			setHover(null)
@@ -275,14 +340,30 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	function handleDayClick(d: Date) {
 		if (local.error && local.onErrorClear) local.onErrorClear()
 		if (!pickingEnd()) {
-			local.onValueChange?.(toISODate(d), '')
+			if (local.showTime) {
+				const h = String(pendingStartHour()).padStart(2, '0')
+				const m = String(pendingStartMinute()).padStart(2, '0')
+				local.onValueChange?.(`${toISODate(d)}T${h}:${m}`, '')
+			} else {
+				local.onValueChange?.(toISODate(d), '')
+			}
 			setPickingEnd(true)
 		} else {
 			const s = startDate()
 			if (s && d < s) return
-			local.onValueChange?.(local.start ?? toISODate(d), toISODate(d))
-			setPickingEnd(false)
-			setOpen(false)
+			if (local.showTime) {
+				const sh = String(pendingStartHour()).padStart(2, '0')
+				const sm = String(pendingStartMinute()).padStart(2, '0')
+				const eh = String(pendingEndHour()).padStart(2, '0')
+				const em = String(pendingEndMinute()).padStart(2, '0')
+				const startStr = local.start ? local.start.split('T')[0] : toISODate(d)
+				local.onValueChange?.(`${startStr}T${sh}:${sm}`, `${toISODate(d)}T${eh}:${em}`)
+				setPickingEnd(false)
+			} else {
+				local.onValueChange?.(local.start ?? toISODate(d), toISODate(d))
+				setPickingEnd(false)
+				setOpen(false)
+			}
 		}
 	}
 
@@ -357,15 +438,50 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	}
 
 	const navBtnClass = 'flex h-7 w-7 items-center justify-center rounded-md text-ink-500 hover:bg-surface-overlay transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
-	const monthYearBtnClass = 'rounded-md px-2 py-1 text-sm font-semibold text-ink-900 hover:bg-surface-overlay transition-colors'
+	const monthYearBtnClass = 'rounded-md px-2 py-1 text-sm font-semibold text-ink-900 hover:bg-surface-overlay transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
 
+	const formatOne = (raw: string) => {
+		if (!raw) return ''
+		if (local.showTime && raw.includes('T')) {
+			const [datePart, timePart] = raw.split('T')
+			const d = parseDate(datePart)
+			if (!d) return ''
+			const [h, m] = timePart.split(':').map(Number)
+			const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+			if (local.timeFormat === '24h') {
+				return `${dateStr} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+			}
+			const hour12 = h % 12 || 12
+			const ampm = h < 12 ? 'AM' : 'PM'
+			return `${dateStr} ${hour12}:${String(m).padStart(2, '0')} ${ampm}`
+		}
+		return formatDisplay(raw.split('T')[0])
+	}
 	const displayValue = () => {
-		const s = local.start ? formatDisplay(local.start) : ''
-		const e = local.end ? formatDisplay(local.end) : ''
+		const s = formatOne(local.start ?? '')
+		const e = formatOne(local.end ?? '')
 		if (s && e) return `${s} – ${e}`
 		if (s) return `${s} – …`
 		return ''
 	}
+
+	const TimeRow = (p: { label: string; hour: () => number; hour12: () => number; ampm: () => string; minute: () => number; onHour24: (h: number) => void; onHour12: (h: number) => void; onMinute: (m: number) => void; onToggleAmPm: () => void }) => (
+		<div class="mt-2 pt-2 border-t border-surface-border flex items-center justify-between">
+			<span class="text-xs text-ink-500">{p.label}</span>
+			<div class="flex items-center gap-2">
+				<Show when={is12h()} fallback={
+					<TimeSelect value={p.hour()} options={Array.from({ length: 24 }, (_, i) => i)} onChange={p.onHour24} />
+				}>
+					<TimeSelect value={p.hour12()} options={Array.from({ length: 12 }, (_, i) => i + 1)} onChange={p.onHour12} />
+				</Show>
+				<span class="text-xs font-medium text-ink-400">:</span>
+				<TimeSelect value={p.minute()} options={Array.from({ length: Math.ceil(60 / (local.minuteStep ?? 1)) }, (_, i) => i * (local.minuteStep ?? 1))} onChange={p.onMinute} />
+				<Show when={is12h()}>
+					<button type="button" onClick={p.onToggleAmPm} class="rounded-md border border-surface-border bg-surface-raised px-2 py-1 text-xs font-medium text-ink-700 hover:bg-surface-overlay transition-colors min-w-[2.5rem] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50">{p.ampm()}</button>
+				</Show>
+			</div>
+		</div>
+	)
 
 	const hasError = () => !!local.error
 	const msgId = () => (local.error || local.helperText) ? `${inputId()}-msg` : undefined
@@ -387,9 +503,9 @@ export function DateRangePicker(props: DateRangePickerProps) {
 								type="button"
 								onClick={() => colProps.onSelectMonth(mi())}
 								disabled={isMonthDisabledFor(colProps.viewYear, mi())}
-								class={cn(
-									'rounded-lg py-2 text-xs font-medium transition-colors',
-									isMonthDisabledFor(colProps.viewYear, mi())
+									class={cn(
+										'rounded-lg py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50',
+										isMonthDisabledFor(colProps.viewYear, mi())
 										? 'cursor-not-allowed opacity-30'
 										: mi() === colProps.viewMonth
 											? 'bg-primary-500 text-white'
@@ -410,7 +526,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 								type="button"
 								onClick={() => colProps.onSelectYear(y)}
 								class={cn(
-									'rounded-lg py-2 text-xs font-medium transition-colors',
+									'rounded-lg py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50',
 									y === colProps.viewYear
 										? 'bg-primary-500 text-white'
 										: 'text-ink-700 hover:bg-surface-overlay',
@@ -460,7 +576,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 						class={cn(
 							'inline-flex w-full items-center gap-2 rounded-lg border transition-colors',
 							sc().h, sc().py, sc().pl, sc().text, sc().pr,
-							'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+							'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
 							hasError()
 								? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600'
 								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400',
@@ -477,7 +593,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 						<button
 							type="button"
 							onClick={(e) => { e.stopPropagation(); clearRange() }}
-							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors"
+							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 							aria-label="Clear date range"
 						>
 							{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
@@ -540,6 +656,9 @@ export function DateRangePicker(props: DateRangePickerProps) {
 												onDayHover={setHover}
 											/>
 										</Show>
+										<Show when={local.showTime}>
+											<TimeRow label="Start" hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
+										</Show>
 									</div>
 
 									{/* Divider */}
@@ -586,6 +705,9 @@ export function DateRangePicker(props: DateRangePickerProps) {
 												onDayClick={handleDayClick}
 												onDayHover={setHover}
 											/>
+										</Show>
+										<Show when={local.showTime}>
+											<TimeRow label="End" hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
 										</Show>
 									</div>
 								</div>
@@ -641,34 +763,40 @@ export function DateRangePicker(props: DateRangePickerProps) {
 										onDayHover={setHover}
 									/>
 								</Show>
+								<Show when={local.showTime}>
+									<TimeRow label="Start" hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
+									<TimeRow label="End" hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
+								</Show>
 							</Show>
 
 							{/* Footer */}
-							<div class="mt-3 flex items-center justify-between border-t border-surface-border pt-3">
-								<div class="text-xs text-ink-400">
-									{pickingEnd()
-										? 'Now select an end date'
-										: (local.start && local.end)
-											? displayValue()
-											: 'Select a start date'}
-								</div>
-								<div class="flex gap-2">
-									<Show when={clearable() && (local.start || local.end)}>
+							<div class="mt-3 space-y-2 border-t border-surface-border pt-3">
+								<div class="flex items-center justify-between">
+									<div class="text-xs text-ink-400">
+										{pickingEnd()
+											? 'Now select an end date'
+											: (local.start && local.end)
+												? displayValue()
+												: 'Select a start date'}
+									</div>
+									<div class="flex gap-2">
+										<Show when={clearable() && (local.start || local.end)}>
+											<button
+												type="button"
+												onClick={clearRange}
+												class="rounded-md px-2 py-1 text-xs text-ink-500 hover:bg-surface-overlay hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+											>
+												Clear
+											</button>
+										</Show>
 										<button
 											type="button"
-											onClick={clearRange}
-											class="rounded-md px-2 py-1 text-xs text-ink-500 hover:bg-surface-overlay hover:text-ink-700 transition-colors"
+											onClick={() => setOpen(false)}
+											class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 										>
-											Clear
+											Done
 										</button>
-									</Show>
-									<button
-										type="button"
-										onClick={() => setOpen(false)}
-										class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors"
-									>
-										Done
-									</button>
+									</div>
 								</div>
 							</div>
 						</div>

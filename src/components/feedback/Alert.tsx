@@ -56,7 +56,7 @@ const statusAppearanceClasses: StatusAppearanceMap = {
 		subtle:
 			'border-warning-500 bg-warning-50 text-warning-700 dark:border-warning-800 dark:bg-warning-950 dark:text-warning-100',
 		solid:
-			'border-warning-500 bg-warning-400 text-ink-900 dark:border-warning-600 dark:bg-warning-600 dark:text-ink-900',
+			'border-warning-500 bg-warning-500 text-white dark:border-warning-600 dark:bg-warning-600 dark:text-white',
 		outline:
 			'border-warning-500 bg-transparent text-warning-700 dark:border-warning-500 dark:bg-transparent dark:text-warning-300',
 		transparent:

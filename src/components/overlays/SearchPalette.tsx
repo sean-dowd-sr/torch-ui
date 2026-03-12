@@ -1,4 +1,4 @@
-import { createSignal, createEffect, on, Show, For, type JSX, splitProps, onMount, onCleanup } from 'solid-js'
+import { createSignal, createEffect, on, Show, For, Index, type JSX, splitProps, onMount, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { cn } from '../../utilities/classNames'
 import { useIcons } from '../../icons'
@@ -10,16 +10,16 @@ import { useIcons } from '../../icons'
 export interface SearchPaletteCategory {
 	key: string
 	label: string
-	icon?: JSX.Element
+	icon?: JSX.Element | (() => JSX.Element)
 }
 
 export interface SearchPaletteItem {
 	key: string
 	label: string
 	description?: string
-	icon?: JSX.Element
+	icon?: JSX.Element | (() => JSX.Element)
 	category?: string
-	trailing?: JSX.Element
+	trailing?: JSX.Element | (() => JSX.Element)
 }
 
 export interface SearchPaletteGroup {
@@ -154,6 +154,10 @@ export function SearchPalette(props: SearchPaletteProps) {
 		return idx + itemIdx
 	}
 
+	// Resolve icon/trailing which may be a pre-created element or a factory function
+	const resolveContent = (value: JSX.Element | (() => JSX.Element)): JSX.Element =>
+		typeof value === 'function' ? (value as () => JSX.Element)() : value
+
 	return (
 		<KobalteDialog open={local.open} onOpenChange={local.onOpenChange}>
 			<KobalteDialog.Portal>
@@ -219,7 +223,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 													)}
 												>
 													<Show when={cat.icon}>
-														<span class="h-3.5 w-3.5">{cat.icon}</span>
+														<span class="h-3.5 w-3.5">{resolveContent(cat.icon!)}</span>
 													</Show>
 													{cat.label}
 												</button>
@@ -240,15 +244,15 @@ export function SearchPalette(props: SearchPaletteProps) {
 									</div>
 								}
 							>
-								<For each={local.groups}>
+								<Index each={local.groups}>
 									{(group, gi) => (
 										<div class="py-2">
 											<p class="px-4 pb-1 text-xs font-medium text-ink-500">
-												{group.title}
+												{group().title}
 											</p>
-											<For each={group.items}>
+											<For each={group().items}>
 												{(item, ii) => {
-													const idx = () => flatIndex(gi(), ii())
+													const idx = () => flatIndex(gi, ii())
 													return (
 														<button
 															type="button"
@@ -266,7 +270,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 														>
 															<Show when={item.icon}>
 																<span class="flex h-5 w-5 shrink-0 items-center justify-center text-ink-400">
-																	{item.icon}
+																	{resolveContent(item.icon!)}
 																</span>
 															</Show>
 															<span class="min-w-0 flex-1">
@@ -276,24 +280,24 @@ export function SearchPalette(props: SearchPaletteProps) {
 																</Show>
 															</span>
 															<Show when={item.trailing}>
-																<span class="shrink-0">{item.trailing}</span>
+																<span class="shrink-0">{resolveContent(item.trailing!)}</span>
 															</Show>
 														</button>
 													)
 												}}
 											</For>
-											<Show when={group.seeAll}>
+											<Show when={group().seeAll}>
 												<button
 													type="button"
-													onClick={() => group.seeAll!.onClick()}
+													onClick={() => group().seeAll!.onClick()}
 													class="px-4 py-1.5 text-xs font-medium text-primary-500 hover:text-primary-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 												>
-													{group.seeAll!.label}
+													{group().seeAll!.label}
 												</button>
 											</Show>
 										</div>
 									)}
-								</For>
+								</Index>
 							</Show>
 						</div>
 

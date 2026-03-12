@@ -22,6 +22,7 @@ export interface TorchUIIcons {
 	minus: TorchUIIconComponent
 	dragHandle: TorchUIIconComponent
 	calendar: TorchUIIconComponent
+	clock: TorchUIIconComponent
 	pipette: TorchUIIconComponent
 	refresh: TorchUIIconComponent
 	trash: TorchUIIconComponent
@@ -141,6 +142,12 @@ export const defaultIcons: TorchUIIcons = {
 			<circle cx="15" cy="12" r="1" />
 			<circle cx="15" cy="5" r="1" />
 			<circle cx="15" cy="19" r="1" />
+		</>
+	)),
+	clock: icon(() => (
+		<>
+			<circle cx="12" cy="12" r="10" />
+			<polyline points="12 6 12 12 16 14" />
 		</>
 	)),
 	calendar: icon(() => (

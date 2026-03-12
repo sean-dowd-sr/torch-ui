@@ -137,7 +137,7 @@ function ChipContent(props: {
         <button
           type="button"
           class={cn(
-            'shrink-0 text-ink-400',
+            'shrink-0 text-ink-400 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 rounded',
             isDragging() ? 'cursor-grabbing' : 'cursor-grab',
           )}
           aria-label="Drag to reorder"
@@ -158,7 +158,7 @@ function ChipContent(props: {
           props.onRemove(props.opt)
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        class="rounded p-0.5 hover:bg-surface-overlay outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ink-400"
+        class="rounded p-0.5 hover:bg-surface-overlay outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
         aria-label={`Remove ${props.opt.label}`}
       >
         {icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}

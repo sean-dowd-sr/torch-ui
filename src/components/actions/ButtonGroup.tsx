@@ -119,10 +119,10 @@ function ButtonGroupMenuRenderer(props: { content: unknown }) {
 }
 
 const groupBaseClasses =
-	'inline-flex rounded-lg border border-surface-border overflow-hidden [&>*]:!shadow-none'
+	'inline-flex rounded-lg border border-surface-border [&>*]:!shadow-none'
 
 const splitBaseClasses =
-	'inline-flex rounded-lg overflow-hidden [&>*]:!shadow-none'
+	'inline-flex rounded-lg [&>*]:!shadow-none'
 
 const groupChildClasses =
 	'[&>*]:!rounded-none [&>*]:!border-0 [&>*]:!border-r [&>*]:!border-surface-border [&>*:last-child]:!border-r-0 [&>*:first-child]:!rounded-l-lg [&>*:last-child]:!rounded-r-lg'
@@ -139,7 +139,7 @@ const toggleItemClass = cn(
 	'data-[pressed]:bg-primary-500 data-[pressed]:text-white',
 	'data-[pressed]:hover:bg-primary-600 data-[pressed]:hover:text-white',
 	'data-[pressed]:!border-white/20',
-	'focus-visible:ring-2 focus-visible:ring-primary-500/50',
+	'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50',
 	'disabled:opacity-50 disabled:cursor-not-allowed',
 	'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
 )
@@ -271,7 +271,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 							disabled={local.disabled}
 							class={cn(
 								'inline-flex shrink-0 items-center justify-center border-2 border-l-2 rounded-none rounded-r-lg',
-								'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+								'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50',
 								splitTriggerVariants[variant()],
 								splitTriggerSizes[size()],
 								local.disabled && 'opacity-50 cursor-not-allowed'

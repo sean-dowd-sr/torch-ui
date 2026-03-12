@@ -1,4 +1,4 @@
-import { splitProps } from 'solid-js'
+			import { splitProps } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { Button } from '../actions'
 import { Autocomplete } from './Autocomplete'
@@ -38,7 +38,7 @@ export const FieldPicker = (props: FieldPickerProps) => {
 
 	return (
 		<div class={cn('space-y-2', local.class)}>
-			<div class="flex items-center gap-2">
+			<div class="flex items-end gap-2">
 				<Autocomplete
 					label={local.label}
 					value={local.value}

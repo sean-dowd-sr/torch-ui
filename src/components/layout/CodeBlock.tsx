@@ -116,10 +116,11 @@ export function CodeBlock(props: CodeBlockProps) {
 	const embedded = () => local.embedded === true
 	const triggerClass = () =>
 		cn(
-			'flex w-full items-center justify-center gap-2 rounded-none border-t border-surface-border py-2.5 text-sm font-medium',
+			'flex w-full items-center justify-center gap-2 py-2.5 text-sm font-medium',
+			codeOpen() ? 'rounded-none border-t border-surface-border' : 'rounded-b-xl',
 			'text-ink-600 hover:text-ink-900',
 			embedded() ? 'bg-transparent hover:bg-surface-dim' : 'bg-surface-overlay hover:bg-surface-dim',
-			'outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
+			'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500'
 		)
 
 	const currentContent = (): string => {
@@ -181,11 +182,11 @@ export function CodeBlock(props: CodeBlockProps) {
 	const headerTextClass = () =>
 		primary() ? 'text-white/90' : 'text-ink-500'
 
-	/* Minimal copy: icon only, no border/outline/ring, blends into header */
+	/* Minimal copy: icon only, no border/outline, blends into header */
 	const copyButtonClass = () =>
 		primary()
-			? '!border-0 !bg-transparent !shadow-none !ring-0 !ring-offset-0 text-white/70 hover:!bg-white/15 hover:text-white'
-			: '!border-0 !bg-transparent !shadow-none !ring-0 !ring-offset-0 text-ink-500 hover:!bg-surface-overlay hover:text-ink-700'
+			? '!border-0 !bg-transparent !shadow-none text-white/70 hover:!bg-white/15 hover:text-white focus-visible:ring-white/50'
+			: '!border-0 !bg-transparent !shadow-none text-ink-500 hover:!bg-surface-overlay hover:text-ink-700'
 
 	/* Line numbers: light grey, right-aligned, subtle separator (like reference) */
 	const lineNumClass = () =>
@@ -346,7 +347,7 @@ export function CodeBlock(props: CodeBlockProps) {
 								onClick={() => setShowAlternate((p) => !p)}
 								aria-pressed={showAlternate()}
 								class={cn(
-									'flex items-center gap-1.5 shrink-0 px-2 py-1 text-xs font-medium rounded transition-colors',
+									'flex items-center gap-1.5 shrink-0 px-2 py-1 text-xs font-medium rounded transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
 									primary()
 										? 'text-white/80 hover:bg-white/15 hover:text-white'
 										: themeAuto()
@@ -390,7 +391,7 @@ export function CodeBlock(props: CodeBlockProps) {
 			<pre
 				data-torchui="code-block"
 				class={cn(
-					'w-full py-3 px-4 text-sm font-mono whitespace-pre overflow-x-auto overflow-y-auto',
+					'w-full py-3 px-4 text-sm font-mono whitespace-pre overflow-x-auto overflow-y-auto outline-none',
 					minHeight(),
 					themeClass(),
 					/* No text-* on pre: let Prism theme (or token CSS) color tokens; otherwise inherited color overrides .token */

@@ -97,7 +97,7 @@ export function Sidebar(props: SidebarProps) {
 			case 'minimal':
 				return 'border-r border-surface-border'
 			case 'padded':
-				return 'border-r border-surface-border px-3 py-2'
+				return 'border-r border-surface-border bg-surface-raised'
 			default:
 				return 'border-r border-surface-border'
 		}
@@ -120,14 +120,14 @@ export function Sidebar(props: SidebarProps) {
 
 	const titleClass = () =>
 		cn(
-			'px-4 py-3 text-lg font-semibold text-ink-900',
-			local.collapsed ? 'hidden' : 'block'
+			'shrink-0 flex items-center border-b border-surface-border/50',
+			local.collapsed ? 'justify-center px-3 py-3' : 'justify-between px-4 py-3'
 		)
 
 	const navigationClass = () =>
 		cn(
 			hasStickyFooter() ? 'flex-1 overflow-x-hidden overflow-y-auto' : '',
-			local.variant === 'padded' ? 'py-1' : 'p-3'
+			local.variant === 'minimal' ? 'p-2' : 'p-3'
 		)
 
 	const footerClass = () =>
@@ -171,14 +171,22 @@ export function Sidebar(props: SidebarProps) {
 	const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
 		const itemClass = () =>
 			cn(
-				'flex items-center w-full min-w-0 rounded-lg transition-colors',
+				'flex items-center w-full min-w-0 transition-colors',
 				local.variant === 'minimal'
-					? 'px-3 py-1.5 text-xs font-light'
-					: 'px-3 py-2 text-sm',
+					? 'rounded px-2 py-1 text-xs'
+					: local.variant === 'padded'
+						? 'rounded-lg px-4 py-2.5 text-sm'
+						: 'rounded-lg px-3 py-2 text-sm',
 				'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset',
 				item.active
-					? 'text-primary-600 dark:text-primary-400'
-					: 'text-ink-700 hover:text-ink-900',
+					? [
+						local.variant === 'minimal' ? '' : 'bg-primary-500/10',
+						'text-primary-600 dark:text-primary-400 font-medium',
+					  ]
+					: [
+						'text-ink-600',
+						local.variant === 'minimal' ? 'hover:text-ink-900' : 'hover:bg-surface-overlay hover:text-ink-900',
+					  ],
 				item.disabled && 'opacity-50 cursor-not-allowed',
 				level > 0 && 'ml-4'
 			)
@@ -299,9 +307,23 @@ export function Sidebar(props: SidebarProps) {
 			<Show when={local.header}>
 				<div class="shrink-0">{local.header}</div>
 			</Show>
-			<Show when={local.title && local.showTitle !== false}>
+			<Show when={(local.title && local.showTitle !== false) || local.collapsible}>
 				<div class={titleClass()}>
-					{!local.collapsed && local.title}
+					<Show when={!local.collapsed && local.title && local.showTitle !== false}>
+						<span class="text-base font-semibold text-ink-900 truncate">{local.title}</span>
+					</Show>
+					<Show when={local.collapsible}>
+						<button
+							type="button"
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-ink-400 hover:bg-surface-overlay hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+							onClick={() => local.onCollapseChange?.(!local.collapsed)}
+							aria-label={local.collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+						>
+							<svg class={cn('h-4 w-4 transition-transform duration-200', local.collapsed && 'rotate-180')} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<path d="m15 18-6-6 6-6" />
+							</svg>
+						</button>
+					</Show>
 				</div>
 			</Show>
 
@@ -310,7 +332,7 @@ export function Sidebar(props: SidebarProps) {
 				aria-label={local.title || 'Sidebar navigation'}
 			>
 				<Show when={local.groups} fallback={
-					<ul class="space-y-0.5" role="list">
+					<ul class={local.variant === 'padded' ? 'space-y-1' : 'space-y-0.5'} role="list">
 						<For each={local.items}>
 							{(item) => renderSidebarItem(item)}
 						</For>

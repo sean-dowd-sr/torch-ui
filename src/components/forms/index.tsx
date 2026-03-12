@@ -16,8 +16,9 @@ export {
 	type FileUploadItem,
 	type FileUploadVariant,
 } from './FileUpload'
-export { DatePicker, type DatePickerProps } from './DatePicker'
+export { DatePicker, type DatePickerProps, type DatePickerPreset } from './DatePicker'
 export { DateRangePicker, type DateRangePickerProps } from './DateRangePicker'
+export { TimePicker, type TimePickerProps } from './TimePicker'
 export {
 	ColorPicker,
 	type ColorPickerProps,

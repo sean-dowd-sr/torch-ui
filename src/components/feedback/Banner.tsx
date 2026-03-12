@@ -42,7 +42,7 @@ const statusClasses: StatusMap = {
 		subtle: 'bg-success-100 border-y border-success-500 text-success-800 dark:bg-success-950 dark:border-success-800 dark:text-success-100',
 	},
 	warning: {
-		solid: 'bg-warning-500 text-ink-900 dark:bg-warning-600 dark:text-ink-900',
+		solid: 'bg-warning-500 text-white dark:bg-warning-600 dark:text-white',
 		subtle: 'bg-warning-100 border-y border-warning-500 text-warning-800 dark:bg-warning-950 dark:border-warning-800 dark:text-warning-100',
 	},
 	error: {
