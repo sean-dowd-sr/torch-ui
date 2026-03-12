@@ -1,7 +1,7 @@
 import { createSignal, createEffect, onCleanup, onMount, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { Button } from './Button'
-import { Switch } from '../forms/Switch'
+import { Switch } from '../forms'
 import { useIcons } from '../../icons'
 
 export type ColorScheme = 'light' | 'dark'

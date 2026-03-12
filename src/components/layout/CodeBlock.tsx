@@ -1,5 +1,5 @@
 import { createSignal, createEffect, type JSX, Show, For, splitProps, onCleanup } from 'solid-js'
-import { Copy } from '../actions/Copy'
+import { Copy } from '../actions'
 import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from './Collapsible'
 import { PopoverRoot, PopoverTrigger, PopoverContent } from '../overlays/Popover'
 import { cn } from '../../utilities/classNames'

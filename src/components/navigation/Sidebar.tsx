@@ -1,7 +1,7 @@
 import { type JSX, type Component, splitProps, Show, For } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { cn } from '../../utilities/classNames'
-import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../layout/Collapsible'
+import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../layout'
 
 export interface SidebarItem {
 	key: string

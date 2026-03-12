@@ -157,6 +157,14 @@ export function ToastProvider(props: ToastProviderProps) {
 
 	onMount(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				const current = toasts()
+				if (current.length > 0) {
+					e.preventDefault()
+					dismiss(current[current.length - 1].id)
+				}
+				return
+			}
 			const keys = hotkey().split('+').map(k => k.toLowerCase())
 			const alt = keys.includes('alt') && e.altKey
 			const ctrl = keys.includes('ctrl') && e.ctrlKey

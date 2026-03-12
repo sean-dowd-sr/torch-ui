@@ -17,6 +17,12 @@ export interface CarouselProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	showArrows?: boolean
 	/** Dot indicators alignment: start, center, or end. Default start. */
 	dotsPosition?: 'start' | 'center' | 'end'
+	/** Dot color scheme: 'light' (white dots, for dark/colored backgrounds) or 'dark' (ink dots, for light backgrounds). Default 'light'. */
+	dotsVariant?: 'light' | 'dark'
+	/** Optional Tailwind class(es) applied as a background strip behind the dots row (e.g. 'bg-primary-500'). Forces white dots when set. */
+	dotsBgClass?: string
+	/** When true, renders dots absolutely positioned over the bottom of the slide (instead of below it). Slide content should add bottom padding to avoid overlap. */
+	dotsOverlay?: boolean
 	/** Accessible label for the carousel region. */
 	'aria-label'?: string
 }
@@ -28,6 +34,9 @@ export function Carousel(props: CarouselProps) {
 		'showDots',
 		'showArrows',
 		'dotsPosition',
+		'dotsVariant',
+		'dotsBgClass',
+		'dotsOverlay',
 		'aria-label',
 		'class',
 	])
@@ -170,7 +179,13 @@ export function Carousel(props: CarouselProps) {
 
 			<Show when={local.showDots !== false && local.slides.length > 1}>
 				<div
-					class={cn('flex gap-2 mt-8', dotsAlign())}
+					class={cn(
+						local.dotsOverlay
+							? cn('absolute bottom-3 left-0 right-0 z-10 flex gap-2 px-5 py-2', dotsAlign())
+							: local.dotsBgClass
+								? cn('flex gap-2 px-4 py-3 rounded-b-xl', local.dotsBgClass, dotsAlign())
+								: cn('flex gap-2 my-3', dotsAlign())
+					)}
 				>
 					<For each={local.slides}>
 						{(_, index) => (
@@ -179,23 +194,30 @@ export function Carousel(props: CarouselProps) {
 								onClick={() => goToSlide(index())}
 								class={cn(
 									'h-2 rounded-full transition-all duration-300',
-									index() === currentSlide()
-										? 'w-8 bg-white/40 relative overflow-hidden'
-										: 'w-2 bg-white/40 hover:bg-white/60'
+									index() === currentSlide() ? 'w-8 relative overflow-hidden' : 'w-2'
 								)}
+								style={{
+									'background-color': local.dotsVariant === 'light'
+										? 'rgba(255,255,255,0.4)'
+										: 'var(--color-ink-400)',
+								}}
 								aria-label={`Go to slide ${index() + 1}`}
 								aria-current={index() === currentSlide() ? 'true' : undefined}
 							>
 								<Show when={index() === currentSlide() && autoPlayInterval() > 0}>
 									<div
-										class="absolute top-0 left-0 h-full bg-white rounded-full"
+										class="absolute top-0 left-0 h-full rounded-full"
 										style={
 											progressBarReady()
 												? {
+														'background-color': local.dotsVariant === 'light' ? 'white' : 'var(--color-ink-700)',
 														animation: `carouselProgressBar ${autoPlayInterval()}ms linear forwards`,
 														'animation-fill-mode': 'forwards',
 													}
-												: { width: '0%' }
+												: {
+														'background-color': local.dotsVariant === 'light' ? 'white' : 'var(--color-ink-700)',
+														width: '0%',
+													}
 										}
 									/>
 								</Show>
