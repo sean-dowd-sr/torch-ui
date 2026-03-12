@@ -47,3 +47,6 @@ dev/
 *.tmp
 *.temp
 node_modules
+
+# Internal reports
+QA_REPORT.md

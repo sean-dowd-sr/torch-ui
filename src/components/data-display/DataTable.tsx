@@ -1,7 +1,7 @@
 import { type JSX, Show, For, createMemo, splitProps } from 'solid-js'
 import { Button } from '../actions'
 import { Input } from '../forms'
-import { Dialog, AlertDialog } from '../layout'
+import { Dialog, AlertDialog } from '../overlays'
 import { EmptyState } from './EmptyState'
 import { cn } from '../../utilities/classNames'
 import { useIcons } from '../../icons'
@@ -13,8 +13,7 @@ import {
 	TableHead,
 	TableCell,
 } from './Table'
-import { Pagination } from '../navigation/Pagination'
-import type { PaginationProps } from '../navigation/Pagination'
+import { Pagination, type PaginationProps } from '../navigation'
 
 /** Shared table container styling: white background, border, rounded. Use with overflow-x-auto or overflow-hidden. */
 export const TABLE_CONTAINER_CLASS =

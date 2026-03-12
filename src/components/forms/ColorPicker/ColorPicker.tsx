@@ -8,7 +8,7 @@ import type { Color as KobalteColor } from '@kobalte/core/colors'
 import { Button } from '../../actions'
 import { cn } from '../../../utilities/classNames'
 import { type ComponentSize } from '../../../types/component-size'
-import { normalizeHex, hexToHslString, rgbaToHex } from './color-utils'
+import { normalizeHex, hexToHslString, rgbaToHex } from '../../../utilities/colorUtils'
 import { useIcons } from '../../../icons'
 
 const DEFAULT_PRESETS = [
