@@ -24,7 +24,7 @@ function injectMegaMenuStyles() {
 			opacity: 0;
 			overflow-x: clip;
 			overflow-y: visible;
-			transition: width 200ms ease, height 200ms ease;
+			transition: width 200ms ease;
 			animation: torchui-mm-viewport-hide 180ms ease-in forwards;
 			outline: none;
 		}

@@ -55,23 +55,20 @@ function baseSvgProps(others: JSX.SvgSVGAttributes<SVGSVGElement>) {
 }
 
 function icon(getChildren: () => JSX.Element): TorchUIIconComponent {
-	return (props) => {
-		// Imperative DOM avoids reactive computations when called as a plain function (no createComponent owner)
-		const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-		const attrs = baseSvgProps(props)
-		for (const key in attrs) {
-			const value = (attrs as Record<string, unknown>)[key]
-			if (value != null) el.setAttribute(key, String(value))
-		}
-		// babel-plugin-solid wraps <path> JSX in a full <svg> template for SVG namespace correctness,
-		// so getChildren() returns <svg><path> elements. Extract their children into our output SVG.
-		const raw = getChildren()
-		const sources: SVGElement[] = Array.isArray(raw) ? (raw as SVGElement[]) : [raw as unknown as SVGElement]
-		for (const source of sources) {
-			while (source.firstChild) el.appendChild(source.firstChild)
-		}
-		return el as unknown as JSX.Element
-	}
+	return (props) => (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width={2}
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			{...props}
+		>
+			{getChildren()}
+		</svg>
+	)
 }
 
 export const defaultIcons: TorchUIIcons = {

@@ -64,7 +64,8 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
     "@kobalte/core": "^0.13.11",

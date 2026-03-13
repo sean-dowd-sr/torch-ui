@@ -12,8 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `HoverCard.Content` `showArrow` now defaults to `true` (was `false`). Pass `showArrow={false}` to opt out.
 
 ### Fixed
-- Resolved `computations created outside a createRoot or render will never be disposed` SolidJS warning caused by icon helper function using JSX without a reactive owner. Rewritten to use imperative DOM construction.
+- Resolved `computations created outside a createRoot or render will never be disposed` SolidJS warning — caused by JSX expressions in module-level data arrays in consumer apps, not by the icon helper.
 - Fixed infinite recursion in `Collapsible`, `DropdownMenu`, `ContextMenu`, and `Tooltip` caused by `Object.assign` mutating Kobalte's namespace object — original sub-component references are now captured before reassignment.
+- Fixed `MegaMenu` full-width variant opening taller than content then shrinking — removed `height` from viewport CSS transition so height snaps immediately.
 
 ## [0.1.1] - 2026-03-10
 
