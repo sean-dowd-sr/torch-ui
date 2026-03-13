@@ -107,7 +107,7 @@ export function Input(props: InputProps) {
 					<Show when={local.label}>
 						<KobalteTextField.Label
 							class={cn(
-								'block text-md font-medium',
+								'block text-sm font-medium',
 								hasError() ? 'text-danger-600' : 'text-ink-700'
 							)}
 						>

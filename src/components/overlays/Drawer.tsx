@@ -2,6 +2,7 @@ import { Show, onMount, type JSX, splitProps, createEffect, createSignal, on, on
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { Button } from '../actions'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export type DrawerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
 export type DrawerSide = 'start' | 'end' | 'top' | 'bottom'
@@ -39,6 +40,8 @@ export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 	offset?: '0' | '2' | '4' | '6'
 	/** Called after the exit animation completes. Use this instead of onClose to defer clearing state so content doesn't change mid-animation. */
 	onCloseComplete?: () => void
+	/** Duration in ms for exit animation (used for onCloseComplete timing). Default 200. */
+	animationExitDuration?: number
 	/** Remove default p-6 padding from the content area. Use when children provide their own full-bleed layout. */
 	noPadding?: boolean
 	/** Optional class applied to the inner scrollable content div (the direct parent of children). */
@@ -180,6 +183,7 @@ function ensureDrawerStyles() {
 }
 
 export function Drawer(props: DrawerProps) {
+	const icons = useIcons()
 	const [local, others] = splitProps(props, [
 		'open',
 		'onClose',
@@ -200,6 +204,7 @@ export function Drawer(props: DrawerProps) {
 		'lockScroll',
 		'offset',
 		'onCloseComplete',
+		'animationExitDuration',
 		'noPadding',
 		'contentClass',
 		'class',
@@ -207,6 +212,20 @@ export function Drawer(props: DrawerProps) {
 	])
 
 	onMount(ensureDrawerStyles)
+
+	if (import.meta.env.DEV) {
+		createEffect(on(
+			() => local.open,
+			(open) => {
+				if (open) {
+					const o = others as Record<string, unknown>
+					if (o['aria-label'] == null && o['aria-labelledby'] == null) {
+						console.warn('[Drawer] Provide aria-label or aria-labelledby for an accessible name when the drawer is open.')
+					}
+				}
+			}
+		))
+	}
 
 	const side = () => local.side ?? 'end'
 	const isHorizontal = () => side() === 'start' || side() === 'end'
@@ -253,10 +272,11 @@ export function Drawer(props: DrawerProps) {
 		() => [local.open, local.size] as const,
 		([open, size]) => { if (open) setEffectiveSize(size ?? 'md') }
 	))
-	// Fire onCloseComplete after the 200ms exit animation completes.
+	const exitDurationMs = () => local.animationExitDuration ?? 200
+	// Fire onCloseComplete after the exit animation completes.
 	createEffect(on(() => local.open, (isOpen, wasOpen) => {
 		if (wasOpen === true && !isOpen) {
-			const t = setTimeout(() => local.onCloseComplete?.(), 200)
+			const t = setTimeout(() => local.onCloseComplete?.(), exitDurationMs())
 			onCleanup(() => clearTimeout(t))
 		}
 	}))
@@ -269,12 +289,6 @@ export function Drawer(props: DrawerProps) {
 	// When offset is set, height/width come from insets; otherwise use h-full/w-full
 	const panelSizeStretch = () =>
 		hasInsetOffset() ? '' : isHorizontal() ? 'h-full' : 'w-full'
-
-	const closeButtonEl = () => (
-		<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-			<path d="M18 6 6 18M6 6l12 12" />
-		</svg>
-	)
 
 	const actionsBlock = () => (
 		<div class="flex items-center justify-end gap-3">
@@ -366,7 +380,7 @@ export function Drawer(props: DrawerProps) {
 									class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 									onClick={setCloseReason}
 								>
-									{closeButtonEl()}
+									{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
 								</KobalteDialog.CloseButton>
 							</Show>
 						</div>
@@ -380,7 +394,7 @@ export function Drawer(props: DrawerProps) {
 								class="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 								onClick={setCloseReason}
 							>
-								{closeButtonEl()}
+								{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
 							</KobalteDialog.CloseButton>
 						</Show>
 						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>

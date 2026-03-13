@@ -2,6 +2,7 @@ import { type JSX, splitProps, Show } from 'solid-js'
 import { Checkbox as KobalteCheckbox } from '@kobalte/core/checkbox'
 import { cn } from '../../utilities/classNames'
 import { useComponentSize } from '../../utilities/componentSizeContext'
+import { useIcons } from '../../icons'
 
 export type CheckboxSize = 'sm' | 'md'
 
@@ -45,6 +46,7 @@ const sizeClasses: Record<CheckboxSize, string> = {
 }
 
 export function Checkbox(props: CheckboxProps) {
+	const icons = useIcons()
 	const [local, others] = splitProps(props, [
 		'label',
 		'error',
@@ -124,15 +126,9 @@ export function Checkbox(props: CheckboxProps) {
 					<KobalteCheckbox.Indicator class="absolute inset-0 flex items-center justify-center text-white">
 						<Show
 							when={!local.indeterminate}
-							fallback={
-								<svg class={iconSize()} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-									<line x1="4" y1="12" x2="20" y2="12" />
-								</svg>
-							}
+							fallback={icons.minus({ class: iconSize(), 'aria-hidden': 'true' })}
 						>
-							<svg class={iconSize()} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<polyline points="20 6 9 17 4 12" />
-							</svg>
+							{icons.check({ class: iconSize(), 'aria-hidden': 'true' })}
 						</Show>
 					</KobalteCheckbox.Indicator>
 				</KobalteCheckbox.Control>

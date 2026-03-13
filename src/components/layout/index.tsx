@@ -14,7 +14,7 @@ export { Dialog } from '../overlays/Dialog'
 export type { DialogProps, DialogSize, DialogOverlayAnimation, DialogPanelAnimation } from '../overlays/Dialog'
 export { WizardStep } from './WizardStep'
 export type { WizardStepProps } from './WizardStep'
-export { WizardStepper } from './WizardStepper'
+export { Wizard, WizardStepper } from './WizardStepper'
 export type { WizardStepperProps, WizardStepperVariant } from './WizardStepper'
 export { PromptWithAction } from './PromptWithAction'
 export type { PromptWithActionAllProps } from './PromptWithAction'
@@ -86,6 +86,7 @@ export {
 export type { PopoverContentProps, PopoverRootProps, PopoverSide, PopoverAlign } from '../overlays/Popover'
 
 export {
+	Collapsible,
 	CollapsibleRoot,
 	CollapsibleTrigger,
 	CollapsibleContent,

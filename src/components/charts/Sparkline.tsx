@@ -20,8 +20,11 @@ export interface SparklineProps {
 	class?: string
 }
 
-const DEFAULT_COLOR = 'rgb(59, 130, 246)' // blue-500
-const DEFAULT_FILL = 'rgba(59, 130, 246, 0.2)'
+function resolveDefaultColor(): string {
+	if (typeof window === 'undefined') return '#3b82f6'
+	const v = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-500').trim()
+	return v || '#3b82f6'
+}
 
 /**
  * Minimal line chart for inline use (e.g. stat cards, table cells). Wraps
@@ -36,7 +39,7 @@ export function Sparkline(props: SparklineProps) {
 	let chartInstance: import('chart.js').Chart | null = null
 	const [chartReady, setChartReady] = createSignal(false)
 
-	const color = () => local.color ?? DEFAULT_COLOR
+	const color = () => local.color ?? resolveDefaultColor()
 	const fill = () => local.fill !== false
 	/** Derive a 25% opacity fill from the line color. Supports rgb/rgba/hex; other formats fall back to default. */
 	const fillColor = createMemo(() => {
@@ -61,7 +64,7 @@ export function Sparkline(props: SparklineProps) {
 		if (import.meta.env.DEV) {
 			console.warn(`Sparkline: unsupported color format "${c}" for fill — use rgb(), rgba(), or hex. Falling back to default fill.`)
 		}
-		return DEFAULT_FILL
+		return resolveDefaultColor() + '40' // 25% opacity hex fallback
 	})
 
 	let ChartCtor: typeof import('chart.js').Chart | null = null

@@ -197,7 +197,7 @@ export function Carousel(props: CarouselProps) {
 									index() === currentSlide() ? 'w-8 relative overflow-hidden' : 'w-2'
 								)}
 								style={{
-									'background-color': local.dotsVariant === 'light'
+									'background-color': (local.dotsVariant === 'light' || !!local.dotsBgClass)
 										? 'rgba(255,255,255,0.4)'
 										: 'var(--color-ink-400)',
 								}}
@@ -210,12 +210,12 @@ export function Carousel(props: CarouselProps) {
 										style={
 											progressBarReady()
 												? {
-														'background-color': local.dotsVariant === 'light' ? 'white' : 'var(--color-ink-700)',
+														'background-color': (local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)',
 														animation: `carouselProgressBar ${autoPlayInterval()}ms linear forwards`,
 														'animation-fill-mode': 'forwards',
 													}
 												: {
-														'background-color': local.dotsVariant === 'light' ? 'white' : 'var(--color-ink-700)',
+														'background-color': (local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)',
 														width: '0%',
 													}
 										}

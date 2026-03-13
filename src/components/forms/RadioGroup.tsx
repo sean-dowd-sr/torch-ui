@@ -79,16 +79,21 @@ export function RadioGroup(props: RadioGroupProps) {
 				{...others}
 			>
 				<Show when={local.label}>
-					<KobalteRadioGroup.Label
-						class={cn(
-							'block text-md font-medium mb-2',
-							hasError() ? 'text-danger-600' : 'text-ink-700',
-							local.disabled && 'opacity-50'
+					<div class="flex items-center justify-between mb-2">
+						<KobalteRadioGroup.Label
+							class={cn(
+								'block text-sm font-medium',
+								hasError() ? 'text-danger-600' : 'text-ink-700',
+								local.disabled && 'opacity-50'
+							)}
+						>
+							{local.label}
+							{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+						</KobalteRadioGroup.Label>
+						{!local.required && local.optional && (
+							<span class="text-xs text-ink-500">optional</span>
 						)}
-					>
-						{local.label}
-						{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
-					</KobalteRadioGroup.Label>
+					</div>
 				</Show>
 				<div
 					role="presentation"

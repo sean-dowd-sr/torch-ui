@@ -163,14 +163,20 @@ export function Slider(props: SliderProps) {
 		>
 			<Show when={local.label && isHorizontal()}>
 				<div class="flex items-center justify-between gap-2 min-w-0">
-					<KobalteSlider.Label
-						class={cn(
-							'text-sm font-medium text-ink-700 shrink-0',
-							hasError() && 'text-danger-600 dark:text-danger-400'
+					<div class="flex items-center gap-1 min-w-0">
+						<KobalteSlider.Label
+							class={cn(
+								'text-sm font-medium text-ink-700 shrink-0',
+								hasError() && 'text-danger-600 dark:text-danger-400'
+							)}
+						>
+							{local.label}
+							{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+						</KobalteSlider.Label>
+						{!local.required && local.optional && (
+							<span class="text-xs text-ink-500">optional</span>
 						)}
-					>
-						{local.label}
-					</KobalteSlider.Label>
+					</div>
 					<KobalteSlider.ValueLabel class="text-sm text-ink-500 shrink-0 min-w-[2.5rem] text-right tabular-nums" />
 				</div>
 			</Show>
@@ -182,7 +188,11 @@ export function Slider(props: SliderProps) {
 					)}
 				>
 					{local.label}
+					{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
 				</KobalteSlider.Label>
+				{!local.required && local.optional && (
+					<span class="text-xs text-ink-500 mb-2">optional</span>
+				)}
 			</Show>
 			<div
 				class={cn(

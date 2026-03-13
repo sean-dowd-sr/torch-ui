@@ -1,4 +1,4 @@
-			import { splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { Button } from '../actions'
 import { Autocomplete } from './Autocomplete'

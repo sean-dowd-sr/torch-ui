@@ -1,4 +1,4 @@
-import { createSignal, createMemo, Show, For, splitProps, createEffect, on } from 'solid-js'
+import { createSignal, createMemo, Show, For, splitProps, createEffect, on, createUniqueId } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { ColorArea as KobalteColorArea } from '@kobalte/core/color-area'
 import { ColorSlider as KobalteColorSlider } from '@kobalte/core/color-slider'
@@ -8,7 +8,7 @@ import type { Color as KobalteColor } from '@kobalte/core/colors'
 import { Button } from '../../actions'
 import { cn } from '../../../utilities/classNames'
 import { type ComponentSize } from '../../../types/component-size'
-import { normalizeHex, hexToHslString, rgbaToHex } from '../../../utilities/colorUtils'
+import { normalizeHex, rgbaToHex } from '../../../utilities/colorUtils'
 import { useIcons } from '../../../icons'
 
 const DEFAULT_PRESETS = [
@@ -74,7 +74,7 @@ function safeParseColor(hex: string): KobalteColor {
 	const normalized = normalizeHex(hex)
 	if (!normalized) return KobalteParseColor('#000000')
 	try {
-		return KobalteParseColor(hexToHslString(normalized))
+		return KobalteParseColor(normalized)
 	} catch {
 		return KobalteParseColor('#000000')
 	}
@@ -100,6 +100,7 @@ export function ColorPicker(props: ColorPickerProps) {
 		'predefined',
 	])
 	const icons = useIcons()
+	const triggerId = createUniqueId()
 	const hasError = () => !!local.error
 
 	const presets = () => local.presets ?? [...DEFAULT_PRESETS]
@@ -148,7 +149,7 @@ export function ColorPicker(props: ColorPickerProps) {
 		<div class={cn('w-full', local.class)} {...rest}>
 			<Show when={!local.bare && local.label}>
 				<div class="flex items-center justify-between gap-2 mb-1.5">
-					<label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
+					<label for={triggerId} class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 						{local.label}
 						<Show when={local.required}>
 							<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>
@@ -166,6 +167,7 @@ export function ColorPicker(props: ColorPickerProps) {
 					<KobaltePopover.Trigger
 						as="button"
 						type="button"
+						id={triggerId}
 						disabled={local.disabled}
 						class={cn(
 							'h-10 w-10 shrink-0 rounded-lg border-2 shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',

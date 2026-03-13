@@ -51,6 +51,7 @@ export function Video(props: VideoProps) {
 				'max-width': local.width ?? (fluid() ? '100%' : undefined),
 				'max-height': local.height,
 			}}
+			{...others}
 		>
 			<Show
 				when={!error()}

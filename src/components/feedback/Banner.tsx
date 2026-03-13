@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
-import { splitProps, Show, createSignal } from 'solid-js'
+import { splitProps, Show, createSignal, onCleanup } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export type BannerStatus = 'primary' | 'info' | 'success' | 'warning' | 'error'
 export type BannerAppearance = 'solid' | 'subtle'
@@ -47,7 +48,7 @@ const statusClasses: StatusMap = {
 	},
 	error: {
 		solid: 'bg-danger-500 text-white dark:bg-danger-700 dark:text-white',
-		subtle: 'bg-danger-100 border-y border-danger-500 text-danger-850 dark:bg-danger-950 dark:border-danger-800 dark:text-danger-100',
+		subtle: 'bg-danger-100 border-y border-danger-500 text-danger-800 dark:bg-danger-950 dark:border-danger-800 dark:text-danger-100',
 	},
 }
 
@@ -66,15 +67,22 @@ export function Banner(props: BannerProps): JSX.Element {
 		'children',
 	])
 
+	if (import.meta.env.DEV && local.closeable && !local.onClose) {
+		console.warn('Banner: closeable is true but onClose is not provided.')
+	}
+
 	const status = () => local.status ?? 'primary'
 	const appearance = () => local.appearance ?? 'solid'
 	const colorCls = () => local.colorClass ?? statusClasses[status()][appearance()]
 
+	const icons = useIcons()
 	const [closing, setClosing] = createSignal(false)
+	let closeTimer: ReturnType<typeof setTimeout> | undefined
+	onCleanup(() => clearTimeout(closeTimer))
 
 	const handleClose = () => {
 		setClosing(true)
-		setTimeout(() => local.onClose?.(), 180)
+		closeTimer = setTimeout(() => local.onClose?.(), 180)
 	}
 
 	return (
@@ -104,9 +112,7 @@ export function Banner(props: BannerProps): JSX.Element {
 						class="ml-auto shrink-0 rounded p-1 opacity-70 hover:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-inset"
 						aria-label="Dismiss"
 					>
-						<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-						</svg>
+						{icons.close({ class: 'size-4', 'aria-hidden': 'true' })}
 					</button>
 				</Show>
 			</div>

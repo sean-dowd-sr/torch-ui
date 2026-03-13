@@ -1,5 +1,6 @@
 import { type JSX, Show, For, splitProps, createMemo } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 export type TimelineItemStatus = 'completed' | 'active' | 'pending' | 'error'
 export type TimelineVariant = 'default' | 'compact' | 'outlined'
@@ -50,25 +51,10 @@ const statusConnectorClass: Record<TimelineItemStatus, string> = {
 	error: 'border-danger-300',
 }
 
-function CheckIcon() {
-	return (
-		<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-		</svg>
-	)
-}
-
-function XIcon() {
-	return (
-		<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
-		</svg>
-	)
-}
-
 function DefaultDotIcon(props: { status: TimelineItemStatus }) {
-	if (props.status === 'completed') return <CheckIcon />
-	if (props.status === 'error') return <XIcon />
+	const icons = useIcons()
+	if (props.status === 'completed') return icons.check({ class: 'h-3 w-3', 'aria-hidden': 'true' })
+	if (props.status === 'error') return icons.close({ class: 'h-3 w-3', 'aria-hidden': 'true' })
 	if (props.status === 'active') {
 		return <span class="block h-2 w-2 rounded-full bg-white" />
 	}
@@ -168,7 +154,7 @@ export function Timeline(props: TimelineProps) {
 								>
 									{/* Title row */}
 									<div class={cn('flex items-start gap-2', timeLeft() ? 'flex-row-reverse' : 'flex-row')}>
-										<span class={cn('font-medium text-ink-900 leading-none', compact() ? 'text-sm' : 'text-sm')}>
+										<span class={cn('font-medium text-ink-900 leading-none text-sm')}>
 											{item.title}
 										</span>
 										<Show when={!timeLeft() && item.time}>

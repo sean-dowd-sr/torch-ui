@@ -39,6 +39,9 @@ function CodeInputSingle(props: CodeInputProps) {
 		'label',
 		'error',
 		'helperText',
+		'bare',
+		'required',
+		'optional',
 		'length',
 		'value',
 		'onValueChange',
@@ -47,6 +50,7 @@ function CodeInputSingle(props: CodeInputProps) {
 		'id',
 		'onInput',
 		'disabled',
+		'size',
 	])
 
 	const length = () => local.length ?? 6
@@ -71,16 +75,22 @@ function CodeInputSingle(props: CodeInputProps) {
 
 	return (
 		<div class="w-full">
-			{local.label && (
-				<label
-					for={inputId()}
-					class={cn(
-						'block text-md font-medium mb-1.5',
-						hasError() ? 'text-danger-600' : 'text-ink-700'
+			{!local.bare && local.label && (
+				<div class="mb-1.5 flex items-center justify-between gap-2">
+					<label
+						for={inputId()}
+						class={cn(
+							'block text-sm font-medium',
+							hasError() ? 'text-danger-600' : 'text-ink-700'
+						)}
+					>
+						{local.label}
+						{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+					</label>
+					{!local.required && local.optional && (
+						<span class="text-xs text-ink-500">optional</span>
 					)}
-				>
-					{local.label}
-				</label>
+				</div>
 			)}
 			<input
 				id={inputId()}
@@ -187,16 +197,22 @@ function CodeInputDigits(props: CodeInputProps) {
 
 	return (
 		<div class={cn('w-full', props.class)}>
-			{props.label && (
-				<label
-					for={firstId()}
-					class={cn(
-						'block text-sm font-medium mb-2',
-						hasError() ? 'text-danger-600' : 'text-ink-700'
+			{!props.bare && props.label && (
+				<div class="mb-2 flex items-center justify-between gap-2">
+					<label
+						for={firstId()}
+						class={cn(
+							'block text-sm font-medium',
+							hasError() ? 'text-danger-600' : 'text-ink-700'
+						)}
+					>
+						{props.label}
+						{props.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+					</label>
+					{!props.required && props.optional && (
+						<span class="text-xs text-ink-500">optional</span>
 					)}
-				>
-					{props.label}
-				</label>
+				</div>
 			)}
 			<div
 				class="flex gap-2 justify-center"

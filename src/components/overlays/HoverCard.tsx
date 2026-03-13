@@ -48,7 +48,7 @@ export const HoverCardArrow = KobalteHoverCard.Arrow
 export interface HoverCardContentProps extends KobalteHoverCardContentProps {
 	class?: string
 	children?: JSX.Element
-	/** Show an arrow pointing to the trigger. Default false. */
+	/** Show an arrow pointing to the trigger. Default true. */
 	showArrow?: boolean
 }
 
@@ -69,7 +69,7 @@ export function HoverCardContent(props: HoverCardContentProps) {
 				{...others}
 			>
 				{local.children}
-				{local.showArrow && (
+				{local.showArrow !== false && (
 					<KobalteHoverCard.Arrow class="fill-surface-raised stroke-surface-border" />
 				)}
 			</KobalteHoverCard.Content>
@@ -105,3 +105,21 @@ export function HoverCardFooter(props: { class?: string; children: JSX.Element }
 export function HoverCardSeparator(props: { class?: string }) {
 	return <div class={cn('h-px bg-surface-border', props.class)} />
 }
+
+type HoverCardComponent = typeof HoverCardRoot & {
+	Trigger: typeof HoverCardTrigger
+	Content: typeof HoverCardContent
+	Header: typeof HoverCardHeader
+	Body: typeof HoverCardBody
+	Footer: typeof HoverCardFooter
+	Separator: typeof HoverCardSeparator
+}
+
+export const HoverCard: HoverCardComponent = Object.assign(HoverCardRoot, {
+	Trigger: HoverCardTrigger,
+	Content: HoverCardContent,
+	Header: HoverCardHeader,
+	Body: HoverCardBody,
+	Footer: HoverCardFooter,
+	Separator: HoverCardSeparator,
+})

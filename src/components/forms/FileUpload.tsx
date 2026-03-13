@@ -60,9 +60,104 @@ export interface FileUploadProps {
 	fileIcon?: (file: File) => JSX.Element
 	/** When true (button variant only), show the selected file(s) to the right of the button in the same row instead of below. */
 	fileInline?: boolean
+	/** Override any subset of the built-in UI strings for localisation. */
+	labels?: FileUploadLabels
 }
 
 const DEFAULT_MAX_FILES = 10
+
+export interface FileUploadLabels {
+	/** Clickable area prompt in the simple dropzone. Default: "Choose a file or drag & drop here" */
+	dropzonePrompt?: string
+	/** Title inside the browse-button dropzone. Default: "Drag and drop your files here" */
+	dropzoneDragTitle?: string
+	/** Subtitle inside the browse-button dropzone. Default: "or click Browse below" */
+	dropzoneDragSubtitle?: string
+	/** Text on the Browse button inside the dropzone. Default: "Browse" */
+	dropzoneBrowseButton?: string
+	/** Text on the Browse Files trigger button. Default: "Browse Files" */
+	browseFilesButton?: string
+	/** aria-label for the file input (single file). Default: "Choose file" */
+	ariaChooseFile?: string
+	/** aria-label for the file input (multiple files). Default: "Choose files" */
+	ariaChooseFiles?: string
+	/** aria-label for the file input in button variant. Default: "Browse files" */
+	ariaBrowseFiles?: string
+	/** aria-label for the upload region when no label prop is set. Default: "File upload" */
+	ariaFileUpload?: string
+	/** aria-label for the view files button. Default: "View files" */
+	ariaViewFiles?: string
+	/** aria-label for the uploaded files list. Default: "Uploaded files" */
+	ariaUploadedFiles?: string
+	/** aria-label for the retry button. Receives the file name. */
+	ariaRetry?: (fileName: string) => string
+	/** aria-label for the remove button. Receives the file name. */
+	ariaRemove?: (fileName: string) => string
+	/** aria-label for the upload progress bar. Receives the file name. */
+	ariaProgress?: (fileName: string) => string
+	/** Status label shown next to done files. Default: "Uploaded" */
+	statusDone?: string
+	/** Status label shown next to pending files. Default: "Pending" */
+	statusPending?: string
+	/** Status label shown next to failed files when no error message. Default: "Failed" */
+	statusFailed?: string
+	/** Status label shown while uploading with no progress value. Default: "…" */
+	statusUploading?: string
+	/** Summary text while uploading. Receives the number of active uploads. */
+	summaryUploading?: (count: number) => string
+	/** Summary text when all files are done. Receives the number of uploaded files. */
+	summaryDone?: (count: number) => string
+	/** Summary text when some files failed. Receives uploaded and failed counts. */
+	summaryFailed?: (uploaded: number, failed: number) => string
+	/** Limits text for max file size. Receives the formatted size string. */
+	limitsMaxSize?: (size: string) => string
+	/** Limits text for a single-file constraint. Default: "1 file" */
+	limitsOneFile?: string
+	/** Limits text for a multi-file constraint. Receives the max count. */
+	limitsMaxFiles?: (count: number) => string
+	/** Validation error when the one-file limit is already reached. Default: "Maximum 1 file allowed." */
+	errorMaxOneFile?: string
+	/** Validation error when the N-file limit is already reached. Receives the limit. */
+	errorMaxFiles?: (count: number) => string
+	/** Validation error when some files were skipped over the limit. Receives skipped count and limit label. */
+	errorOverLimit?: (skipped: number, limitLabel: string) => string
+	/** Validation error when a file exceeds the max size. Receives file name and formatted max size. */
+	errorTooLarge?: (fileName: string, maxSize: string) => string
+	/** Validation error when a file's type is not accepted. Receives the file name. */
+	errorBadType?: (fileName: string) => string
+}
+
+const DEFAULT_LABELS: Required<FileUploadLabels> = {
+	dropzonePrompt: 'Choose a file or drag & drop here',
+	dropzoneDragTitle: 'Drag and drop your files here',
+	dropzoneDragSubtitle: 'or click Browse below',
+	dropzoneBrowseButton: 'Browse',
+	browseFilesButton: 'Browse Files',
+	ariaChooseFile: 'Choose file',
+	ariaChooseFiles: 'Choose files',
+	ariaBrowseFiles: 'Browse files',
+	ariaFileUpload: 'File upload',
+	ariaViewFiles: 'View files',
+	ariaUploadedFiles: 'Uploaded files',
+	ariaRetry: (name) => `Retry ${name}`,
+	ariaRemove: (name) => `Remove ${name}`,
+	ariaProgress: (name) => `Upload progress for ${name}`,
+	statusDone: 'Uploaded',
+	statusPending: 'Pending',
+	statusFailed: 'Failed',
+	statusUploading: '…',
+	summaryUploading: (n) => `Uploading ${n}…`,
+	summaryDone: (n) => n === 1 ? '1 file uploaded' : `${n} files uploaded`,
+	summaryFailed: (done, failed) => `${done} uploaded, ${failed} failed`,
+	limitsMaxSize: (size) => `Max ${size}`,
+	limitsOneFile: '1 file',
+	limitsMaxFiles: (n) => `Up to ${n} files`,
+	errorMaxOneFile: 'Maximum 1 file allowed.',
+	errorMaxFiles: (n) => `Maximum ${n} files allowed.`,
+	errorOverLimit: (skipped, limitLabel) => `${skipped} file${skipped > 1 ? 's' : ''} not added: ${limitLabel} reached.`,
+	errorTooLarge: (name, maxSize) => `${name}: exceeds ${maxSize}.`,
+	errorBadType: (name) => `${name}: type not accepted.`,
+}
 
 const CODE_EXT = new Set(['txt', 'js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs', 'json', 'html', 'htm', 'css', 'scss', 'sass', 'less', 'md', 'xml', 'yml', 'yaml', 'sh', 'bash', 'py', 'rb', 'php', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'go', 'rs', 'vue', 'svelte'])
 const SPREADSHEET_EXT = new Set(['csv', 'xls', 'xlsx', 'xlsm', 'ods'])
@@ -95,13 +190,14 @@ function validateFiles(
 	accept: string | undefined,
 	maxFileSize: number | undefined,
 	maxFiles: number,
-	currentCount: number
+	currentCount: number,
+	labels: Required<FileUploadLabels>
 ): { valid: File[]; errors: string[] } {
 	const errors: string[] = []
 	const valid: File[] = []
 	const remaining = Math.max(0, maxFiles - currentCount)
 	if (remaining === 0) {
-		errors.push(maxFiles === 1 ? 'Maximum 1 file allowed.' : `Maximum ${maxFiles} files allowed.`)
+		errors.push(maxFiles === 1 ? labels.errorMaxOneFile : labels.errorMaxFiles(maxFiles))
 		return { valid, errors }
 	}
 	const types = (accept?.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean) ?? [])
@@ -109,12 +205,12 @@ function validateFiles(
 		const file = files[i]!
 		if (valid.length >= remaining) {
 			const skipped = files.length - i
-			const limitMsg = maxFiles === 1 ? 'maximum 1 file' : `maximum of ${maxFiles}`
-			errors.push(`${skipped} file${skipped > 1 ? 's' : ''} not added: ${limitMsg} reached.`)
+			const limitLabel = maxFiles === 1 ? labels.limitsOneFile : labels.limitsMaxFiles(maxFiles)
+			errors.push(labels.errorOverLimit(skipped, limitLabel))
 			break
 		}
 		if (maxFileSize != null && file.size > maxFileSize) {
-			errors.push(`${file.name}: exceeds ${formatFileSize(maxFileSize)}.`)
+			errors.push(labels.errorTooLarge(file.name, formatFileSize(maxFileSize)))
 			continue
 		}
 		if (types.length > 0) {
@@ -125,7 +221,7 @@ function validateFiles(
 				types.some((t) => t.startsWith('.') && ext === t) ||
 				types.some((t) => mime === t || (t.endsWith('/*') && mime && mime.startsWith(t.slice(0, -1))))
 			if (!allowed) {
-				errors.push(`${file.name}: type not accepted.`)
+				errors.push(labels.errorBadType(file.name))
 				continue
 			}
 		}
@@ -157,8 +253,10 @@ export function FileUpload(props: FileUploadProps) {
 		'multiple',
 		'fileIcon',
 		'fileInline',
+		'labels',
 	])
 	const icons = useIcons()
+	const l = () => ({ ...DEFAULT_LABELS, ...local.labels })
 
 	const uid = createUniqueId()
 	const id = () => local.id ?? `file-upload-${uid}`
@@ -230,7 +328,8 @@ export function FileUpload(props: FileUploadProps) {
 			local.accept,
 			local.maxFileSize,
 			maxFiles(),
-			local.files.length
+			local.files.length,
+			l()
 		)
 		setValidationErrors(errors)
 		if (valid.length) local.onAddFiles(valid)
@@ -251,7 +350,8 @@ export function FileUpload(props: FileUploadProps) {
 			local.accept,
 			local.maxFileSize,
 			maxFiles(),
-			local.files.length
+			local.files.length,
+			l()
 		)
 		setValidationErrors(errors)
 		if (valid.length) local.onAddFiles(valid)
@@ -283,9 +383,9 @@ export function FileUpload(props: FileUploadProps) {
 		(hideTrigger() || !(variant() === 'button' && local.fileInline))
 	const limitsText = () => {
 		const parts: string[] = []
-		if (local.maxFileSize != null) parts.push(`Max ${formatFileSize(local.maxFileSize)}`)
-		if (maxFiles() === 1) parts.push('1 file')
-		else if (maxFiles() !== DEFAULT_MAX_FILES) parts.push(`Up to ${maxFiles()} files`)
+		if (local.maxFileSize != null) parts.push(l().limitsMaxSize(formatFileSize(local.maxFileSize)))
+		if (maxFiles() === 1) parts.push(l().limitsOneFile)
+		else if (maxFiles() !== DEFAULT_MAX_FILES) parts.push(l().limitsMaxFiles(maxFiles()))
 		return parts.length ? parts.join('. ') : undefined
 	}
 
@@ -294,9 +394,9 @@ export function FileUpload(props: FileUploadProps) {
 		const done = list.filter((f) => f.status === 'done').length
 		const failed = list.filter((f) => f.status === 'error').length
 		const uploading = list.filter((f) => f.status === 'uploading').length
-		if (failed > 0) return `${done} uploaded, ${failed} failed`
-		if (uploading > 0) return `Uploading ${uploading}…`
-		if (done > 0) return done === 1 ? '1 file uploaded' : `${done} files uploaded`
+		if (failed > 0) return l().summaryFailed(done, failed)
+		if (uploading > 0) return l().summaryUploading(uploading)
+		if (done > 0) return l().summaryDone(done)
 		return undefined
 	}
 
@@ -316,7 +416,7 @@ export function FileUpload(props: FileUploadProps) {
 					<div
 						role="group"
 						aria-labelledby={local.label ? labelId() : undefined}
-						aria-label={local.label ? undefined : 'File upload'}
+						aria-label={local.label ? undefined : l().ariaFileUpload}
 						class={cn(
 						'rounded-lg border-2 border-dashed transition-colors',
 						dragOver()
@@ -339,7 +439,7 @@ export function FileUpload(props: FileUploadProps) {
 						disabled={local.disabled || atLimit()}
 						class="sr-only"
 						aria-labelledby={local.label ? labelId() : undefined}
-						aria-label={local.label ? undefined : (isMultiple() ? 'Choose files' : 'Choose file')}
+						aria-label={local.label ? undefined : (isMultiple() ? l().ariaChooseFiles : l().ariaChooseFile)}
 						aria-describedby={describedBy()}
 						aria-invalid={hasAnyError() ? 'true' : undefined}
 						aria-errormessage={ariaErrorMessage()}
@@ -360,7 +460,7 @@ export function FileUpload(props: FileUploadProps) {
 							>
 								{icons.fileUpload({ class: 'h-8 w-8 text-ink-400', 'aria-hidden': 'true' })}
 								<span class="text-sm font-medium text-ink-700">
-									Choose a file or drag & drop here
+									{l().dropzonePrompt}
 								</span>
 								<Show when={limitsText()}>
 									<span class="text-xs text-ink-500">{limitsText()}</span>
@@ -375,10 +475,10 @@ export function FileUpload(props: FileUploadProps) {
 							<div class="flex flex-col items-center justify-center gap-1 text-center">
 								{icons.fileUpload({ class: 'h-10 w-10 text-ink-400', 'aria-hidden': 'true' })}
 								<span class="text-sm font-medium text-ink-700">
-									Drag and drop your files here
+									{l().dropzoneDragTitle}
 								</span>
 								<span class="text-sm text-ink-500">
-									or click Browse below
+									{l().dropzoneDragSubtitle}
 								</span>
 								<Show when={limitsText()}>
 									<span class="text-xs text-ink-500">{limitsText()}</span>
@@ -397,7 +497,7 @@ export function FileUpload(props: FileUploadProps) {
 								)}
 							>
 								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								Browse
+								{l().dropzoneBrowseButton}
 							</button>
 						</div>
 					</Show>
@@ -419,7 +519,7 @@ export function FileUpload(props: FileUploadProps) {
 								disabled={local.disabled || atLimit()}
 								class="sr-only"
 								aria-labelledby={local.label ? labelId() : undefined}
-								aria-label={local.label ? undefined : 'Browse files'}
+								aria-label={local.label ? undefined : l().ariaBrowseFiles}
 								aria-describedby={describedBy()}
 								aria-invalid={hasAnyError() ? 'true' : undefined}
 								aria-errormessage={ariaErrorMessage()}
@@ -434,7 +534,7 @@ export function FileUpload(props: FileUploadProps) {
 								)}
 							>
 								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								Browse Files
+								{l().browseFilesButton}
 							</button>
 							<Show when={local.description}>
 								<span class="text-sm text-ink-500">{local.description}</span>
@@ -463,7 +563,7 @@ export function FileUpload(props: FileUploadProps) {
 										type="button"
 										onClick={() => setViewModalOpen(true)}
 										class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-										aria-label="View files"
+										aria-label={l().ariaViewFiles}
 									>
 										{icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 									</button>
@@ -480,7 +580,7 @@ export function FileUpload(props: FileUploadProps) {
 						<h2 class="text-lg font-semibold text-ink-900">
 							{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
 						</h2>
-						<ul class="mt-3 space-y-2" aria-label="Uploaded files">
+						<ul class="mt-3 space-y-2" aria-label={l().ariaUploadedFiles}>
 							<For each={local.files}>
 								{(item) => (
 									<li class="flex items-center gap-2 rounded-lg border border-surface-border bg-surface-base px-3 py-2">
@@ -492,10 +592,10 @@ export function FileUpload(props: FileUploadProps) {
 											{formatFileSize(item.file.size)}
 										</span>
 										<span class="shrink-0 text-xs text-ink-500">
-											{item.status === 'done' && 'Uploaded'}
-											{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : '…')}
-											{item.status === 'error' && (item.error ?? 'Failed')}
-											{item.status === 'pending' && 'Pending'}
+											{item.status === 'done' && l().statusDone}
+											{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : l().statusUploading)}
+											{item.status === 'error' && (item.error ?? l().statusFailed)}
+											{item.status === 'pending' && l().statusPending}
 										</span>
 										<div class="flex shrink-0 items-center gap-1">
 											{item.status === 'error' && local.onRetry && (
@@ -503,7 +603,7 @@ export function FileUpload(props: FileUploadProps) {
 													type="button"
 													onClick={() => local.onRetry?.(item.id)}
 													class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-													aria-label={`Retry ${item.file.name}`}
+													aria-label={l().ariaRetry(item.file.name)}
 												>
 													{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 												</button>
@@ -512,7 +612,7 @@ export function FileUpload(props: FileUploadProps) {
 												type="button"
 												onClick={() => local.onRemove(item.id)}
 												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-												aria-label={`Remove ${item.file.name}`}
+												aria-label={l().ariaRemove(item.file.name)}
 											>
 												{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
@@ -527,7 +627,7 @@ export function FileUpload(props: FileUploadProps) {
 
 			{/* File list below (when not button+fileInline, or when dropzone / single file with trigger hidden) */}
 			<Show when={showFileListBelow()}>
-				<ul class="mt-3 space-y-2" aria-label="Uploaded files">
+				<ul class="mt-3 space-y-2" aria-label={l().ariaUploadedFiles}>
 					<For each={local.files}>
 						{(item) => (
 							<li class="flex flex-col gap-1.5 rounded-lg border border-surface-border bg-surface-raised px-3 py-2">
@@ -540,10 +640,10 @@ export function FileUpload(props: FileUploadProps) {
 										{formatFileSize(item.file.size)}
 									</span>
 									<span class="shrink-0 text-xs text-ink-500">
-										{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : '…')}
-										{item.status === 'done' && 'Uploaded'}
-										{item.status === 'error' && (item.error ?? 'Failed')}
-										{item.status === 'pending' && 'Pending'}
+										{item.status === 'uploading' && (item.progress != null ? `${item.progress}%` : l().statusUploading)}
+										{item.status === 'done' && l().statusDone}
+										{item.status === 'error' && (item.error ?? l().statusFailed)}
+										{item.status === 'pending' && l().statusPending}
 									</span>
 									<div class="flex shrink-0 items-center gap-1">
 										{item.status === 'uploading' && (
@@ -554,7 +654,7 @@ export function FileUpload(props: FileUploadProps) {
 												type="button"
 												onClick={() => local.onRetry?.(item.id)}
 												class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-												aria-label={`Retry ${item.file.name}`}
+												aria-label={l().ariaRetry(item.file.name)}
 											>
 												{icons.refresh({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 											</button>
@@ -563,7 +663,7 @@ export function FileUpload(props: FileUploadProps) {
 											type="button"
 											onClick={() => local.onRemove(item.id)}
 											class="rounded p-1 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-											aria-label={`Remove ${item.file.name}`}
+											aria-label={l().ariaRemove(item.file.name)}
 										>
 											{icons.trash({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 										</button>
@@ -575,7 +675,7 @@ export function FileUpload(props: FileUploadProps) {
 										size="sm"
 										showValueLabel={false}
 										class="h-1.5"
-										aria-label={`Upload progress for ${item.file.name}`}
+										aria-label={l().ariaProgress(item.file.name)}
 									/>
 								</Show>
 							</li>

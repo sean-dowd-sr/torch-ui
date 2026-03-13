@@ -16,16 +16,16 @@ describe('Drawer', () => {
 
 	it('renders when open=true', () => {
 		renderUI(() => (
-			<Drawer open onClose={vi.fn()}>
+			<Drawer open aria-label="Drawer" onClose={vi.fn()}>
 				<p>Drawer content</p>
 			</Drawer>
 		))
-		expect(screen.getByRole('dialog')).toBeInTheDocument()
+		expect(screen.getByRole('alertdialog', { name: 'Drawer' })).toBeInTheDocument()
 	})
 
 	it('renders children', () => {
 		renderUI(() => (
-			<Drawer open onClose={vi.fn()}>
+			<Drawer open aria-label="Settings" onClose={vi.fn()}>
 				<p>Sidebar settings</p>
 			</Drawer>
 		))
@@ -36,6 +36,7 @@ describe('Drawer', () => {
 		renderUI(() => (
 			<Drawer
 				open
+				aria-label="Form"
 				onClose={vi.fn()}
 				onCancel={vi.fn()}
 				onSave={vi.fn()}
@@ -53,7 +54,7 @@ describe('Drawer', () => {
 		const user = userEvent.setup()
 		const onSave = vi.fn()
 		renderUI(() => (
-			<Drawer open onClose={vi.fn()} onCancel={vi.fn()} onSave={onSave} saveLabel="Save">
+			<Drawer open aria-label="Edit" onClose={vi.fn()} onCancel={vi.fn()} onSave={onSave} saveLabel="Save">
 				<p>Content</p>
 			</Drawer>
 		))
@@ -63,7 +64,7 @@ describe('Drawer', () => {
 
 	it('renders close button when showCloseButton and onClose provided', () => {
 		renderUI(() => (
-			<Drawer open showCloseButton onClose={vi.fn()}>
+			<Drawer open aria-label="Panel" showCloseButton onClose={vi.fn()}>
 				<p>Content</p>
 			</Drawer>
 		))

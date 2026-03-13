@@ -116,6 +116,8 @@ export function SearchPalette(props: SearchPaletteProps) {
 		const items = flatItems()
 		const count = items.length
 
+		if (count === 0) return
+
 		if (e.key === 'ArrowDown') {
 			e.preventDefault()
 			setActiveIndex((i) => (i + 1) % count)

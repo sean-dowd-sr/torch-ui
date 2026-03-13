@@ -201,18 +201,23 @@ export function Autocomplete(props: AutocompleteProps) {
 						item={itemProps.item}
 						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 dark:data-[highlighted]:bg-primary-500/20 dark:data-[highlighted]:text-primary-200 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
 					>
-						{local.renderOption ? (
-							local.renderOption(itemProps.item.rawValue)
-						) : (
-							<span>{itemProps.item.rawValue.label}</span>
-						)}
+						<KobalteCombobox.ItemLabel class="flex-1">
+							{local.renderOption ? (
+								local.renderOption(itemProps.item.rawValue)
+							) : (
+								<span>{itemProps.item.rawValue.label}</span>
+							)}
+						</KobalteCombobox.ItemLabel>
+						<KobalteCombobox.ItemIndicator class="inline-flex items-center">
+							{icons.check({ class: 'w-4 h-4 text-primary-500', 'aria-hidden': 'true' })}
+						</KobalteCombobox.ItemIndicator>
 					</KobalteCombobox.Item>
 				)}
 			>
 				<KobalteCombobox.HiddenSelect />
 				<Show when={!local.bare && local.label}>
 					<div class="flex items-center justify-between mb-2">
-						<KobalteCombobox.Label class="block text-md font-medium text-ink-700">
+						<KobalteCombobox.Label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 							{local.label}
 							<Show when={local.required}>
 								<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>

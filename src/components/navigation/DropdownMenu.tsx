@@ -8,6 +8,11 @@ import type {
 } from '@kobalte/core/dropdown-menu'
 import { cn } from '../../utilities/classNames'
 
+const _KbContent = KobalteDropdownMenu.Content
+const _KbItem = KobalteDropdownMenu.Item
+const _KbSeparator = KobalteDropdownMenu.Separator
+const _KbTrigger = KobalteDropdownMenu.Trigger
+
 export interface DropdownMenuContentProps extends KobalteDropdownMenuContentProps {
 	class?: string
 	children: JSX.Element
@@ -17,7 +22,7 @@ export function DropdownMenuContent(props: DropdownMenuContentProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
 		<KobalteDropdownMenu.Portal>
-			<KobalteDropdownMenu.Content
+			<_KbContent
 				class={cn(
 					'z-50 min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg outline-none',
 					local.class,
@@ -25,7 +30,7 @@ export function DropdownMenuContent(props: DropdownMenuContentProps) {
 				{...others}
 			>
 				{local.children}
-			</KobalteDropdownMenu.Content>
+			</_KbContent>
 		</KobalteDropdownMenu.Portal>
 	)
 }
@@ -38,7 +43,7 @@ export interface DropdownMenuItemProps extends KobalteDropdownMenuItemProps {
 export function DropdownMenuItem(props: DropdownMenuItemProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
-		<KobalteDropdownMenu.Item
+		<_KbItem
 			class={cn(
 				'flex cursor-pointer select-none items-center rounded-md px-2 py-1.5 text-sm text-ink-700 outline-none',
 				'data-[highlighted]:bg-surface-overlay data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
@@ -47,7 +52,7 @@ export function DropdownMenuItem(props: DropdownMenuItemProps) {
 			{...others}
 		>
 			{local.children}
-		</KobalteDropdownMenu.Item>
+		</_KbItem>
 	)
 }
 
@@ -58,7 +63,7 @@ export interface DropdownMenuSeparatorProps extends KobalteDropdownMenuSeparator
 export function DropdownMenuSeparator(props: DropdownMenuSeparatorProps) {
 	const [local, others] = splitProps(props, ['class'])
 	return (
-		<KobalteDropdownMenu.Separator
+		<_KbSeparator
 			class={cn('my-1 h-px border-none bg-surface-border', local.class)}
 			{...others}
 		/>
@@ -73,14 +78,25 @@ export interface DropdownMenuTriggerProps extends Omit<KobalteDropdownMenuTrigge
 export function DropdownMenuTrigger(props: DropdownMenuTriggerProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
-		<KobalteDropdownMenu.Trigger
+		<_KbTrigger
 			class={cn(local.class)}
 			{...others}
 		>
 			{local.children}
-		</KobalteDropdownMenu.Trigger>
+		</_KbTrigger>
 	)
 }
 
-// Re-export the root Kobalte DropdownMenu for convenience
-export { DropdownMenu } from '@kobalte/core/dropdown-menu'
+type DropdownMenuComponent = typeof KobalteDropdownMenu & {
+	Trigger: typeof DropdownMenuTrigger
+	Content: typeof DropdownMenuContent
+	Item: typeof DropdownMenuItem
+	Separator: typeof DropdownMenuSeparator
+}
+
+export const DropdownMenu: DropdownMenuComponent = Object.assign(KobalteDropdownMenu, {
+	Trigger: DropdownMenuTrigger,
+	Content: DropdownMenuContent,
+	Item: DropdownMenuItem,
+	Separator: DropdownMenuSeparator,
+})

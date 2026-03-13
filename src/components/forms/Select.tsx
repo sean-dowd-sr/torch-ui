@@ -14,11 +14,6 @@ export interface SelectOption {
 	color?: string | null
 }
 
-function renderIcon(icon: JSX.Element | undefined) {
-	if (!icon) return icon
-	return icon instanceof Node ? icon.cloneNode(true) : icon
-}
-
 function statusColorStyle(color: string | null | undefined): string | undefined {
 	if (color == null || color === '') return undefined
 	const t = color.trim()
@@ -33,7 +28,7 @@ function StatusDot(props: { color?: string | null }) {
 	}
 	return (
 		<span
-			class="size-2.5 shrink-0 rounded-full border border-ink-200/80/80"
+			class="size-2.5 shrink-0 rounded-full border border-ink-200/80"
 			classList={{ 'bg-ink-400': !statusColorStyle(props.color) }}
 			style={style()}
 			aria-hidden="true"
@@ -156,7 +151,7 @@ export const Select = (props: SelectProps) => {
 									<StatusDot color={itemProps.item.rawValue.color} />
 								</Show>
 								<Show when={itemProps.item.rawValue.icon}>
-									<span class="flex-shrink-0 text-ink-500">{renderIcon(itemProps.item.rawValue.icon)}</span>
+									<span class="flex-shrink-0 text-ink-500">{itemProps.item.rawValue.icon}</span>
 								</Show>
 								<span class="min-w-0 truncate">{itemProps.item.rawValue.label}</span>
 							</span>
@@ -169,7 +164,7 @@ export const Select = (props: SelectProps) => {
 			>
 				<Show when={!local.bare && local.label}>
 					<div class="flex items-center justify-between mb-2">
-						<KobalteSelect.Label class="block text-md font-medium text-ink-700">
+						<KobalteSelect.Label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 							{local.label}
 							<Show when={local.required}>
 								<span class="ml-0.5 text-danger-500" aria-hidden="true">*</span>
@@ -216,7 +211,7 @@ export const Select = (props: SelectProps) => {
 											<StatusDot color={opt.color} />
 										</Show>
 										<Show when={opt.icon}>
-											<span class="shrink-0 text-ink-500">{renderIcon(opt.icon)}</span>
+											<span class="shrink-0 text-ink-500">{opt.icon}</span>
 										</Show>
 										<span class="min-w-0 truncate">{opt.label}</span>
 									</span>
@@ -262,7 +257,7 @@ export const Select = (props: SelectProps) => {
 									onInput={(e) => setSearchQuery(e.currentTarget.value)}
 									placeholder="Search..."
 									class={cn(
-										'h-9 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500 outline-none focus:ring-2 focus:ring-inset focus:border-transparent',
+										'h-9 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-1.5 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:ring-2 focus:ring-inset focus:border-transparent',
 										hasError() ? 'focus:ring-danger-500' : 'focus:ring-primary-500'
 									)}
 								/>

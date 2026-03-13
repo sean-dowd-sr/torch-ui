@@ -1,4 +1,4 @@
-import { type JSX, Show, For, splitProps, createEffect, createSignal, createUniqueId, onMount, onCleanup } from 'solid-js'
+import { type JSX, Show, For, splitProps, createEffect, on, createSignal, createUniqueId, onMount, onCleanup } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { Button } from '../actions'
 import { Select } from '../forms'
@@ -112,10 +112,10 @@ export function Pagination(props: PaginationProps) {
 	const showPageNumbers = () => effectiveMaxPages() > 0
 
 	/** Sync consumer state when clamp kicks in (e.g. page-size change shrinks totalPages below current page). */
-	createEffect(() => {
-		const clamped = Math.max(1, Math.min(local.page, total()))
-		if (clamped !== local.page) local.onPageChange(clamped)
-	})
+	createEffect(on([() => local.page, total], ([currentPage, totalPages]) => {
+		const clamped = Math.max(1, Math.min(currentPage, totalPages))
+		if (clamped !== currentPage) local.onPageChange(clamped)
+	}))
 
 	// --- Info text ---
 	const pageSizeVal = () => local.pageSize ?? 10

@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal, createMemo, onCleanup } from 'solid-js'
 
 export interface SortableDragItem {
 	id: string
@@ -126,11 +126,17 @@ export function createSortableDrag<T extends SortableDragItem>(
 		return result
 	}
 
-	function getTransform(id: string): string {
+	/** Recomputed once whenever activeId or overId changes — O(N) per drag event, not O(N²). */
+	const displacementMap = createMemo<Map<string, { x: number; y: number }>>(() => {
 		const dragId = activeId()
 		const hoverOverId = overId()
-		if (!dragId || !hoverOverId || dragId === hoverOverId || id === dragId) return ''
-		const d = computeDisplacements(dragId, hoverOverId).get(id)
+		if (!dragId || !hoverOverId || dragId === hoverOverId) return new Map()
+		return computeDisplacements(dragId, hoverOverId)
+	})
+
+	function getTransform(id: string): string {
+		if (id === activeId()) return ''
+		const d = displacementMap().get(id)
 		if (!d) return ''
 		return `translate(${d.x}px, ${d.y}px)`
 	}

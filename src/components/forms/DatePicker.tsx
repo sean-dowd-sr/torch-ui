@@ -295,6 +295,7 @@ export function DatePicker(props: DatePickerProps) {
 						)}
 					>
 						{local.label}
+						{local.required && <span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
 					</label>
 					<Show when={!local.required && local.optional}>
 						<span class="text-xs text-ink-400">optional</span>

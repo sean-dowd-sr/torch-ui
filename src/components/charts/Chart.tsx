@@ -38,6 +38,24 @@ export interface ChartProps {
 	class?: string
 }
 
+/** Recursively merges plain-object values; arrays and primitives from `override` replace base. */
+function deepMerge(base: Record<string, unknown>, override: Record<string, unknown>): Record<string, unknown> {
+	const result: Record<string, unknown> = { ...base }
+	for (const key of Object.keys(override)) {
+		const bv = base[key]
+		const ov = override[key]
+		if (
+			ov !== null && typeof ov === 'object' && !Array.isArray(ov) &&
+			bv !== null && typeof bv === 'object' && !Array.isArray(bv)
+		) {
+			result[key] = deepMerge(bv as Record<string, unknown>, ov as Record<string, unknown>)
+		} else if (ov !== undefined) {
+			result[key] = ov
+		}
+	}
+	return result
+}
+
 /** Reads current theme from html element class. */
 function isDark(): boolean {
 	if (typeof document === 'undefined') return false
@@ -188,38 +206,43 @@ function buildConfig(
 		}
 		return out as unknown as DatasetItem
 	})
+	const baseOpts: Record<string, unknown> = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			...(themeOpts?.plugins ?? {}),
+			legend: { position: 'bottom' as const, ...(themeOpts?.plugins?.legend ?? {}) },
+		},
+		...(isLine || type === 'bar'
+			? {
+					scales: {
+						x: { grid: { display: false, color: gridColor }, ticks: { color: tickColor } },
+						y: { beginAtZero: true, grace: '5%', grid: { color: gridColor }, ticks: { color: tickColor } },
+					},
+				}
+			: {}),
+		...(isScatterOrBubble
+			? {
+					scales: {
+						x: { type: 'linear' as const, grid: { color: gridColor }, ticks: { color: tickColor } },
+						y: { type: 'linear' as const, beginAtZero: true, grace: '5%', grid: { color: gridColor }, ticks: { color: tickColor } },
+					},
+				}
+			: {}),
+		...(type === 'radar' || type === 'polarArea' ? { scales: themeOpts?.scales } : {}),
+	}
+
 	const base: ChartConfiguration<ChartType> = {
 		type,
 		data: {
 			labels: data.labels,
 			datasets,
 		},
-		options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			plugins: {
-				...(themeOpts?.plugins ?? {}),
-				legend: { position: 'bottom' as const, ...(themeOpts?.plugins?.legend ?? {}) },
-			},
-			...(isLine || type === 'bar'
-				? {
-						scales: {
-							x: { grid: { display: false, color: gridColor }, ticks: { color: tickColor } },
-							y: { beginAtZero: true, grace: '5%', grid: { color: gridColor }, ticks: { color: tickColor } },
-						},
-					}
-				: {}),
-			...(isScatterOrBubble
-				? {
-						scales: {
-							x: { type: 'linear' as const, grid: { color: gridColor }, ticks: { color: tickColor } },
-							y: { type: 'linear' as const, beginAtZero: true, grace: '5%', grid: { color: gridColor }, ticks: { color: tickColor } },
-						},
-					}
-				: {}),
-			...(type === 'radar' || type === 'polarArea' ? { scales: themeOpts?.scales } : {}),
-			...optionsOverride,
-		},
+		options: (
+			optionsOverride
+				? deepMerge(baseOpts, optionsOverride as Record<string, unknown>)
+				: baseOpts
+		) as ChartConfiguration<ChartType>['options'],
 	}
 	return base
 }

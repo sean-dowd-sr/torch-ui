@@ -2,7 +2,7 @@ import { splitProps, createMemo, type JSX } from 'solid-js'
 import { ColorSwatch as KobalteColorSwatch } from '@kobalte/core/color-swatch'
 import { parseColor } from '@kobalte/core/colors'
 import { cn } from '../../utilities/classNames'
-import { normalizeHex, hexToHslString } from '../../utilities/colorUtils'
+import { normalizeHex } from '../../utilities/colorUtils'
 
 export type ColorSwatchVariant = 'rounded' | 'circle' | 'square'
 
@@ -32,7 +32,7 @@ export function ColorSwatch(props: ColorSwatchProps) {
 		const hex = normalized()
 		if (!hex) return parseColor('hsl(0, 0%, 50%)')
 		try {
-			return parseColor(hexToHslString(hex))
+			return parseColor(hex)
 		} catch {
 			if (import.meta.env.DEV) console.warn(`ColorSwatch: invalid hex value "${hex}" — falling back to gray.`)
 			return parseColor('hsl(0, 0%, 50%)')

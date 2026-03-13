@@ -2,6 +2,7 @@ import { type JSX, type Component, splitProps, Show, For } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { cn } from '../../utilities/classNames'
 import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../layout'
+import { useIcons } from '../../icons'
 
 export interface SidebarItem {
 	key: string
@@ -16,6 +17,8 @@ export interface SidebarItem {
 }
 
 export interface SidebarGroup {
+	/** Unique key for this group. Falls back to `title` if omitted — use this when two groups share the same title to avoid open/close state collision. */
+	id?: string
 	title: string
 	items: SidebarItem[]
 	/** Groups with active items auto-open regardless. */
@@ -57,24 +60,13 @@ function hasActiveItem(items: SidebarItem[]): boolean {
 }
 
 function ChevronIcon() {
-	return (
-		<svg
-			class="h-3.5 w-3.5 shrink-0 transition-transform rotate-90 [[data-expanded]>&]:rotate-0"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			aria-hidden="true"
-		>
-			<path d="m6 9 6 6 6-6" />
-		</svg>
-	)
+	const icons = useIcons()
+	return icons.chevronDown({ class: 'h-3.5 w-3.5 shrink-0 transition-transform rotate-90 [[data-expanded]>&]:rotate-0', 'aria-hidden': 'true' })
 }
 
 /** Sidebar navigation with flat items or grouped collapsible sections. */
 export function Sidebar(props: SidebarProps) {
+	const icons = useIcons()
 	const [local, others] = splitProps(props, [
 		'header',
 		'items',
@@ -271,12 +263,13 @@ export function Sidebar(props: SidebarProps) {
 	}
 
 	const renderGroup = (group: SidebarGroup) => {
-		const isOpen = () => hasActiveItem(group.items) || (groupOpenByTitle[group.title] ?? (group.defaultOpen ?? false))
+		const groupKey = group.id ?? group.title
+		const isOpen = () => hasActiveItem(group.items) || (groupOpenByTitle[groupKey] ?? (group.defaultOpen ?? false))
 		return (
 			<CollapsibleRoot
 				class="mb-1"
 				open={isOpen()}
-				onOpenChange={(next) => setGroupOpenByTitle(group.title, next)}
+				onOpenChange={(next) => setGroupOpenByTitle(groupKey, next)}
 			>
 				<CollapsibleTrigger
 					class={cn(
@@ -319,9 +312,7 @@ export function Sidebar(props: SidebarProps) {
 							onClick={() => local.onCollapseChange?.(!local.collapsed)}
 							aria-label={local.collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 						>
-							<svg class={cn('h-4 w-4 transition-transform duration-200', local.collapsed && 'rotate-180')} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<path d="m15 18-6-6 6-6" />
-							</svg>
+							{icons.chevronLeft({ class: cn('h-4 w-4 transition-transform duration-200', local.collapsed && 'rotate-180'), 'aria-hidden': 'true' })}
 						</button>
 					</Show>
 				</div>

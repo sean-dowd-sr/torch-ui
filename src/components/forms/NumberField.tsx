@@ -131,7 +131,7 @@ export function NumberField(props: NumberFieldProps) {
 					<div class="flex items-center justify-between mb-1.5">
 						<KobalteNumberField.Label
 							class={cn(
-								'block text-md font-medium',
+								'block text-sm font-medium',
 								hasError() ? 'text-danger-600' : 'text-ink-700'
 							)}
 						>
@@ -191,7 +191,7 @@ export function NumberField(props: NumberFieldProps) {
 
 						<KobalteNumberField.DecrementTrigger
 							class={cn(
-								'flex-none flex items-center justify-center outline-none focus-visible:outline-none focus-visible:ring-0 group',
+								'flex-none flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50 rounded-md group',
 								stepperButtonW(),
 								'disabled:cursor-not-allowed disabled:opacity-50'
 							)}
@@ -218,15 +218,15 @@ export function NumberField(props: NumberFieldProps) {
 								sc().h,
 								sc().py,
 								sc().text,
-								'px-2 text-ink-900 placeholder:text-ink-400 dark:placeholder:text-ink-500',
-								'disabled:bg-surface-base disabled:text-ink-500 dark:disabled:text-ink-500 disabled:cursor-not-allowed'
+								'px-2 text-ink-900 placeholder:text-ink-400',
+								'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed'
 							)}
 							aria-label={local.label}
 						/>
 
 						<KobalteNumberField.IncrementTrigger
 							class={cn(
-								'flex-none flex items-center justify-center outline-none focus-visible:outline-none focus-visible:ring-0 group',
+								'flex-none flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50 rounded-md group',
 								stepperButtonW(),
 								'disabled:cursor-not-allowed disabled:opacity-50'
 							)}

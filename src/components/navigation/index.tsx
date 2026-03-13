@@ -50,6 +50,7 @@ export {
 } from './NavigationMenu'
 
 export {
+	MegaMenu,
 	MegaMenuBar,
 	MegaMenuMenu,
 	MegaMenuTrigger,

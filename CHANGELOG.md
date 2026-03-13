@@ -5,10 +5,21 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-13
+
+### Changed (Breaking)
+- **Compound component pattern** for `DropdownMenu`, `ContextMenu`, `Tooltip`, `Popover`, `HoverCard`, `Collapsible`, `MenuBar` (previously `NavigationMenu`), `MegaMenu`, and `Wizard`/`Stepper`. Sub-components are now accessed as properties of the root (e.g. `DropdownMenu.Trigger`, `HoverCard.Content`) instead of separate named exports. Update imports accordingly.
+- `HoverCard.Content` `showArrow` now defaults to `true` (was `false`). Pass `showArrow={false}` to opt out.
+
+### Fixed
+- Resolved `computations created outside a createRoot or render will never be disposed` SolidJS warning caused by icon helper function using JSX without a reactive owner. Rewritten to use imperative DOM construction.
+- Fixed infinite recursion in `Collapsible`, `DropdownMenu`, `ContextMenu`, and `Tooltip` caused by `Object.assign` mutating Kobalte's namespace object — original sub-component references are now captured before reassignment.
+
 ## [0.1.1] - 2026-03-10
 
 ### Added
 - `MegaMenuBarLink` exported from `@torch-ui/solid/navigation` barrel
+- `FileUploadLabels` interface and `labels` prop on `FileUpload` — override any of the 27 built-in UI strings (dropzone copy, button text, aria-labels, status text, validation errors, summary messages) for full localisation support; English defaults preserved for backwards compatibility
 
 ### Fixed
 - Component prop corrections across navigation components

@@ -140,7 +140,7 @@ export function TextArea(props: TextAreaProps) {
 		>
 			<Show when={!local.bare && local.label}>
 				<div class="flex items-center justify-between gap-2 mb-1.5">
-					<KobalteTextField.Label class={cn('block text-md font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
+					<KobalteTextField.Label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 						{local.label}
 						<Show when={local.required}>
 							<span class="text-danger-500 ml-0.5" aria-hidden="true">*</span>

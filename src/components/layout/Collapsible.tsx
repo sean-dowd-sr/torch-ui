@@ -7,6 +7,9 @@ export const CollapsibleRoot = KobalteCollapsible
 export const CollapsibleTrigger = KobalteCollapsible.Trigger
 export const CollapsibleContent = KobalteCollapsible.Content
 
+const _KbCollapsibleContent = KobalteCollapsible.Content
+const _KbCollapsibleTrigger = KobalteCollapsible.Trigger
+
 export type CollapsibleStyledVariant = 'default' | 'minimal'
 
 const COLLAPSIBLE_STYLE_ID = 'torchui-collapsible-styles'
@@ -48,7 +51,7 @@ export function CollapsibleContentStyled(props: CollapsibleContentProps) {
 	onMount(ensureCollapsibleStyles)
 	const variant = () => local.variant ?? 'default'
 	return (
-		<KobalteCollapsible.Content
+		<_KbCollapsibleContent
 			class={cn(
 				'collapsible-content overflow-hidden',
 				variant() === 'default' && [
@@ -60,7 +63,7 @@ export function CollapsibleContentStyled(props: CollapsibleContentProps) {
 			{...others}
 		>
 			{local.children}
-		</KobalteCollapsible.Content>
+		</_KbCollapsibleContent>
 	)
 }
 
@@ -75,7 +78,7 @@ export function CollapsibleTriggerStyled(props: CollapsibleTriggerStyledProps) {
 	const variant = () => local.variant ?? 'default'
 	const icons = useIcons()
 	return (
-		<KobalteCollapsible.Trigger
+		<_KbCollapsibleTrigger
 			class={cn(
 				'flex w-full items-center justify-between gap-2 text-left',
 				variant() === 'default'
@@ -99,6 +102,16 @@ export function CollapsibleTriggerStyled(props: CollapsibleTriggerStyledProps) {
 		>
 			{local.children}
 			{icons.chevronDown({ class: 'h-4 w-4 shrink-0 transition-transform duration-200', 'aria-hidden': 'true' })}
-		</KobalteCollapsible.Trigger>
+		</_KbCollapsibleTrigger>
 	)
 }
+
+type CollapsibleComponent = typeof CollapsibleRoot & {
+	Trigger: typeof CollapsibleTriggerStyled
+	Content: typeof CollapsibleContentStyled
+}
+
+export const Collapsible: CollapsibleComponent = Object.assign(CollapsibleRoot, {
+	Trigger: CollapsibleTriggerStyled,
+	Content: CollapsibleContentStyled,
+})

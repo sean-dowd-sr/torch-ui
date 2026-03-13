@@ -92,6 +92,8 @@ export function TreeView(props: TreeViewProps) {
 							<button
 								type="button"
 								disabled={node.disabled}
+								data-tree-item
+								data-tree-level={level}
 								onClick={() => {
 									if (node.disabled) return
 									if (hasChildren()) toggleExpand(node.id)
@@ -99,12 +101,51 @@ export function TreeView(props: TreeViewProps) {
 								}}
 								onKeyDown={(e: KeyboardEvent) => {
 									if (node.disabled) return
-									if (e.key === 'ArrowRight' && hasChildren() && !expanded()) {
+									const btn = e.currentTarget as HTMLElement
+									const root = btn.closest('[data-tree-root]')
+									const treeBtns = () => root
+										? Array.from(root.querySelectorAll<HTMLElement>('button[data-tree-item]:not(:disabled)'))
+										: []
+									if (e.key === 'ArrowDown') {
 										e.preventDefault()
-										toggleExpand(node.id)
-									} else if (e.key === 'ArrowLeft' && hasChildren() && expanded()) {
+										const btns = treeBtns()
+										btns[btns.indexOf(btn) + 1]?.focus()
+									} else if (e.key === 'ArrowUp') {
 										e.preventDefault()
-										toggleExpand(node.id)
+										const btns = treeBtns()
+										btns[btns.indexOf(btn) - 1]?.focus()
+									} else if (e.key === 'Home') {
+										e.preventDefault()
+										treeBtns()[0]?.focus()
+									} else if (e.key === 'End') {
+										e.preventDefault()
+										const btns = treeBtns()
+										btns[btns.length - 1]?.focus()
+									} else if (e.key === 'ArrowRight') {
+										e.preventDefault()
+										if (hasChildren() && !expanded()) {
+											toggleExpand(node.id)
+											queueMicrotask(() => {
+												const btns = treeBtns()
+												btns[btns.indexOf(btn) + 1]?.focus()
+											})
+										} else if (hasChildren() && expanded()) {
+											const btns = treeBtns()
+											btns[btns.indexOf(btn) + 1]?.focus()
+										}
+									} else if (e.key === 'ArrowLeft') {
+										e.preventDefault()
+										if (hasChildren() && expanded()) {
+											toggleExpand(node.id)
+										} else {
+											const nodeLevel = Number(btn.dataset.treeLevel ?? 0)
+											const btns = treeBtns()
+											const idx = btns.indexOf(btn)
+											const parent = btns.slice(0, idx).reverse().find(
+												(b) => Number(b.dataset.treeLevel ?? 0) < nodeLevel
+											)
+											parent?.focus()
+										}
 									} else if (e.key === 'Enter' || e.key === ' ') {
 										e.preventDefault()
 										if (hasChildren()) toggleExpand(node.id)
@@ -163,7 +204,7 @@ export function TreeView(props: TreeViewProps) {
 	)
 
 	return (
-		<div class={cn('select-none', local.class)} {...others}>
+		<div class={cn('select-none', local.class)} data-tree-root {...others}>
 			{renderNodes(local.nodes)}
 		</div>
 	)

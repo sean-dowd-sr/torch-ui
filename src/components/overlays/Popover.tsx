@@ -72,3 +72,15 @@ export function PopoverContent(props: PopoverContentProps) {
 		</KobaltePopover.Portal>
 	)
 }
+
+type PopoverComponent = typeof PopoverRoot & {
+	Trigger: typeof PopoverTrigger
+	Content: typeof PopoverContent
+	CloseButton: typeof PopoverCloseButton
+}
+
+export const Popover: PopoverComponent = Object.assign(PopoverRoot, {
+	Trigger: PopoverTrigger,
+	Content: PopoverContent,
+	CloseButton: PopoverCloseButton,
+})

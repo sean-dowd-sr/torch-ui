@@ -1,6 +1,7 @@
 import { Show, onMount, type JSX, splitProps, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { cn } from '../../utilities/classNames'
+import { useIcons } from '../../icons'
 
 const DEFAULT_DURATION_MS = 200
 
@@ -132,6 +133,7 @@ function ensureDialogStyles() {
 }
 
 export function Dialog(props: DialogProps) {
+	const icons = useIcons()
 	const [local, others] = splitProps(props, [
 		'open',
 		'onOpenChange',
@@ -279,9 +281,7 @@ export function Dialog(props: DialogProps) {
 												aria-label="Close"
 												class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 											>
-												<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-													<path d="M18 6 6 18M6 6l12 12" />
-												</svg>
+												{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
 											</KobalteDialog.CloseButton>
 										</Show>
 									</div>

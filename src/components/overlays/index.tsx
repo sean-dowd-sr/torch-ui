@@ -19,6 +19,7 @@ export {
 } from './Drawer'
 
 export {
+	Tooltip,
 	TooltipRoot,
 	TooltipTrigger,
 	TooltipPortal,
@@ -29,6 +30,7 @@ export {
 } from './Tooltip'
 
 export {
+	Popover,
 	PopoverRoot,
 	PopoverTrigger,
 	PopoverAnchor,
@@ -44,6 +46,7 @@ export {
 } from './Popover'
 
 export {
+	ContextMenu,
 	ContextMenuRoot,
 	ContextMenuTrigger,
 	ContextMenuContent,
@@ -55,6 +58,7 @@ export {
 } from './ContextMenu'
 
 export {
+	HoverCard,
 	HoverCardRoot,
 	HoverCardTrigger,
 	HoverCardPortal,

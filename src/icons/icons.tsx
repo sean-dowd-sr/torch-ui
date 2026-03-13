@@ -1,4 +1,4 @@
-import { createContext, useContext, splitProps, createMemo, type JSX } from 'solid-js'
+import { createContext, useContext, splitProps, createMemo, type Accessor, type JSX } from 'solid-js'
 
 export type TorchUIIconComponent = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => JSX.Element
 
@@ -54,10 +54,23 @@ function baseSvgProps(others: JSX.SvgSVGAttributes<SVGSVGElement>) {
 	} as const
 }
 
-function icon(children: () => JSX.Element): TorchUIIconComponent {
+function icon(getChildren: () => JSX.Element): TorchUIIconComponent {
 	return (props) => {
-		// children must be created per-render; reusing DOM nodes causes them to be moved between icons
-		return <svg {...baseSvgProps(props)}>{children()}</svg>
+		// Imperative DOM avoids reactive computations when called as a plain function (no createComponent owner)
+		const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+		const attrs = baseSvgProps(props)
+		for (const key in attrs) {
+			const value = (attrs as Record<string, unknown>)[key]
+			if (value != null) el.setAttribute(key, String(value))
+		}
+		// babel-plugin-solid wraps <path> JSX in a full <svg> template for SVG namespace correctness,
+		// so getChildren() returns <svg><path> elements. Extract their children into our output SVG.
+		const raw = getChildren()
+		const sources: SVGElement[] = Array.isArray(raw) ? (raw as SVGElement[]) : [raw as unknown as SVGElement]
+		for (const source of sources) {
+			while (source.firstChild) el.appendChild(source.firstChild)
+		}
+		return el as unknown as JSX.Element
 	}
 }
 
@@ -281,10 +294,10 @@ export const defaultIcons: TorchUIIcons = {
 	)),
 }
 
-const IconsContext = createContext<TorchUIIcons>(defaultIcons)
+const IconsContext = createContext<Accessor<TorchUIIcons>>(() => defaultIcons)
 
 export function useIcons(): TorchUIIcons {
-	return useContext(IconsContext)
+	return useContext(IconsContext)()
 }
 
 export interface IconsProviderProps {
@@ -295,5 +308,5 @@ export interface IconsProviderProps {
 export function IconsProvider(props: IconsProviderProps) {
 	const [local] = splitProps(props, ['icons', 'children'])
 	const value = createMemo(() => ({ ...defaultIcons, ...(local.icons ?? {}) }))
-	return <IconsContext.Provider value={value()}>{local.children}</IconsContext.Provider>
+	return <IconsContext.Provider value={value}>{local.children}</IconsContext.Provider>
 }

@@ -11,12 +11,12 @@ const VariantContext = createContext<MenuVariant>('default')
 /** ─── Injected styles ───────────────────────────────────────────────────────── */
 function injectMegaMenuStyles() {
 	const id = 'torchui-mega-menu-styles'
-	let el = document.getElementById(id) as HTMLStyleElement | null
+	const el = document.getElementById(id) as HTMLStyleElement | null
 	if (el) return
-	el = document.createElement('style')
-	el.id = id
-	document.head.appendChild(el)
-	el.textContent = `
+	const style = document.createElement('style')
+	style.id = id
+	document.head.appendChild(style)
+	style.textContent = `
 		.torchui-mm-viewport {
 			position: relative;
 			transform-origin: var(--kb-menu-content-transform-origin);
@@ -397,6 +397,7 @@ export interface MegaMenuFeaturedProps {
 }
 
 export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
+	const icons = useIcons()
 	return (
 		<Dynamic
 			component={props.href ? 'a' : 'div'}
@@ -419,9 +420,7 @@ export function MegaMenuFeatured(props: MegaMenuFeaturedProps) {
 			</div>
 			<div class="relative mt-4 flex items-center gap-1 text-xs font-semibold text-white">
 				{props.cta ?? 'Learn more'}
-				<svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-				</svg>
+				{icons.chevronRight({ class: 'h-3 w-3 transition-transform group-hover:translate-x-0.5', 'aria-hidden': 'true' })}
 			</div>
 		</Dynamic>
 	)
@@ -505,3 +504,33 @@ export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 		</div>
 	)
 }
+
+type MegaMenuComponent = typeof MegaMenuBar & {
+	Menu: typeof MegaMenuMenu
+	Trigger: typeof MegaMenuTrigger
+	Content: typeof MegaMenuContent
+	Panel: typeof MegaMenuPanel
+	Column: typeof MegaMenuColumn
+	Section: typeof MegaMenuSection
+	Item: typeof MegaMenuItem
+	Featured: typeof MegaMenuFeatured
+	Divider: typeof MegaMenuDivider
+	Footer: typeof MegaMenuFooter
+	FooterLink: typeof MegaMenuFooterLink
+	BarLink: typeof MegaMenuBarLink
+}
+
+export const MegaMenu: MegaMenuComponent = Object.assign(MegaMenuBar, {
+	Menu: MegaMenuMenu,
+	Trigger: MegaMenuTrigger,
+	Content: MegaMenuContent,
+	Panel: MegaMenuPanel,
+	Column: MegaMenuColumn,
+	Section: MegaMenuSection,
+	Item: MegaMenuItem,
+	Featured: MegaMenuFeatured,
+	Divider: MegaMenuDivider,
+	Footer: MegaMenuFooter,
+	FooterLink: MegaMenuFooterLink,
+	BarLink: MegaMenuBarLink,
+})

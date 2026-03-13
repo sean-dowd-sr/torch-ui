@@ -1,5 +1,6 @@
 import { useIcons } from '../../icons'
 import { cn } from '../../utilities/classNames'
+import { WizardStep } from './WizardStep'
 
 export type WizardStepperVariant = 'default' | 'compact' | 'chevrons'
 
@@ -17,6 +18,8 @@ export interface WizardStepperProps {
 	/** Optional class for the root */
 	class?: string
 }
+
+export { WizardStep }
 
 /** Reusable stepper: numbered steps with labels and connector. */
 export function WizardStepper(props: WizardStepperProps) {
@@ -112,4 +115,9 @@ export function WizardStepper(props: WizardStepperProps) {
 			</ol>
 		</nav>
 	)
+}
+
+export const Wizard = {
+	Stepper: WizardStepper,
+	Step: WizardStep,
 }

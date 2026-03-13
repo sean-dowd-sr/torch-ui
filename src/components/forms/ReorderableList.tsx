@@ -131,6 +131,15 @@ export function ReorderableList(props: ReorderableListProps) {
                     drag.isDragging() ? 'cursor-grabbing' : 'cursor-grab',
                   )}
                   aria-label={`Drag to reorder ${item.label}`}
+                  onKeyDown={(e: KeyboardEvent) => {
+                    if (e.key === 'ArrowUp') {
+                      e.preventDefault()
+                      move(item.id, 'up')
+                    } else if (e.key === 'ArrowDown') {
+                      e.preventDefault()
+                      move(item.id, 'down')
+                    }
+                  }}
                   onPointerDown={(e) => {
                     pointerX = e.clientX
                     pointerY = e.clientY

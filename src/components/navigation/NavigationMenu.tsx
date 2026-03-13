@@ -257,7 +257,7 @@ export interface MenuBarProps {
 	justify?: 'start' | 'center' | 'end'
 }
 
-export function MenuBar(props: MenuBarProps) {
+function MenuBarRoot(props: MenuBarProps) {
 	const [local, others] = splitProps(props, ['class', 'children', 'justify'])
 	onMount(injectMenuBarStyles)
 	return (
@@ -284,7 +284,10 @@ export function MenuBarNavLink(props: MenuBarLinkProps) {
 	const v = () => props.variant ?? 'default'
 	return (
 		<a
-			href={props.href}
+			href={props.disabled ? undefined : props.href}
+			aria-disabled={props.disabled ? 'true' : undefined}
+			tabIndex={props.disabled ? -1 : undefined}
+			onClick={props.disabled ? (e: Event) => e.preventDefault() : undefined}
 			class={cn(
 				'group relative inline-flex h-full items-center text-sm font-medium text-ink-700 transition-colors',
 				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
@@ -304,3 +307,25 @@ export function MenuBarNavLink(props: MenuBarLinkProps) {
 		</a>
 	)
 }
+
+type MenuBarComponent = typeof MenuBarRoot & {
+	Menu: typeof MenuBarMenu
+	Trigger: typeof MenuBarTrigger
+	Content: typeof MenuBarContent
+	Item: typeof MenuBarItem
+	NavLink: typeof MenuBarNavLink
+	Label: typeof MenuBarLabel
+	Divider: typeof MenuBarDivider
+	Link: typeof MenuBarLink
+}
+
+export const MenuBar: MenuBarComponent = Object.assign(MenuBarRoot, {
+	Menu: MenuBarMenu,
+	Trigger: MenuBarTrigger,
+	Content: MenuBarContent,
+	Item: MenuBarItem,
+	NavLink: MenuBarNavLink,
+	Label: MenuBarLabel,
+	Divider: MenuBarDivider,
+	Link: MenuBarLink,
+})
