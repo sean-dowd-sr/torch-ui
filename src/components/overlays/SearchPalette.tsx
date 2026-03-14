@@ -307,16 +307,16 @@ export function SearchPalette(props: SearchPaletteProps) {
 						<Show when={local.showKeyboardHints !== false}>
 							<div class="flex items-center gap-4 border-t border-surface-border px-4 py-2 text-xs text-ink-400">
 								<span class="inline-flex items-center gap-1">
-									<kbd class="rounded border border-surface-border bg-surface-dim px-1 py-0.5 font-mono text-[10px]">↑</kbd>
-									<kbd class="rounded border border-surface-border bg-surface-dim px-1 py-0.5 font-mono text-[10px]">↓</kbd>
+									<kbd class="rounded border border-surface-border bg-surface-overlay px-1 py-0.5 font-mono text-[10px] text-ink-700">↑</kbd>
+									<kbd class="rounded border border-surface-border bg-surface-overlay px-1 py-0.5 font-mono text-[10px] text-ink-700">↓</kbd>
 									To navigate
 								</span>
 								<span class="inline-flex items-center gap-1">
-									<kbd class="rounded border border-surface-border bg-surface-dim px-1 py-0.5 font-mono text-[10px]">↵</kbd>
+									<kbd class="rounded border border-surface-border bg-surface-overlay px-1 py-0.5 font-mono text-[10px] text-ink-700">↵</kbd>
 									To select
 								</span>
 								<span class="inline-flex items-center gap-1">
-									<kbd class="rounded border border-surface-border bg-surface-dim px-1 py-0.5 font-mono text-[10px]">esc</kbd>
+									<kbd class="rounded border border-surface-border bg-surface-overlay px-1 py-0.5 font-mono text-[10px] text-ink-700">esc</kbd>
 									To close
 								</span>
 							</div>

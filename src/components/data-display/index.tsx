@@ -44,6 +44,8 @@ export type { VideoProps } from './Video'
 
 export { Image } from './Image'
 export type { ImageProps } from './Image'
+export { Board } from './Board'
+export type { BoardProps, BoardColumnProps, BoardCardProps, BoardMoveEvent } from './Board'
 export { Sparkline } from '../charts/Sparkline'
 export type { SparklineProps } from '../charts/Sparkline'
 export { DataTable, TABLE_CONTAINER_CLASS } from './DataTable'

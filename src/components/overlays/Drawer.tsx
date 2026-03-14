@@ -386,7 +386,7 @@ export function Drawer(props: DrawerProps) {
 						</div>
 					</Show>
 
-					<div class={cn('relative flex flex-1 flex-col overflow-hidden', !local.noPadding && 'p-6')}>
+					<div class={cn('relative flex flex-1 flex-col', !local.noPadding && 'p-6')}>
 						{/* Close button in content area when actions are at bottom */}
 						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
 							<KobalteDialog.CloseButton
@@ -397,7 +397,7 @@ export function Drawer(props: DrawerProps) {
 								{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
 							</KobalteDialog.CloseButton>
 						</Show>
-						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
+						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto p-1', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
 							{local.children}
 						</div>
 					</div>
