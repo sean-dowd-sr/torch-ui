@@ -69,6 +69,17 @@ export interface ColumnDef<T> {
 	cell: (item: T) => JSX.Element | string | number | null
 	/** Custom skeleton element for loading state. Defaults to a pulse bar. */
 	skeleton?: JSX.Element
+	/** When true, renders a sort button in the header. Requires the sort prop on DataTable. */
+	sortable?: boolean
+}
+
+export interface DataTableSortProps {
+	/** Currently sorted column id, or null for no sort. */
+	column: string | null
+	/** Current sort direction. */
+	direction: 'asc' | 'desc'
+	/** Called when the user clicks a sortable header. column is null when clearing sort. */
+	onSortChange: (column: string | null, direction: 'asc' | 'desc') => void
 }
 
 export interface DataTableGroupByProps<T> {
@@ -93,6 +104,8 @@ export type DataTablePagingProps =
 export type DataTableProps<T> = JSX.HTMLAttributes<HTMLDivElement> & DataTablePagingProps & {
 	description?: JSX.Element
 	search?: DataTableSearchProps
+	/** Controlled sort state. Pair with sortable: true on ColumnDef. Sort the items array in the parent. */
+	sort?: DataTableSortProps
 	toolbarContent?: JSX.Element
 	toolbarActions?: JSX.Element
 	primaryButton?: DataTableButtonProps
@@ -140,7 +153,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 		'deleteDialog', 'groupBy', 'pagination', 'hideHeader',
 		'emptyState', 'loadMore', 'loading', 'error', 'items',
 		'columns', 'renderRowOverride', 'emptyMessage',
-		'skeletonRows', 'class',
+		'skeletonRows', 'sort', 'class',
 	])
 	const icons = useIcons()
 
@@ -307,7 +320,49 @@ export function DataTable<T>(props: DataTableProps<T>) {
 								<For each={local.columns}>
 									{(col) => (
 										<TableHead class={col.headClass}>
-											{col.header}
+											<Show when={col.sortable && local.sort} fallback={col.header}>
+												{(sort) => {
+													const isActive = () => sort().column === col.id
+													const handleSort = () => {
+														if (!isActive()) sort().onSortChange(col.id, 'asc')
+														else if (sort().direction === 'asc') sort().onSortChange(col.id, 'desc')
+														else sort().onSortChange(null, 'asc')
+													}
+													return (
+														<button
+															type="button"
+															class={cn(
+																'inline-flex items-center gap-1.5 rounded transition-colors hover:text-ink-900',
+																isActive() ? 'text-ink-900' : 'text-ink-500'
+															)}
+															onClick={handleSort}
+														>
+															{col.header}
+															<Show
+																when={isActive()}
+																fallback={
+																	<svg class="h-3.5 w-3.5 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+																		<path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" />
+																	</svg>
+																}
+															>
+																<Show
+																	when={sort().direction === 'asc'}
+																	fallback={
+																		<svg class="h-3.5 w-3.5 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+																			<path d="m7 15 5 5 5-5" />
+																		</svg>
+																	}
+																>
+																	<svg class="h-3.5 w-3.5 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+																		<path d="m7 9 5-5 5 5" />
+																	</svg>
+																</Show>
+															</Show>
+														</button>
+													)
+												}}
+											</Show>
 										</TableHead>
 									)}
 								</For>

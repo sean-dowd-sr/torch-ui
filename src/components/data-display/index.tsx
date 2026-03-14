@@ -55,6 +55,7 @@ export type {
 	DataTablePagination,
 	DataTablePagingProps,
 	DataTableGroupByProps,
+	DataTableSortProps,
 	DataTableSearchProps,
 	DataTableButtonProps,
 	DataTableAddRowProps,
