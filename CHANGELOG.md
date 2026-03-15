@@ -5,6 +5,14 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-03-15
+
+### Changed
+- `CodeBlock`: Removed built-in `prismjs` dependency. Syntax highlighting is now opt-in via a `highlighter` prop — pass any function `(code: string, language: string) => string | Promise<string>` (e.g. Prism, Shiki, highlight.js). Without a highlighter, code renders as plain text. This eliminates the `prismjs` peer dependency and all related CJS/ESM interop issues across bundlers and runtimes.
+
+### Removed
+- `prismjs` removed from `peerDependencies`. Consumers handle their own highlighter.
+
 ## [0.3.2] - 2026-03-15
 
 ### Fixed

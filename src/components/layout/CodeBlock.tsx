@@ -3,7 +3,6 @@ import { Copy } from '../actions'
 import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from './Collapsible'
 import { PopoverRoot, PopoverTrigger, PopoverContent } from '../overlays/Popover'
 import { cn } from '../../utilities/classNames'
-import { ensurePrismLanguage, highlightElement } from './prism'
 import { useIcons } from '../../icons'
 
 export interface CodeBlockLanguage {
@@ -13,7 +12,7 @@ export interface CodeBlockLanguage {
 	label: string
 	/** Code content for this variant. */
 	content: string
-	/** Prism language for syntax highlighting (e.g. "javascript", "typescript"). Defaults to id. */
+	/** Language identifier passed to the highlighter. Defaults to id. */
 	language?: string
 	/** Optional icon (e.g. SVG). Pass a function to show the icon in both the trigger and the list (e.g. `() => <Icon name="JS" />`); a static element can only appear in one place. */
 	icon?: JSX.Element | (() => JSX.Element)
@@ -24,7 +23,7 @@ export interface CodeBlockProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>,
 	content?: string
 	/** Alternate content (e.g. component-only snippet). When set, a toggle in the header switches between content and alternateContent. */
 	alternateContent?: string
-	/** Prism language for syntax highlighting when using content (e.g. "javascript", "typescript"). */
+	/** Language identifier passed to the highlighter (e.g. "tsx", "bash"). No-op when no highlighter is provided. */
 	language?: string
 	/** Multiple language variants with a tab switcher. When set, content/language are ignored for initial display. */
 	languages?: CodeBlockLanguage[]
@@ -57,6 +56,12 @@ export interface CodeBlockProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>,
 	collapsibleLabelShow?: string
 	/** Label for the trigger when code is visible. Default "Hide code". */
 	collapsibleLabelHide?: string
+	/**
+	 * Optional syntax highlighter. Called with `(code, language)`, must return highlighted HTML or a Promise.
+	 * When omitted, code is rendered as plain text.
+	 * Example (Prism): `(code, lang) => highlightCode(code, lang)` where highlightCode loads grammars on demand.
+	 */
+	highlighter?: (code: string, language: string) => string | Promise<string>
 	class?: string
 	preProps?: JSX.HTMLAttributes<HTMLPreElement>
 }
@@ -68,11 +73,10 @@ function getHeaderTitle(props: CodeBlockProps): string | undefined {
 }
 
 /**
- * Code block with optional copy button, language switcher, line numbers, and syntax highlighting (Prism).
- * Use content + language for a single block, or languages for a tabbed multi-variant block.
- * Import token styles in your app or tokens will be unstyled: `import '@torch-ui/solid/styles/code-block-tokens.css'`
- * Language must match a Prism grammar in prism.ts (or an alias there).
-
+ * Code block with optional copy button, language switcher, line numbers, and optional syntax highlighting.
+ * Pass a `highlighter` function to enable syntax highlighting — the function receives `(code, language)` and
+ * must return highlighted HTML (or a Promise resolving to it). Without a highlighter, code renders as plain text.
+ * Import token styles for your highlighter's output: `import '@torch-ui/solid/styles/code-block-tokens.css'`
  */
 const CODE_BLOCK_PROP_KEYS = [
 	'content',
@@ -92,6 +96,7 @@ const CODE_BLOCK_PROP_KEYS = [
 	'embedded',
 	'collapsibleLabelShow',
 	'collapsibleLabelHide',
+	'highlighter',
 	'class',
 	'preProps',
 	'ref',
@@ -193,38 +198,28 @@ export function CodeBlock(props: CodeBlockProps) {
 		primary() ? 'text-white/40' : 'text-ink-400'
 
 	const [codeEl, setCodeEl] = createSignal<HTMLElement | null>(null)
-	/** Use textContent + Prism.highlightElement() for safe dynamic content highlighting. */
 	createEffect(() => {
 		const el = codeEl()
 		if (!el) return
 		let cancelled = false
 
 		const content = effectiveContent()
-		const _lang = currentLanguage() // track language changes
+		const _lang = currentLanguage()
+		const h = local.highlighter
 
-		// 1) SAFE: never interpret user content as HTML
+		// Always set textContent first — safe plain-text fallback
 		el.textContent = content
 
-		// 2) Prism generates markup based on textContent (language class is declarative)
-		Promise.resolve()
-			.then(() => ensurePrismLanguage(_lang))
-			.then(() => {
-				if (cancelled) return
-				highlightElement(el, _lang)
-				if (!el.querySelector('.token')) {
-					console.warn(
-						`[torch-ui] Prism did not produce token markup for language "${_lang}". ` +
-							`Check that the Prism language component loaded and that the language id is correct.`
-					)
-				}
-			})
-			.catch((err) => {
-				console.warn(
-					`[torch-ui] Prism highlighting failed for language "${_lang}". ` +
-						`This usually means the Prism language component could not be loaded.`,
-					err
-				)
-			})
+		if (h) {
+			Promise.resolve(h(content, _lang))
+				.then((html) => {
+					if (cancelled) return
+					el.innerHTML = html
+				})
+				.catch((err) => {
+					console.warn(`[torch-ui] CodeBlock highlighter failed for language "${_lang}".`, err)
+				})
+		}
 
 		onCleanup(() => {
 			cancelled = true

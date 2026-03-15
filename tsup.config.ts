@@ -95,7 +95,6 @@ export default defineConfig((config) => {
 			'solid-js/web',
 			'solid-js/store',
 			'solid-js/html',
-			'prismjs',
 		]
 		const mergedExternal = Array.from(new Set([...external, ...solidExternal]))
 
