@@ -161,7 +161,7 @@ export function NumberField(props: NumberFieldProps) {
 								hasError()
 									? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
 									: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-								'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 							)}
 						/>
 					}
@@ -169,7 +169,7 @@ export function NumberField(props: NumberFieldProps) {
 					<div
 						class={cn(
 							'relative flex items-stretch gap-1 px-1 overflow-hidden rounded-lg border transition-all',
-							local.disabled ? 'bg-surface-base' : 'bg-surface-raised',
+							local.disabled ? 'bg-surface-dim' : 'bg-surface-raised',
 							hasError()
 								? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500'
 								: 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500'
@@ -219,7 +219,7 @@ export function NumberField(props: NumberFieldProps) {
 								sc().py,
 								sc().text,
 								'px-2 text-ink-900 placeholder:text-ink-400',
-								'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 							)}
 							aria-label={local.label}
 						/>

@@ -30,13 +30,13 @@ const tagVariants: Record<TagVariant, string> = {
 	primary:
 		'bg-primary-50 text-primary-700 border-primary-100 dark:bg-primary-500/20 dark:text-primary-200 dark:border-primary-500/40',
 	success:
-		'bg-success-50 text-success-700 border-success-100 dark:bg-success-950 dark:text-success-200 dark:border-success-800',
+		'bg-success-50 text-success-700 border-success-100 dark:bg-success-500/20 dark:text-success-300 dark:border-success-500/30',
 	warning:
-		'bg-warning-50 text-warning-700 border-warning-100 dark:bg-warning-950 dark:text-warning-200 dark:border-warning-800',
+		'bg-warning-50 text-warning-700 border-warning-100 dark:bg-warning-500/20 dark:text-warning-300 dark:border-warning-500/30',
 	danger:
-		'bg-danger-50 text-danger-700 border-danger-100 dark:bg-danger-950 dark:text-danger-200 dark:border-danger-800',
+		'bg-danger-50 text-danger-700 border-danger-100 dark:bg-danger-500/20 dark:text-danger-300 dark:border-danger-500/30',
 	info:
-		'bg-info-50 text-info-700 border-info-100 dark:bg-info-950 dark:text-info-200 dark:border-info-800',
+		'bg-info-50 text-info-700 border-info-100 dark:bg-info-500/20 dark:text-info-300 dark:border-info-500/30',
 }
 
 const tagSizes: Record<TagSize, string> = {

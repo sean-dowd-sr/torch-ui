@@ -152,7 +152,7 @@ export function Input(props: InputProps) {
 						hasError()
 							? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
 							: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-						'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
+						'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
 						local.inputClass
 					)}
 					{...others}

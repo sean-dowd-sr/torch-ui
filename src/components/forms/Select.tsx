@@ -196,7 +196,7 @@ export const Select = (props: SelectProps) => {
 							hasError()
 								? 'focus:border-transparent'
 								: '',
-							'disabled:bg-surface-base disabled:text-ink-500 disabled:cursor-not-allowed',
+							'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
 							'data-[placeholder-shown]:text-ink-400',
 							local.triggerClass
 						)}

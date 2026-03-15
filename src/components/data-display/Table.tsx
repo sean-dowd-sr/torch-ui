@@ -49,7 +49,7 @@ export function TableHeader(props: TableHeaderProps) {
 	return (
 		<thead
 			class={cn(
-				'sticky top-0 z-10 border-b border-surface-border bg-surface-raised',
+				'sticky top-0 z-10 border-b border-surface-border bg-surface-overlay',
 				local.class,
 			)}
 			{...others}
@@ -67,7 +67,7 @@ export function TableBody(props: TableBodyProps) {
 	return (
 		<tbody
 			class={cn(
-				'divide-y divide-surface-border bg-surface-base',
+				'divide-y divide-surface-border bg-surface-raised',
 				local.class,
 			)}
 			{...others}
@@ -85,7 +85,7 @@ export function TableFooter(props: TableFooterProps) {
 	return (
 		<tfoot
 			class={cn(
-				'border-t border-surface-border bg-surface-raised',
+				'border-t border-surface-border bg-surface-base',
 				local.class,
 			)}
 			{...others}
@@ -110,8 +110,8 @@ export function TableRow(props: TableRowProps) {
 		<tr
 			class={cn(
 				'transition-colors',
-				inBody && striped ? 'even:bg-surface-overlay' : '',
-				allowHover() ? 'hover:bg-surface-dim/60' : '',
+				inBody && striped ? 'even:bg-surface-stripe' : '',
+				allowHover() ? 'hover:bg-primary-500/20' : '',
 				local.class,
 			)}
 			{...others}

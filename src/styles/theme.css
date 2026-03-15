@@ -7,6 +7,7 @@
   --color-surface-overlay: var(--surface-overlay);
   --color-surface-dim: var(--surface-dim);
   --color-surface-border: var(--surface-border);
+  --color-surface-stripe: var(--surface-stripe);
 
   /* Font weights */
   --font-weight-thin: 100;
@@ -107,7 +108,7 @@
 :root {
   --ink-light:     #18181c;
   --ink-dark:      #f0f0f2;
-  --surface-light: #fafafa;
+  --surface-light: #fdfdfd;
   --surface-dark:  #020b13;
 
   --primary: #F74E28;
@@ -131,12 +132,19 @@
    LIGHT MODE
 ───────────────────────────────────────────────────────────── */
 :root {
-  /* Surface — derived from --surface-light */
+  /* Surface — elevation ladder (raised=brightest → border=darkest)
+     raised:  cards/panels pop to pure white
+     base:    off-white page background
+     overlay: barely-visible zebra stripes
+     dim:     hover states & group headers
+     border:  visible separators
+     stripe:  subtle background texture */
+  --surface-raised:  color-mix(in oklch, white 25%, var(--surface-light));
   --surface-base:    var(--surface-light);
-  --surface-raised:  color-mix(in oklch, white 100%, var(--surface-light));
   --surface-overlay: color-mix(in oklch, black 3%, var(--surface-light));
-  --surface-dim:     color-mix(in oklch, black 8%, var(--surface-light));
-  --surface-border:  color-mix(in oklch, black 8%, var(--surface-light));
+  --surface-dim:     color-mix(in oklch, black 5%, var(--surface-light));
+  --surface-border:  color-mix(in oklch, black 9%, var(--surface-light));
+  --surface-stripe:  color-mix(in oklch, black 1.5%, var(--surface-raised));
 
   /* Ink — derived from --ink-light, anchored at ink-900 */
   --ink-50:  color-mix(in oklch, white 99%, var(--ink-light));
@@ -225,18 +233,18 @@
 ───────────────────────────────────────────────────────────── */
 .dark,
 .code-block-dark {
-  /* Surface — derived from --surface-dark */
-  --surface-base:    var(--surface-dark);
+  /* Surface — elevation ladder (raised=lightest → border=darkest relative to dark base)
+     raised:  cards/panels
+     base:    dark page background
+     overlay: barely-visible zebra stripes
+     dim:     hover states & group headers
+     border:  visible separators  */
   --surface-raised:  color-mix(in oklch, white 6%, var(--surface-dark));
-  --surface-overlay: color-mix(in oklch, white 9%, var(--surface-dark));
-  --surface-dim:     color-mix(in oklch, white 22%, var(--surface-dark));
-  --surface-border:  color-mix(in oklch, white 22%, var(--surface-dark));
-
-  --color-surface-base: var(--surface-base);
-  --color-surface-raised: var(--surface-raised);
-  --color-surface-overlay: var(--surface-overlay);
-  --color-surface-dim: var(--surface-dim);
-  --color-surface-border: var(--surface-border);
+  --surface-base:    var(--surface-dark);
+  --surface-overlay: color-mix(in oklch, white 1%, var(--surface-dark));
+  --surface-dim:     color-mix(in oklch, white 12%, var(--surface-dark));
+  --surface-border:  color-mix(in oklch, white 20%, var(--surface-dark));
+  --surface-stripe:  color-mix(in oklch, var(--surface-dark) 35%, var(--surface-raised));
 
   /* Ink — derived from --ink-dark, anchored at ink-900 (inverted: 900 = lightest) */
   --ink-50:  color-mix(in oklch, black 99%, var(--ink-dark));

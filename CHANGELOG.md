@@ -5,6 +5,19 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-03-15
+
+### Added
+- `--surface-stripe` CSS token — programmatically 1.5% darker than `surface-raised`, used for even striped table rows. Fully dynamic: adapts to any `--surface-light` / `--surface-dark` seed.
+- `--color-surface-stripe` registered in `@theme` so `bg-surface-stripe` is available as a Tailwind utility.
+
+### Changed
+- **Surface elevation ladder refined** — `--surface-light` default updated to `#fdfdfd`; `--surface-raised` derives via `color-mix` from seed (lighter than base in light mode, lighter than base in dark mode).
+- **Disabled form inputs** (`Input`, `CodeInput`, `Select`, `NumberField`, `TextArea`) now use `bg-surface-dim` so disabled fields are visibly muted against the page background.
+- **Tag** dark-mode variant backgrounds (`success`, `warning`, `danger`, `info`) now use opacity-based tints (e.g. `success-500/20`) for consistency with the `primary` variant.
+- **Table** `thead`/`tfoot` use `bg-surface-overlay`; body rows use `bg-surface-raised`; striped even rows use `bg-surface-stripe`; row hover uses `hover:bg-primary-500/20` (works in both light and dark mode).
+- **CodeBlock** container background changed to `bg-surface-raised`; collapsible "Show code" trigger uses `bg-surface-overlay` (was transparent when embedded, making it invisible).
+
 ## [0.2.0] - 2026-03-13
 
 ### Changed (Breaking)

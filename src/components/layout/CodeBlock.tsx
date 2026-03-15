@@ -119,7 +119,7 @@ export function CodeBlock(props: CodeBlockProps) {
 			'flex w-full items-center justify-center gap-2 py-2.5 text-sm font-medium',
 			codeOpen() ? 'rounded-none border-t border-surface-border' : 'rounded-b-xl',
 			'text-ink-600 hover:text-ink-900',
-			embedded() ? 'bg-transparent hover:bg-surface-dim' : 'bg-surface-overlay hover:bg-surface-dim',
+			'bg-surface-overlay hover:bg-surface-dim',
 			'outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500'
 		)
 
@@ -168,7 +168,7 @@ export function CodeBlock(props: CodeBlockProps) {
 	}
 
 	const containerClass = () => {
-		const base = primary() ? 'bg-primary-600' : 'bg-surface-base'
+		const base = primary() ? 'bg-primary-600' : 'bg-surface-raised'
 		if (embedded()) return base
 		return cn(
 			base,
@@ -276,7 +276,7 @@ export function CodeBlock(props: CodeBlockProps) {
 										primary()
 											? 'bg-white/10 border-white/30 text-white hover:bg-white/15'
 											: themeAuto()
-												? 'bg-surface-base border-surface-border text-ink-700 hover:bg-surface-overlay'
+												? 'bg-surface-raised border-surface-border text-ink-700 hover:bg-surface-overlay'
 												: dark()
 													? 'bg-surface-overlay border-surface-border text-ink-300 hover:bg-surface-dim'
 													: 'bg-surface-overlay border-surface-border text-ink-700 hover:bg-surface-dim'
