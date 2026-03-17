@@ -16,8 +16,8 @@ export interface MultiSelectOption {
 export interface MultiSelectProps {
 
 	label?: string
-	helperText?: string
-	error?: string
+	helperText?: JSX.Element
+	error?: JSX.Element
 	bare?: boolean
 	required?: boolean
 	optional?: boolean

@@ -15,8 +15,8 @@ export type TextAreaResize = 'none' | 'vertical' | 'horizontal' | 'both'
 
 export interface TextAreaProps extends JSX.TextareaHTMLAttributes<HTMLTextAreaElement> {
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (textarea only) */
 	bare?: boolean
 	required?: boolean

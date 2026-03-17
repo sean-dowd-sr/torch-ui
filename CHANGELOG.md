@@ -5,6 +5,19 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2026-03-17
+
+### Changed
+- **All form components** (`Input`, `TextArea`, `Select`, `Autocomplete`, `NumberField`, `DatePicker`, `DateRangePicker`, `MultiSelect`, `RadioGroup`, `Slider`, `Switch`, `TimePicker`, `ColorPicker`, `CodeInput`, `Checkbox`, `FileUpload`): `error` and `helperText` props widened from `string` to `JSX.Element`, allowing rich content like links or formatted text in validation messages and hints.
+- `PromptWithAction`: `actionLabel` widened from `string` to `JSX.Element`.
+- `AlertDialog`: `description` widened from `string` to `JSX.Element`.
+- `EmptyState`: `description` widened from `string` to `JSX.Element`.
+
+### Fixed
+- `Checkbox`: label was visually lower than the box due to line-height half-leading. Changed wrapper to `items-center` and removed manual `mt-0.5`/`mt-[3px]` offset on the control. Also changed inner row from `inline-flex` to `flex` to eliminate 2px descender gap when the checkbox is used inside a flex row alongside other controls.
+- `RadioGroup`: same alignment fix — items without a `description` now use `items-center`; `mt-0.5` on the radio circle is applied only when a description is present (multi-line layout).
+- `Link`: always renders `inline-flex items-center` instead of plain `inline`, fixing vertical misalignment when used as a flex child alongside form controls.
+
 ## [0.3.4] - 2026-03-17
 
 ### Added

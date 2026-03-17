@@ -10,9 +10,9 @@ export interface NumberFieldProps {
 	/** Label above the input. */
 	label?: string
 	/** Error message and invalid styling. */
-	error?: string
+	error?: JSX.Element
 	/** Hint text below the input. */
-	helperText?: string
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	/** When true, show required indicator on label. */

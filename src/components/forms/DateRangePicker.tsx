@@ -1,4 +1,4 @@
-import { createSignal, createMemo, Show, For, splitProps, createUniqueId, createEffect, on } from 'solid-js'
+import { type JSX, createSignal, createMemo, Show, For, splitProps, createUniqueId, createEffect, on } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { TimeSelect } from './TimeSelect'
 import { cn } from '../../utilities/classNames'
@@ -22,8 +22,8 @@ export interface DateRangePickerProps {
 	/** Max date YYYY-MM-DD */
 	max?: string
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	bare?: boolean
 	required?: boolean
 	optional?: boolean

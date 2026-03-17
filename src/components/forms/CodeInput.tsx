@@ -8,8 +8,8 @@ export interface CodeInputProps
 	/** 'single' = one input; 'digits' = one input per digit with paste/keyboard nav (e.g. verification code) */
 	variant?: 'single' | 'digits'
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	/** When true, show required indicator on label. */

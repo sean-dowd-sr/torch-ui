@@ -1,4 +1,4 @@
-import { createSignal, createMemo, Show, For, splitProps, createEffect, on, createUniqueId } from 'solid-js'
+import { type JSX, createSignal, createMemo, Show, For, splitProps, createEffect, on, createUniqueId } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { ColorArea as KobalteColorArea } from '@kobalte/core/color-area'
 import { ColorSlider as KobalteColorSlider } from '@kobalte/core/color-slider'
@@ -38,9 +38,9 @@ export interface ColorPickerProps {
 	/** Optional label above the control. */
 	label?: string
 	/** Error message and invalid styling. */
-	error?: string
+	error?: JSX.Element
 	/** Hint text below the control. */
-	helperText?: string
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	/** When true, show required indicator on label. */

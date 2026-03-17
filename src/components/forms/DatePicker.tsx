@@ -1,11 +1,4 @@
-﻿import {
-	createSignal,
-	createMemo,
-	Show,
-	For,
-	splitProps,
-	createUniqueId,
-} from 'solid-js'
+﻿import { type JSX, createSignal, createMemo, Show, For, splitProps, createUniqueId, } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { cn } from '../../utilities/classNames'
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
@@ -31,8 +24,8 @@ export interface DatePickerProps {
 	/** Max date YYYY-MM-DD */
 	max?: string
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	bare?: boolean
 	required?: boolean
 	/** When true, show "optional" on the label row when not required. Default false. */

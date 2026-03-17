@@ -4,7 +4,7 @@ import { cn } from '../../utilities/classNames'
 
 export interface EmptyStateProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	title: string
-	description?: string
+	description?: JSX.Element
 	icon?: JSX.Element
 	actions?: JSX.Element
 	/** When true, sets role="status" + aria-live="polite" so screen readers announce the empty state. Default: false. */

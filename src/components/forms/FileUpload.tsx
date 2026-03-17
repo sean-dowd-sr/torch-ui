@@ -41,7 +41,7 @@ export interface FileUploadProps {
 	/** 'button' = trigger only; 'dropzone' = large dashed area with drag & drop. */
 	variant?: FileUploadVariant
 	/** Form-level error (e.g. "No files attached"). */
-	error?: string
+	error?: JSX.Element
 	/** Called when user interacts while a form-level error is shown, allowing the parent to clear it. */
 	onErrorClear?: () => void
 	/** Disabled state. */

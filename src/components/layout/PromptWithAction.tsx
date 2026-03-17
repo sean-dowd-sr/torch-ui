@@ -6,7 +6,7 @@ export interface PromptWithActionProps {
 	/** Leading text (e.g. "Don't have an account?") */
 	prompt: string
 	/** Link or button label (e.g. "Sign up") */
-	actionLabel: string
+	actionLabel: JSX.Element
 	/** Optional class for the wrapper */
 	class?: string
 	/** Optional class for the action link/button (e.g. primary link styling) */

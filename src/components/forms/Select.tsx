@@ -38,8 +38,8 @@ function StatusDot(props: { color?: string | null }) {
 
 export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	required?: boolean

@@ -9,8 +9,8 @@ export interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElemen
 	label?: string
 	/** Optional content on the label row (e.g. "Forgot password?" link) */
 	labelTrailing?: JSX.Element
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (input only; error still affects border) */
 	bare?: boolean
 	/** When true, native required on input and required indicator (asterisk) on label. */

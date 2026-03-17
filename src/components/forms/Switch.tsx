@@ -18,9 +18,9 @@ export interface SwitchProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 	/** Track color when checked. Accepts any CSS color string (e.g. 'var(--color-primary-500)'). */
 	trackCheckedColor?: string
 	/** Hint text below the control. */
-	helperText?: string
+	helperText?: JSX.Element
 	/** Error message and invalid styling. */
-	error?: string
+	error?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	/** When true, show required indicator on label. */
@@ -118,8 +118,8 @@ function SwitchControl(props: {
 function SwitchHelperError(props: {
 	descMargin: string
 	hasError: () => boolean
-	helperText: string | undefined
-	error: string | undefined
+	helperText: JSX.Element | undefined
+	error: JSX.Element | undefined
 }) {
 	return (
 		<>

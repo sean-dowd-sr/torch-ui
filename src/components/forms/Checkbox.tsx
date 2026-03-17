@@ -10,9 +10,9 @@ export interface CheckboxProps extends Omit<JSX.HTMLAttributes<HTMLInputElement>
 	/** Label text (or use children). */
 	label?: string
 	/** Error message shown below the checkbox. */
-	error?: string
+	error?: JSX.Element
 	/** Hint text below the checkbox. */
-	helperText?: string
+	helperText?: JSX.Element
 	/** When true, never render label row or error/helper text (checkbox only). */
 	bare?: boolean
 	/** When true, show as required (e.g. asterisk). */
@@ -81,7 +81,6 @@ export function Checkbox(props: CheckboxProps) {
 	const hasError = () => !!local.error
 	const size = (): CheckboxSize => local.size ?? (contextSize === 'xs' || contextSize === 'sm' ? 'sm' : 'md')
 	const iconSize = () => size() === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3'
-	const hasLabel = () => !local.bare && (local.label ?? local.children)
 
 	return (
 		<KobalteCheckbox
@@ -101,7 +100,7 @@ export function Checkbox(props: CheckboxProps) {
 		>
 			<div
 				class={cn(
-					'inline-flex items-start select-none',
+					'flex items-center select-none',
 					size() === 'sm' ? 'gap-1.5' : 'gap-2',
 					local.disabled && 'opacity-50',
 					hasError() && 'text-danger-600',
@@ -112,7 +111,6 @@ export function Checkbox(props: CheckboxProps) {
 					class={cn(
 						'relative inline-flex shrink-0 items-center justify-center rounded border cursor-pointer outline-none transition-colors',
 						sizeClasses[size()],
-						hasLabel() && (size() === 'sm' ? 'mt-0.5' : 'mt-[3px]'),
 						'bg-surface-raised border-surface-border',
 						'data-[checked]:border-primary-500 data-[checked]:bg-primary-500',
 						'data-[indeterminate]:border-primary-500 data-[indeterminate]:bg-primary-500',

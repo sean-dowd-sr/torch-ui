@@ -1,9 +1,4 @@
-import {
-	createSignal,
-	Show,
-	splitProps,
-	createUniqueId,
-} from 'solid-js'
+import { type JSX, createSignal, Show, splitProps, createUniqueId } from 'solid-js'
 import { Popover as KobaltePopover } from '@kobalte/core/popover'
 import { TimeSelect } from './TimeSelect'
 import { cn } from '../../utilities/classNames'
@@ -24,8 +19,8 @@ export interface TimePickerProps {
 	/** Minute increment. Default: 1 (every minute). */
 	minuteStep?: number
 	label?: string
-	error?: string
-	helperText?: string
+	error?: JSX.Element
+	helperText?: JSX.Element
 	/** When true, renders without label/error chrome. */
 	bare?: boolean
 	required?: boolean

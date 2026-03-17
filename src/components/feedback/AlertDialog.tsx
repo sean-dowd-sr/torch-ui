@@ -1,4 +1,4 @@
-import { Show, splitProps, onMount, createSignal, createEffect } from 'solid-js'
+import { type JSX, Show, splitProps, onMount, createSignal, createEffect } from 'solid-js'
 import { AlertDialog as KobalteAlertDialog, type AlertDialogRootProps as KobalteAlertDialogRootProps } from '@kobalte/core/alert-dialog'
 import { cn } from '../../utilities/classNames'
 import { Button } from '../actions'
@@ -56,7 +56,7 @@ export interface AlertDialogProps extends Omit<KobalteAlertDialogRootProps, 'ope
 	/** Dialog title */
 	title: string
 	/** Dialog description */
-	description?: string
+	description?: JSX.Element
 	/** Label for the confirm/action button */
 	confirmLabel?: string
 	/** Label for the cancel button */

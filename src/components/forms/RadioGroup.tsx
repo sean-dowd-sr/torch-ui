@@ -1,4 +1,4 @@
-import { For, splitProps, Show } from 'solid-js'
+import { type JSX, For, splitProps, Show } from 'solid-js'
 import { RadioGroup as KobalteRadioGroup } from '@kobalte/core/radio-group'
 import { cn } from '../../utilities/classNames'
 import { type ComponentSize } from '../../types/component-size'
@@ -14,9 +14,9 @@ export interface RadioGroupProps {
 	/** Group label (e.g. "Choose one"). */
 	label?: string
 	/** Hint text below the control. */
-	helperText?: string
+	helperText?: JSX.Element
 	/** Error message and invalid styling. */
-	error?: string
+	error?: JSX.Element
 	/** When true, never render label row or error/helper text (control only). */
 	bare?: boolean
 	/** When true, show required indicator on label. */
@@ -107,7 +107,8 @@ export function RadioGroup(props: RadioGroupProps) {
 							<KobalteRadioGroup.Item
 								value={opt.value}
 								class={cn(
-									'inline-flex items-start gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
+									'inline-flex gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
+									opt.description ? 'items-start' : 'items-center',
 									'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
 									'data-[highlighted]:bg-surface-overlay',
 									hasError()
@@ -118,7 +119,8 @@ export function RadioGroup(props: RadioGroupProps) {
 								<KobalteRadioGroup.ItemInput class="sr-only" />
 								<KobalteRadioGroup.ItemControl
 									class={cn(
-										'mt-0.5 h-4 w-4 shrink-0 rounded-full flex items-center justify-center transition-colors box-border',
+										'h-4 w-4 shrink-0 rounded-full flex items-center justify-center transition-colors box-border',
+										opt.description && 'mt-0.5',
 										// Unselected: gray ring, transparent interior
 										'border-2 border-surface-border bg-transparent',
 										// Selected: primary ring, transparent interior; dot is the ItemIndicator

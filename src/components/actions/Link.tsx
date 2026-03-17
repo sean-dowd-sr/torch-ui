@@ -29,9 +29,10 @@ export function Link(props: LinkProps) {
 		<a
 			class={cn(
 				'outline-none focus-visible:ring-2 rounded',
-				hasIcon() ? 'inline-flex items-center gap-1' : 'inline',
-				linkVariants[local.variant ?? 'primary'],
-				local.class
+				'inline-flex items-center',
+			hasIcon() && 'gap-1',
+			linkVariants[local.variant ?? 'primary'],
+			local.class
 			)}
 			{...others}
 		>
