@@ -5,7 +5,7 @@ import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 import { useIcons } from '../../icons'
 import { useComponentSize } from '../../utilities/componentSizeContext'
 
-export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
 	label?: string
 	/** Optional content on the label row (e.g. "Forgot password?" link) */
 	labelTrailing?: JSX.Element
@@ -25,6 +25,10 @@ export interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
 	startAdornment?: JSX.Element
 	/** Content at the end of the input (e.g. "USD", a unit label, or an icon). */
 	endAdornment?: JSX.Element
+	/** Fixed text/content segment at the start, separated by a border (e.g. "https://"). Renders outside the text area so it cannot be overwritten. */
+	prefix?: JSX.Element
+	/** Fixed text/content segment at the end, separated by a border (e.g. ".com"). Renders outside the text area so it cannot be overwritten. */
+	suffix?: JSX.Element
 	/** @deprecated Use startAdornment. */
 	leftIcon?: JSX.Element
 	/** @deprecated Use endAdornment. */
@@ -49,6 +53,8 @@ export function Input(props: InputProps) {
 		'type',
 		'startAdornment',
 		'endAdornment',
+		'prefix',
+		'suffix',
 		'leftIcon',
 		'rightIcon',
 		'onValueChange',
@@ -91,6 +97,7 @@ export function Input(props: InputProps) {
 	}
 	const hasStart = () => !!startContent()
 	const hasEnd = () => !!endContent() || isPasswordRevealable()
+	const hasAffix = () => !!local.prefix || !!local.suffix
 	const adornmentClass = 'absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-ink-500 pointer-events-none z-10'
 
 	return (
@@ -129,57 +136,95 @@ export function Input(props: InputProps) {
 				</div>
 			</Show>
 
-			<div class="relative flex items-center">
-				<Show when={startContent()}>
-					<div
-						class={cn(adornmentClass, sc().text, sc().adornStart)}
-						aria-hidden="true"
-					>
-						{startContent()}
+			<div class={cn(
+				'flex items-center',
+				hasAffix() && [
+					'rounded-lg border overflow-hidden bg-surface-raised',
+					hasError()
+						? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500'
+						: 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500',
+					local.disabled && 'bg-surface-dim',
+				],
+				!hasAffix() && 'relative',
+			)}>
+				{/* Prefix segment */}
+				<Show when={local.prefix}>
+					<div class={cn(
+						'flex items-center self-stretch shrink-0 border-r border-surface-border bg-surface-overlay text-ink-500',
+						sc().text, sc().pl, sc().pr,
+					)} aria-hidden="true">
+						{local.prefix}
 					</div>
 				</Show>
 
-				<KobalteTextField.Input
-					ref={local.ref}
-					id={local.id}
-					type={effectiveType()}
-					onInput={handleInput}
-					class={cn(
-						'w-full rounded-lg transition-all outline-none border text-ink-900 placeholder:text-ink-400 bg-surface-raised',
-						sc().h, sc().py, sc().text,
-						hasStart() ? sc().plAdorn : sc().pl,
-						hasEnd() ? sc().prAdorn : sc().pr,
-						hasError()
-							? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
-							: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-						'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
-						local.inputClass
-					)}
-					{...others}
-				/>
+				{/* Input area */}
+				<div class={cn('relative', hasAffix() ? 'flex-1 min-w-0' : 'w-full')}>
+					<Show when={startContent()}>
+						<div
+							class={cn(adornmentClass, sc().text, sc().adornStart)}
+							aria-hidden="true"
+						>
+							{startContent()}
+						</div>
+					</Show>
 
-				<Show when={endContent()}>
-					<div
-						class={cn(adornmentClass, sc().text, sc().adornEnd)}
-						aria-hidden="true"
-					>
-						{endContent()}
-					</div>
-				</Show>
-				<Show when={isPasswordRevealable()}>
-					<button
-						type="button"
-						onClick={() => setShowPassword((v) => !v)}
+					<KobalteTextField.Input
+						ref={local.ref}
+						id={local.id}
+						type={effectiveType()}
+						onInput={handleInput}
 						class={cn(
-							'absolute top-1/2 -translate-y-1/2 flex items-center justify-center rounded p-1 z-10 text-ink-500 hover:text-ink-700 hover:bg-surface-overlay',
-							sc().adornEnd, sc().text
+							'w-full transition-all outline-none text-ink-900 placeholder:text-ink-400',
+							sc().h, sc().py, sc().text,
+							hasStart() ? sc().plAdorn : sc().pl,
+							hasEnd() ? sc().prAdorn : sc().pr,
+							hasAffix()
+								? 'bg-surface-raised border-none ring-0 disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
+								: cn(
+										'rounded-lg border bg-surface-raised',
+										hasError()
+											? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
+											: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
+										'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
+								  ),
+							local.inputClass
 						)}
-						aria-label={showPassword() ? 'Hide password' : 'Show password'}
-					>
-						{showPassword()
-							? icons.eyeOff({ class: 'h-4 w-4', 'aria-hidden': 'true' })
-							: icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-					</button>
+						{...others}
+					/>
+
+					<Show when={endContent()}>
+						<div
+							class={cn(adornmentClass, sc().text, sc().adornEnd)}
+							aria-hidden="true"
+						>
+							{endContent()}
+						</div>
+					</Show>
+					<Show when={isPasswordRevealable()}>
+						<button
+							type="button"
+							onClick={() => setShowPassword((v) => !v)}
+							class={cn(
+								'absolute top-1/2 -translate-y-1/2 flex items-center justify-center rounded p-1 z-10 text-ink-500 hover:text-ink-700 hover:bg-surface-overlay',
+								sc().adornEnd, sc().text
+							)}
+							aria-label={showPassword() ? 'Hide password' : 'Show password'}
+						>
+							{showPassword()
+								? icons.eyeOff({ class: 'h-4 w-4', 'aria-hidden': 'true' })
+								: icons.eye({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+						</button>
+					</Show>
+				</div>
+
+				{/* Suffix segment */}
+				<Show when={local.suffix}>
+					<div class={cn(
+						'flex items-center self-stretch shrink-0 border-l border-surface-border bg-surface-overlay text-ink-500',
+						sc().text, sc().pl, sc().pr,
+					)} aria-hidden="true">
+						{local.suffix}
+					</div>
 				</Show>
 			</div>
 

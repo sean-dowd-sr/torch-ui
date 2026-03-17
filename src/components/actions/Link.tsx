@@ -1,4 +1,4 @@
-import { type JSX, splitProps } from 'solid-js'
+import { type JSX, splitProps, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 
 export type LinkVariant = 'primary' | 'muted'
@@ -7,6 +7,10 @@ export interface LinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
 	/** Visual style. Default: "primary" */
 	variant?: LinkVariant
 	children?: JSX.Element
+	/** Icon rendered before the text. */
+	iconStart?: JSX.Element
+	/** Icon rendered after the text. */
+	iconEnd?: JSX.Element
 }
 
 const linkVariants: Record<LinkVariant, string> = {
@@ -18,18 +22,22 @@ const linkVariants: Record<LinkVariant, string> = {
 
 /** Styled anchor link with primary and muted variants. */
 export function Link(props: LinkProps) {
-	const [local, others] = splitProps(props, ['variant', 'class', 'children'])
+	const [local, others] = splitProps(props, ['variant', 'class', 'children', 'iconStart', 'iconEnd'])
+	const hasIcon = () => !!local.iconStart || !!local.iconEnd
 
 	return (
 		<a
 			class={cn(
-				'inline outline-none focus-visible:ring-2 rounded',
+				'outline-none focus-visible:ring-2 rounded',
+				hasIcon() ? 'inline-flex items-center gap-1' : 'inline',
 				linkVariants[local.variant ?? 'primary'],
 				local.class
 			)}
 			{...others}
 		>
+			<Show when={local.iconStart}>{local.iconStart}</Show>
 			{local.children}
+			<Show when={local.iconEnd}>{local.iconEnd}</Show>
 		</a>
 	)
 }

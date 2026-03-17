@@ -22,6 +22,10 @@ export interface TagProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'col
 	statusLabel?: string
 	/** Arbitrary CSS color for a fully custom tag. Sets bg (10% opacity), border (25% opacity), and text color. Overrides variant. */
 	color?: string
+	/** Icon rendered before the label. */
+	iconStart?: JSX.Element
+	/** Icon rendered after the label. */
+	iconEnd?: JSX.Element
 }
 
 const tagVariants: Record<TagVariant, string> = {
@@ -45,7 +49,7 @@ const tagSizes: Record<TagSize, string> = {
 }
 
 export function Tag(props: TagProps) {
-	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'class', 'style', 'children'])
+	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'class', 'style', 'children', 'iconStart', 'iconEnd'])
 	const variant = () => local.variant ?? 'neutral'
 	const size = () => local.size ?? 'md'
 
@@ -85,7 +89,9 @@ export function Tag(props: TagProps) {
 					aria-label={local.statusLabel}
 				/>
 			</Show>
+			<Show when={local.iconStart}>{local.iconStart}</Show>
 			{local.children}
+			<Show when={local.iconEnd}>{local.iconEnd}</Show>
 		</span>
 	)
 }

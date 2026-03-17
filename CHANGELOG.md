@@ -5,6 +5,16 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-03-17
+
+### Added
+- `Link`: New `iconStart` and `iconEnd` props (`JSX.Element`) for inline icons. When either is set, the link renders as `inline-flex items-center gap-1`.
+- `Tag`: New `iconStart` and `iconEnd` props (`JSX.Element`) for inline icons before/after the label.
+- `Input`: New `prefix` and `suffix` props for fixed text/content segments separated by a border divider (e.g. `prefix="https://"`, `suffix=".com"`). Unlike `startAdornment`/`endAdornment`, these render outside the text area entirely so typed text can never overflow into them.
+
+### Fixed
+- `Input`: When `suffix` or `prefix` is present, the border and focus ring move to the wrapper container so the compound input renders as a single cohesive unit.
+
 ## [0.3.3] - 2026-03-15
 
 ### Changed
