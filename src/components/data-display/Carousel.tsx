@@ -1,4 +1,4 @@
-import { type JSX, createSignal, createEffect, on, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
+import { type JSX, createSignal, createMemo, createEffect, on, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { useIcons } from '../../icons'
 
@@ -47,15 +47,20 @@ export function Carousel(props: CarouselProps) {
 	const autoPlayInterval = () => local.autoPlayInterval ?? 5000
 	const [autoPlayReset, setAutoPlayReset] = createSignal(0)
 
+	// Memoize slides so the array (and any JSX inside it) is created inside a
+	// proper reactive owner. Timer callbacks can then read slides() safely without
+	// triggering "computations created outside createRoot" warnings.
+	const slides = createMemo(() => local.slides)
+
 	createEffect(on(
-		() => local.slides.length,
+		() => slides().length,
 		(len) => { setCurrentSlide(i => Math.min(i, Math.max(len - 1, 0))) }
 	))
 
 	createEffect(() => {
 		autoPlayReset() // track manual resets from goToSlide
 		const interval = autoPlayInterval()
-		const len = local.slides.length
+		const len = slides().length
 		if (interval > 0 && len > 1) {
 			const id = setInterval(nextSlide, interval)
 			onCleanup(() => clearInterval(id))
@@ -64,7 +69,7 @@ export function Carousel(props: CarouselProps) {
 	})
 
 	function nextSlide() {
-		const len = local.slides.length
+		const len = slides().length
 		if (len === 0) return
 		setCurrentSlide((prev) => (prev + 1) % len)
 		restartProgressBar()
@@ -76,7 +81,7 @@ export function Carousel(props: CarouselProps) {
 	}
 
 	function goToSlide(index: number) {
-		const len = local.slides.length
+		const len = slides().length
 		if (len === 0) return
 		const i = ((index % len) + len) % len
 		setCurrentSlide(i)
@@ -117,7 +122,7 @@ export function Carousel(props: CarouselProps) {
 				class="min-h-0 transition-opacity duration-500"
 				style={{ position: 'relative', width: '100%', overflow: 'hidden' }}
 			>
-				<For each={local.slides}>
+				<For each={slides()}>
 					{(slide, index) => {
 						const isActive = () => index() === currentSlide()
 						return (
@@ -150,7 +155,7 @@ export function Carousel(props: CarouselProps) {
 				</For>
 			</div>
 
-			<Show when={local.showArrows === true && local.slides.length > 1}>
+			<Show when={local.showArrows === true && slides().length > 1}>
 				<button
 					type="button"
 					onClick={goPrev}
@@ -177,7 +182,7 @@ export function Carousel(props: CarouselProps) {
 				</button>
 			</Show>
 
-			<Show when={local.showDots !== false && local.slides.length > 1}>
+			<Show when={local.showDots !== false && slides().length > 1}>
 				<div
 					class={cn(
 						local.dotsOverlay
@@ -187,7 +192,7 @@ export function Carousel(props: CarouselProps) {
 								: cn('flex gap-2 my-3', dotsAlign())
 					)}
 				>
-					<For each={local.slides}>
+					<For each={slides()}>
 						{(_, index) => (
 							<button
 								type="button"

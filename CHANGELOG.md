@@ -5,6 +5,11 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2026-03-18
+
+### Fixed
+- `Carousel`: `setInterval` callback was reading `local.slides` (a prop getter) on every tick, which re-evaluated the prop expression and created JSX outside the reactive tree, causing "computations created outside createRoot or render" warnings. Fixed by wrapping `local.slides` in `createMemo`, so the timer reads a stable cached value instead of re-evaluating JSX on each tick.
+
 ## [0.3.5] - 2026-03-17
 
 ### Changed
