@@ -156,7 +156,7 @@ export function TreeView(props: TreeViewProps) {
 									'flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors',
 									'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 									selected()
-										? 'bg-primary-50 text-primary-700 font-medium dark:bg-primary-500/15 dark:text-primary-400'
+										? 'bg-primary-50 text-primary-700 font-medium'
 										: 'text-ink-700 hover:bg-surface-overlay hover:text-ink-900',
 									node.disabled && 'cursor-not-allowed opacity-40',
 								)}

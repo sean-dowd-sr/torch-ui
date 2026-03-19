@@ -420,7 +420,7 @@ export function FileUpload(props: FileUploadProps) {
 						class={cn(
 						'rounded-lg border-2 border-dashed transition-colors',
 						dragOver()
-							? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10'
+							? 'border-primary-500 bg-primary-50'
 							: 'border-surface-border bg-surface-base/50',
 						(local.disabled || atLimit()) && 'pointer-events-none opacity-50'
 					)}

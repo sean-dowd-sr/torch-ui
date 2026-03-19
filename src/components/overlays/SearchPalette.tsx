@@ -220,7 +220,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 														'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors',
 														'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 														isSelected()
-															? 'border-primary-500 bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400 dark:border-primary-400'
+															? 'border-primary-500 bg-primary-50 text-primary-600'
 															: 'border-surface-border bg-surface-raised text-ink-600 hover:bg-surface-overlay',
 													)}
 												>

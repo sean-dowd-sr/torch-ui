@@ -173,7 +173,7 @@ export function Sidebar(props: SidebarProps) {
 				item.active
 					? [
 						local.variant === 'minimal' ? '' : 'bg-primary-500/10',
-						'text-primary-600 dark:text-primary-400 font-medium',
+						'text-primary-600 font-medium',
 					  ]
 					: [
 						'text-ink-600',
@@ -188,7 +188,7 @@ export function Sidebar(props: SidebarProps) {
 				'w-5 h-5 flex-shrink-0',
 				(local.showIcons ?? true) && !local.collapsed && 'mr-3',
 				(local.showIcons ?? true) && local.collapsed && 'mx-auto',
-				item.active ? 'text-primary-600 dark:text-primary-400' : 'text-ink-500'
+				item.active ? 'text-primary-600' : 'text-ink-500'
 			)
 
 		const badgeClass = () =>
@@ -196,7 +196,7 @@ export function Sidebar(props: SidebarProps) {
 				'px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0',
 				(local.showBadges ?? true) && !local.collapsed && 'ml-auto',
 				item.active
-					? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400'
+					? 'bg-primary-100 text-primary-600'
 					: 'bg-surface-dim text-ink-600'
 			)
 

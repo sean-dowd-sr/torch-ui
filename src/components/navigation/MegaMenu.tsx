@@ -349,7 +349,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
 				'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
-				props.active ? 'bg-primary-50 dark:bg-primary-500/10' : 'hover:bg-surface-overlay',
+				props.active ? 'bg-primary-50' : 'hover:bg-surface-overlay',
 				props.disabled && 'pointer-events-none opacity-40',
 				props.class,
 			)}
@@ -358,7 +358,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 				<span class={cn(
 					'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors [&>svg]:h-4 [&>svg]:w-4',
 					props.active
-						? 'bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400'
+						? 'bg-primary-100 text-primary-600'
 						: 'bg-surface-overlay text-ink-500 group-hover:bg-surface-dim group-hover:text-ink-700',
 				)}>
 					{props.icon}
@@ -366,11 +366,11 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			</Show>
 			<div class="min-w-0 flex-1">
 				<div class="flex items-center gap-2">
-					<span class={cn('font-medium leading-none', props.active ? 'text-primary-700 dark:text-primary-400' : 'text-ink-900')}>
+					<span class={cn('font-medium leading-none', props.active ? 'text-primary-700' : 'text-ink-900')}>
 						{props.label}
 					</span>
 					<Show when={props.badge}>
-						<span class="rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-700 dark:bg-primary-500/20 dark:text-primary-300">
+						<span class="rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-700">
 							{props.badge}
 						</span>
 					</Show>
@@ -459,7 +459,7 @@ export function MegaMenuFooterLink(props: { href?: string; onClick?: () => void;
 			type={props.href ? undefined : 'button'}
 			onClick={props.onClick}
 			class={cn(
-				'text-xs font-medium text-ink-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors',
+				'text-xs font-medium text-ink-500 hover:text-primary-600 transition-colors',
 				'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.class,
 			)}

@@ -313,7 +313,7 @@ export function CodeBlock(props: CodeBlockProps) {
 																: dark()
 																	? 'text-ink-300 hover:bg-surface-overlay'
 																	: 'text-ink-700 hover:bg-surface-overlay',
-														selectedIndex() === idx() && 'bg-primary-500/20 text-primary-600 dark:text-primary-400'
+														selectedIndex() === idx() && 'bg-primary-500/20 text-primary-600'
 													)}
 													onClick={() => {
 														setSelectedIndex(idx())

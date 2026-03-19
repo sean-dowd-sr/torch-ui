@@ -168,7 +168,7 @@ function MonthGrid(props: MonthGridProps) {
 							<div
 								class={cn(
 									'relative h-8 flex items-center justify-center',
-									inRange() && 'bg-primary-50 dark:bg-primary-500/10',
+									inRange() && 'bg-primary-50',
 									rangeStart() && 'rounded-l-full',
 									rangeEnd() && 'rounded-r-full',
 								)}
@@ -185,11 +185,11 @@ function MonthGrid(props: MonthGridProps) {
 										selected()
 											? 'bg-primary-500 text-white font-semibold hover:bg-primary-600'
 											: inRange()
-												? 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-500/20'
+												? 'text-primary-700 hover:bg-primary-100'
 												: otherMonth()
 													? 'text-ink-300 hover:bg-surface-overlay'
 													: today()
-														? 'text-primary-600 font-semibold hover:bg-surface-overlay dark:text-primary-400'
+														? 'text-primary-600 font-semibold hover:bg-surface-overlay'
 														: 'text-ink-800 hover:bg-surface-overlay',
 										disabled() && 'cursor-not-allowed opacity-30',
 									)}
@@ -793,7 +793,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 										<button
 											type="button"
 											onClick={() => setOpen(false)}
-											class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+											class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 										>
 											Done
 										</button>

@@ -211,19 +211,19 @@ export function MenuBarLink(props: MenuBarLinkProps) {
 				v() === 'default' && [
 					'rounded-lg px-3 py-2',
 					props.active
-						? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
+						? 'bg-primary-50 text-primary-700'
 						: 'text-ink-700 hover:bg-surface-overlay hover:text-ink-900',
 				],
 				v() === 'underline' && [
 					'rounded-lg px-3 py-2',
 					props.active
-						? 'text-primary-700 underline underline-offset-2 dark:text-primary-400'
+						? 'text-primary-700 underline underline-offset-2'
 						: 'text-ink-700 hover:text-ink-900 hover:underline hover:underline-offset-2',
 				],
 				v() === 'ghost' && [
 					'rounded-lg px-3 py-2',
 					props.active
-						? 'text-primary-700 dark:text-primary-400'
+						? 'text-primary-700'
 						: 'text-ink-500 hover:text-ink-900',
 				],
 				props.class,
@@ -239,7 +239,7 @@ export function MenuBarLink(props: MenuBarLinkProps) {
 				</span>
 			</Show>
 			<div class={cn('min-w-0', (ip() === 'start' || ip() === 'end') && 'flex-1')}>
-				<div class={cn('font-medium', props.active ? 'text-primary-700 dark:text-primary-400' : 'text-ink-900')}>
+				<div class={cn('font-medium', props.active ? 'text-primary-700' : 'text-ink-900')}>
 					{props.children}
 				</div>
 				<Show when={props.description}>

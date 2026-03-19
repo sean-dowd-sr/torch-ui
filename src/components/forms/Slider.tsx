@@ -117,13 +117,13 @@ export function Slider(props: SliderProps) {
 			? 'bg-indigo-300/80 dark:bg-indigo-500/40'
 			: color() === 'rose'
 				? 'bg-rose-300/80 dark:bg-rose-500/40'
-				: 'bg-primary-300/80 dark:bg-primary-500/40'
+				: 'bg-primary-300/80'
 	const fillThumbClass = () =>
 		color() === 'indigo'
 			? 'bg-indigo-500 dark:bg-indigo-400'
 			: color() === 'rose'
 				? 'bg-rose-500 dark:bg-rose-400'
-				: 'bg-primary-500 dark:bg-primary-400'
+				: 'bg-primary-500'
 	const focusRingClass = () =>
 		color() === 'indigo'
 			? 'focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-300'

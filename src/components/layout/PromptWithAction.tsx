@@ -28,7 +28,7 @@ export interface PromptWithActionButtonProps extends PromptWithActionProps {
 export type PromptWithActionAllProps = PromptWithActionLinkProps | PromptWithActionButtonProps
 
 const defaultActionClass =
-	'cursor-pointer font-medium text-primary-500 hover:underline rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 dark:text-primary-400'
+	'cursor-pointer font-medium text-primary-500 hover:underline rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
 
 /** One line: prompt text plus a link or button action. */
 export function PromptWithAction(props: PromptWithActionAllProps): JSX.Element {

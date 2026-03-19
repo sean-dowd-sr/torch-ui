@@ -391,7 +391,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 							}
 						>
 							<Show when={local.addRow?.showAddForm}>
-								<TableRow class="bg-primary-50/50 dark:bg-primary-950/20" hover={false}>
+								<TableRow class="bg-primary-50/50" hover={false}>
 									{local.addRow!.renderAddCells()}
 								</TableRow>
 							</Show>

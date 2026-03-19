@@ -48,11 +48,11 @@ export interface AvatarProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, '
 
 const colorClasses: Record<AvatarColor, string> = {
 	neutral: neutralColorClass,
-	primary: 'bg-primary-100 text-primary-700 dark:bg-primary-500/25 dark:text-primary-200',
-	success: 'bg-success-100 text-success-700 dark:bg-success-950 dark:text-success-200',
-	warning: 'bg-warning-100 text-warning-700 dark:bg-warning-950 dark:text-warning-200',
-	danger: 'bg-danger-100 text-danger-700 dark:bg-danger-950 dark:text-danger-200',
-	info: 'bg-info-100 text-info-700 dark:bg-info-950 dark:text-info-200',
+	primary: 'bg-primary-100 text-primary-700',
+	success: 'bg-success-100 text-success-700',
+	warning: 'bg-warning-100 text-warning-700',
+	danger: 'bg-danger-100 text-danger-700',
+	info: 'bg-info-100 text-info-700',
 }
 
 const badgePlacementClasses: Record<AvatarBadgePlacement, string> = {

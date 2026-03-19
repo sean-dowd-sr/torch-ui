@@ -15,7 +15,7 @@ export interface LinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
 
 const linkVariants: Record<LinkVariant, string> = {
 	primary:
-		'text-primary-500 font-medium hover:text-primary-600 hover:underline hover:underline-offset-4 focus-visible:ring-primary-500/50 dark:text-primary-400 dark:hover:text-primary-300',
+		'text-primary-500 font-medium hover:text-primary-600 hover:underline hover:underline-offset-4 focus-visible:ring-primary-500/50',
 	muted:
 		'text-ink-500 hover:text-ink-700 hover:underline hover:underline-offset-4 focus-visible:ring-ink-500/50',
 }

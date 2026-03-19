@@ -230,7 +230,7 @@ export function TimePicker(props: TimePickerProps) {
 									<button
 										type="button"
 										onClick={() => setOpen(false)}
-										class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+										class="rounded-md px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 									>
 										Done
 									</button>

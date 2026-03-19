@@ -507,7 +507,7 @@ export function DatePicker(props: DatePickerProps) {
 																				: !currentMonth
 																					? 'text-ink-300 hover:bg-surface-overlay'
 																					: isToday
-																						? 'text-primary-600 font-semibold hover:bg-surface-overlay dark:text-primary-400'
+																						? 'text-primary-600 font-semibold hover:bg-surface-overlay'
 																						: 'text-ink-800 hover:bg-surface-overlay',
 																			disabled && 'cursor-not-allowed opacity-30',
 																		)}
@@ -688,7 +688,7 @@ export function DatePicker(props: DatePickerProps) {
 													'rounded-md px-2 py-1 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
 													todayDisabled()
 														? 'cursor-not-allowed text-ink-300'
-														: 'text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10',
+														: 'text-primary-600 hover:bg-primary-50',
 												)}
 											>
 												Today
