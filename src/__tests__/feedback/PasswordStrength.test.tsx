@@ -96,12 +96,15 @@ describe('PasswordStrengthIndicator', () => {
 	it('shows helper text based on details', () => {
 		renderUI(() => (
 			<PasswordStrengthIndicator 
-				strength="poor" 
-				score={25}
+				strength="fair" 
+				score={50}
 				details={[
 					{ name: '8+ characters', passed: false },
 					{ name: 'Uppercase', passed: false },
 				]}
+				messages={{
+					fair: { helperText: 'Check requirements' }
+				}}
 			/>
 		))
 		expect(screen.getByText(/Must contain/)).toBeInTheDocument()
