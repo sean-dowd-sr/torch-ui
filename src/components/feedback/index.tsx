@@ -8,9 +8,7 @@ export { AlertDialog } from './AlertDialog'
 export type { AlertDialogProps } from './AlertDialog'
 
 export { PasswordStrengthIndicator } from './password/PasswordStrengthIndicator'
-export type { PasswordStrengthIndicatorProps } from './password/PasswordStrengthIndicator'
-export { getPasswordAnalysis, getPasswordStrength, getPasswordRequirements, getPasswordSegmentScore } from './password/password-strength'
-export type { PasswordStrength, PasswordAnalysis, PasswordRequirements } from './password/password-strength'
+export type { PasswordStrengthIndicatorProps, PasswordStrengthMessages, PasswordStrength, PasswordStrengthDetail } from './password/PasswordStrengthIndicator'
 export { validatePassword, isPasswordWeak } from './password/password-validation'
 export { Progress } from './Progress'
 export type {

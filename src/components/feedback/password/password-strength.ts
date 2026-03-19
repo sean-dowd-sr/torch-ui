@@ -1,110 +1,146 @@
 /**
- * Password strength and requirements.
- *
- * Callers should NOT trim the password before passing it in; these functions
- * operate on the raw value. isPasswordWeak (from password-validation) trims
- * internally for its own pattern checks — that asymmetry is intentional so
- * that leading/trailing spaces count toward length and character requirements
- * but don't bypass weak-pattern detection.
+ * Configurable password strength analysis.
+ * 
+ * Users can provide custom requirements, scoring logic, and messages.
  */
-import { isPasswordWeak } from './password-validation'
 
 export type PasswordStrength = 'empty' | 'poor' | 'fair' | 'good' | 'excellent'
 
-export interface PasswordRequirements {
-	hasMinLength: boolean
-	hasUppercase: boolean
-	hasLowercase: boolean
-	hasNumber: boolean
-	hasSymbol: boolean
+export interface PasswordRequirement {
+	/** Display name for this requirement (e.g., "Uppercase letter") */
+	name: string
+	/** Function to test if password meets this requirement */
+	test: (password: string) => boolean
+	/** Whether this requirement is optional for scoring */
+	optional?: boolean
 }
 
 export interface PasswordAnalysis {
-	requirements: PasswordRequirements
 	/** Number of requirements met (0–5). */
 	met: number
 	strength: PasswordStrength
 	/** 0–8 segment score for smooth progress bar fill. */
 	segmentScore: number
+	/** Details about which specific requirements passed/failed */
+	details: Array<{ name: string; passed: boolean; optional?: boolean }>
+}
+
+export interface PasswordStrengthConfig {
+	/** Custom requirements to test against */
+	requirements?: PasswordRequirement[]
+	/** Custom scoring thresholds */
+	thresholds?: {
+		poor: number
+		fair: number
+		good: number
+	}
+	/** Custom segment scoring logic */
+	segmentScorer?: (password: string, met: number, details: PasswordAnalysis['details']) => number
+	/** Custom strength determination logic */
+	strengthCalculator?: (password: string, met: number, segmentScore: number, details: PasswordAnalysis['details']) => PasswordStrength
+}
+
+/** Default password requirements */
+export const DEFAULT_REQUIREMENTS: PasswordRequirement[] = [
+	{ name: 'at least 8 characters', test: (pwd) => pwd.length >= 8 },
+	{ name: 'an uppercase letter', test: (pwd) => /[A-Z]/.test(pwd) },
+	{ name: 'a lowercase letter', test: (pwd) => /[a-z]/.test(pwd) },
+	{ name: 'a number', test: (pwd) => /\d/.test(pwd) },
+	{ name: 'a symbol', test: (pwd) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd) },
+]
+
+/** Default thresholds */
+export const DEFAULT_THRESHOLDS = {
+	poor: 3,
+	fair: 3,
+	good: 4,
 }
 
 /**
- * Single-pass analysis: requirements, strength, and segment score.
- * Use this instead of calling getPasswordRequirements / getPasswordStrength /
- * getPasswordSegmentScore individually which avoids redundant computation on every keystroke.
+ * Analyzes password strength with optional custom configuration.
+ * 
+ * @param password - The password to analyze
+ * @param config - Optional custom configuration
+ * @returns Password analysis with requirements, strength, and score
  */
-export function getPasswordAnalysis(password: string): PasswordAnalysis {
+export function getPasswordAnalysis(password: string, config?: PasswordStrengthConfig): PasswordAnalysis {
 	if (password.length === 0) {
 		return {
-			requirements: { hasMinLength: false, hasUppercase: false, hasLowercase: false, hasNumber: false, hasSymbol: false },
 			met: 0,
 			strength: 'empty',
 			segmentScore: 0,
+			details: [],
 		}
 	}
 
-	const requirements = computeRequirements(password)
-	const met = [
-		requirements.hasMinLength,
-		requirements.hasUppercase,
-		requirements.hasLowercase,
-		requirements.hasNumber,
-		requirements.hasSymbol,
-	].filter(Boolean).length
+	const reqs = config?.requirements ?? DEFAULT_REQUIREMENTS
+	const thresholds = config?.thresholds ?? DEFAULT_THRESHOLDS
 
+	// Test all requirements
+	const details = reqs.map(req => ({
+		name: req.name,
+		passed: req.test(password),
+		optional: req.optional,
+	}))
+
+	// Count non-optional requirements met
+	const met = details.filter(d => d.passed && !d.optional).length
+
+	// Calculate segment score
+	const segmentScore = config?.segmentScorer 
+		? config.segmentScorer(password, met, details)
+		: defaultSegmentScorer(password, met, details)
+
+	// Calculate strength
+	const strength = config?.strengthCalculator
+		? config.strengthCalculator(password, met, segmentScore, details)
+		: defaultStrengthCalculator(password, met, segmentScore, details, thresholds)
+
+	return { met, strength, segmentScore, details }
+}
+
+/** Default segment scoring logic */
+function defaultSegmentScorer(password: string, met: number, details: PasswordAnalysis['details']): number {
+	// Import here to avoid circular dependency
+	const { isPasswordWeak } = require('./password-validation')
 	const weak = isPasswordWeak(password)
 
-	const strength: PasswordStrength =
-		weak || met < 3 ? 'poor'
-		: met === 3 ? 'fair'
-		: met === 4 ? 'good'
-		: 'excellent'
-
-	let segmentScore: number
 	if (weak) {
-		segmentScore = Math.min(2, Math.max(1, met))
+		return Math.min(2, Math.max(1, met))
 	} else if (met <= 2) {
-		segmentScore = met
+		return met
 	} else if (met === 3) {
-		segmentScore = requirements.hasMinLength && password.length >= 10 ? 4 : 3
+		return details[0]?.passed && password.length >= 10 ? 4 : 3
 	} else if (met === 4) {
-		segmentScore = requirements.hasMinLength && password.length >= 12 ? 6 : 5
+		return details[0]?.passed && password.length >= 12 ? 6 : 5
 	} else {
-		segmentScore = requirements.hasMinLength && password.length >= 14 ? 8 : 7
+		return details[0]?.passed && password.length >= 14 ? 8 : 7
 	}
-
-	return { requirements, met, strength, segmentScore }
 }
 
+/** Default strength calculation logic */
+function defaultStrengthCalculator(
+	password: string,
+	met: number,
+	segmentScore: number,
+	details: PasswordAnalysis['details'],
+	thresholds: typeof DEFAULT_THRESHOLDS
+): PasswordStrength {
+	// Import here to avoid circular dependency
+	const { isPasswordWeak } = require('./password-validation')
+	const weak = isPasswordWeak(password)
 
-export function getPasswordRequirements(password: string): PasswordRequirements {
-	return getPasswordAnalysis(password).requirements
+	return weak || met < thresholds.poor ? 'poor'
+		: met === thresholds.fair ? 'fair'
+		: met === thresholds.good ? 'good'
+		: 'excellent'
 }
 
-export function getPasswordStrength(password: string): PasswordStrength {
-	return getPasswordAnalysis(password).strength
+// Legacy exports for convenience
+export function getPasswordStrength(password: string, config?: PasswordStrengthConfig): PasswordStrength {
+	return getPasswordAnalysis(password, config).strength
 }
 
-/** Returns 0–8 for smooth segment progression. */
-export function getPasswordSegmentScore(password: string): number {
-	return getPasswordAnalysis(password).segmentScore
-}
-
-function computeRequirements(password: string): PasswordRequirements {
-	let upper = false, lower = false, digit = false, symbol = false
-	for (let i = 0; i < password.length; i++) {
-		const c = password.charCodeAt(i)
-		if (c >= 65 && c <= 90) upper = true
-		else if (c >= 97 && c <= 122) lower = true
-		else if (c >= 48 && c <= 57) digit = true
-		else if (c >= 33 && c <= 126) symbol = true
-		if (upper && lower && digit && symbol) break
-	}
-	return {
-		hasMinLength: password.length >= 8,
-		hasUppercase: upper,
-		hasLowercase: lower,
-		hasNumber: digit,
-		hasSymbol: symbol,
-	}
+export function getPasswordSegmentScore(password: string, config?: PasswordStrengthConfig): number {
+	return getPasswordAnalysis(password, config).segmentScore
 }

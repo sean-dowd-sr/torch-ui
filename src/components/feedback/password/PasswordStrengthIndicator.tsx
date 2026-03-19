@@ -1,111 +1,154 @@
 /**
- * Password strength indicator - minimal implementation.
- * Pass password as a prop; updates reactively when parent re-renders with new value.
- *
- * Usage: <PasswordStrengthIndicator password={password()} showHelperText />
+ * Password strength indicator - visual component only.
+ * 
+ * This component handles the visual presentation of password strength.
+ * The analysis logic is left to the user to implement.
+ * 
+ * Usage:
+ * <PasswordStrengthIndicator 
+ *   strength="good" 
+ *   score={75} 
+ *   details={[
+ *     { name: '8+ characters', passed: true },
+ *     { name: 'Uppercase', passed: true },
+ *     { name: 'Number', passed: false }
+ *   ]}
+ * />
  */
 import { createMemo, createUniqueId, Show, splitProps } from 'solid-js'
 import { cn } from '../../../utilities/classNames'
-import { getPasswordAnalysis } from './password-strength'
-import type { PasswordStrength } from './password-strength'
 import { Progress } from '../Progress'
 
-const SEGMENT_COUNT = 8
+export type PasswordStrength = 'empty' | 'poor' | 'fair' | 'good' | 'excellent'
 
-const CONFIG: Record<
-	PasswordStrength,
-	{ label: string; bg: string; textColor: string; helperText: string }
-> = {
-	empty: { label: '', bg: '', textColor: 'text-ink-500', helperText: '' },
-	poor: {
-		label: 'Poor',
-		bg: 'bg-danger-500',
-		textColor: 'text-danger-600',
-		helperText: 'Your password is easily guessable. You can do better.',
-	},
-	fair: {
-		label: 'Average',
-		bg: 'bg-amber-500',
-		textColor: 'text-amber-600',
-		helperText: 'Getting there, but could be stronger.',
-	},
-	good: {
-		label: 'Strong',
-		bg: 'bg-success-500',
-		textColor: 'text-success-600',
-		helperText: 'Your password is great. Nice work!',
-	},
-	excellent: {
-		label: 'Very Strong',
-		bg: 'bg-success-500',
-		textColor: 'text-success-600',
-		helperText: 'Excellent password. Nice work!',
-	},
+export interface PasswordStrengthDetail {
+	name: string
+	passed: boolean
+	optional?: boolean
+}
+
+export interface PasswordStrengthMessages {
+	empty?: { label?: string; helperText?: string }
+	poor?: { label?: string; helperText?: string }
+	fair?: { label?: string; helperText?: string }
+	good?: { label?: string; helperText?: string }
+	excellent?: { label?: string; helperText?: string }
 }
 
 export interface PasswordStrengthIndicatorProps {
-	/** Current password value - pass the signal's value, e.g. password={newPassword()} */
-	password?: string
+	/** Current strength level */
+	strength: PasswordStrength
+	/** Score for the progress bar (0-100) */
+	score?: number
+	/** Optional details about what passed/failed */
+	details?: PasswordStrengthDetail[]
 	class?: string
 	/** Show helper text below the bar. Default: true. */
 	showHelperText?: boolean
+	/** Custom labels and helper text for each strength level */
+	messages?: PasswordStrengthMessages
+	/** Custom title for the indicator */
+	title?: string
+	/** Number of segments for the progress bar. Default: 8 */
+	segments?: number
+}
+
+/** Default messages for each strength level */
+const DEFAULT_MESSAGES: Required<PasswordStrengthMessages> = {
+	empty: { label: '', helperText: 'Enter a password to see strength.' },
+	poor: { label: 'Poor', helperText: 'Your password is easily guessable. You can do better.' },
+	fair: { label: 'Average', helperText: 'Getting there, but could be stronger.' },
+	good: { label: 'Strong', helperText: 'Your password is great. Nice work!' },
+	excellent: { label: 'Very Strong', helperText: 'Excellent password. Nice work!' },
+}
+
+/** Default color configuration */
+const DEFAULT_COLORS: Record<PasswordStrength, { bg: string; textColor: string }> = {
+	empty: { bg: '', textColor: 'text-ink-500' },
+	poor: { bg: 'bg-danger-500', textColor: 'text-danger-600' },
+	fair: { bg: 'bg-amber-500', textColor: 'text-amber-600' },
+	good: { bg: 'bg-success-500', textColor: 'text-success-600' },
+	excellent: { bg: 'bg-success-500', textColor: 'text-success-600' },
 }
 
 export function PasswordStrengthIndicator(props: PasswordStrengthIndicatorProps) {
-	const [local] = splitProps(props, ['password', 'class', 'showHelperText'])
+	const [local] = splitProps(props, [
+		'strength', 
+		'score', 
+		'details', 
+		'class', 
+		'showHelperText', 
+		'messages', 
+		'title',
+		'segments'
+	])
 
 	const helperId = `psi-helper-${createUniqueId()}`
-	const pwd = () => local.password ?? ''
-	const analysis = createMemo(() => getPasswordAnalysis(pwd()))
-	const strength = createMemo(() => analysis().strength)
-	const cfg = createMemo(() => CONFIG[strength()])
-	const segmentValue = createMemo(() => (analysis().segmentScore / SEGMENT_COUNT) * 100)
+	const segmentCount = () => local.segments ?? 8
+	
+	// Merge default messages with custom ones
+	const messages = createMemo(() => {
+		const msgs = { ...DEFAULT_MESSAGES }
+		if (local.messages) {
+			Object.entries(local.messages).forEach(([key, value]) => {
+				if (value) {
+					msgs[key as PasswordStrength] = { ...msgs[key as PasswordStrength], ...value }
+				}
+			})
+		}
+		return msgs
+	})
+	
+	const cfg = createMemo(() => messages()[local.strength])
+	const colors = createMemo(() => DEFAULT_COLORS[local.strength])
 
-	const missing = createMemo(() => {
-		const r = analysis().requirements
-		const m: string[] = []
-		if (!r.hasMinLength) m.push('at least 8 characters')
-		if (!r.hasUppercase) m.push('an uppercase letter')
-		if (!r.hasLowercase) m.push('a lowercase letter')
-		if (!r.hasNumber) m.push('a number')
-		if (!r.hasSymbol) m.push('a symbol')
-		return m
+	// Generate helper text based on failed requirements
+	const helperText = createMemo(() => {
+		if (local.strength === 'empty') return cfg().helperText
+		
+		const customHelper = cfg().helperText
+		if (customHelper && !customHelper.includes('requirements')) {
+			return customHelper
+		}
+		
+		// Show failed requirements for poor/fair passwords if details provided
+		if ((local.strength === 'poor' || local.strength === 'fair') && local.details) {
+			const failed = local.details.filter(d => !d.passed && !d.optional)
+			if (failed.length === 0) return customHelper
+			if (failed.length === 1) return `Must contain ${failed[0].name}.`
+			return `Must contain ${failed.slice(0, -1).map(d => d.name).join(', ')}, and ${failed[failed.length - 1].name}.`
+		}
+		
+		return customHelper
 	})
 
-	const helperText = () => {
-		if (strength() === 'empty') return 'Enter a password to see strength.'
-		if (strength() === 'poor' || strength() === 'fair') {
-			const m = missing()
-			if (m.length === 0) return cfg().helperText
-			if (m.length === 1) return `Must contain ${m[0]}.`
-			return `Must contain ${m.slice(0, -1).join(', ')}, and ${m[m.length - 1]}.`
-		}
-		return cfg().helperText
-	}
-
-	const isEmpty = () => strength() === 'empty'
+	const isEmpty = () => local.strength === 'empty'
+	const title = () => local.title ?? 'Password Strength'
+	const score = () => local.score ?? 0
 
 	return (
 		<div class={cn('mt-1.5', local.class)}>
 			<div class="flex items-center justify-between mb-1.5">
-				<span class="text-sm font-medium text-ink-700">Password Strength</span>
-				<span class={cn('text-sm font-medium', cfg().textColor)}>{cfg().label}</span>
+				<span class="text-sm font-medium text-ink-700">{title()}</span>
+				<Show when={cfg().label}>
+					<span class={cn('text-sm font-medium', colors().textColor)}>{cfg().label}</span>
+				</Show>
 			</div>
 			<Progress
-				value={segmentValue()}
-				segments={SEGMENT_COUNT}
-				fillClass={cfg().bg}
+				value={score()}
+				segments={segmentCount()}
+				fillClass={colors().bg}
 				trackClass="bg-transparent"
 				showValueLabel={false}
 				aria-label={isEmpty() ? 'Password strength: not set' : `Password strength: ${cfg().label}`}
 				aria-describedby={local.showHelperText !== false ? helperId : undefined}
 			/>
-			<Show when={local.showHelperText !== false}>
+			<Show when={local.showHelperText !== false && helperText()}>
 				<p
 					id={helperId}
 					class={cn(
 						'mt-1.5 text-sm',
-						(strength() === 'poor' || strength() === 'fair') ? 'text-ink-600' : 'text-ink-500'
+						(local.strength === 'poor' || local.strength === 'fair') ? 'text-ink-600' : 'text-ink-500'
 					)}
 				>
 					{helperText()}
