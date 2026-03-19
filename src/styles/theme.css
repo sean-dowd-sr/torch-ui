@@ -132,6 +132,8 @@
    LIGHT MODE
 ───────────────────────────────────────────────────────────── */
 :root {
+  color-scheme: light;
+
   /* Surface — elevation ladder (raised=brightest → border=darkest)
      raised:  cards/panels pop to pure white
      base:    off-white page background
@@ -231,6 +233,10 @@
 /* ─────────────────────────────────────────────────────────────
    DARK MODE
 ───────────────────────────────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+}
+
 .dark,
 .code-block-dark {
   /* Surface — elevation ladder (raised=lightest → border=darkest relative to dark base)

@@ -5,6 +5,15 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-18
+
+### Added
+- `Wizard.Vertical`: new two-column layout component that combines the vertical stepper with a content panel side-by-side. Props: `step`, `stepLabels`, `variant`, `sidebarWidth` (`'sm' | 'md' | 'lg'`), `gap` (`'sm' | 'md' | 'lg' | 'xl'`), `sidebarClass`, `contentClass`, `class`, `children`. Also exported as `VerticalWizard`.
+
+### Fixed
+- `theme.css`: added `color-scheme: light` to `:root` and `color-scheme: dark` to `.dark`. Without this, Safari/WebKit on iOS and iPadOS rendered native elements (inputs, selects, scrollbars, focus rings) using the system `prefers-color-scheme` rather than the active `.dark` class, causing those elements to appear inverted relative to the page theme.
+- `WizardStepper` (vertical): refactored to a track-column layout (`flex-col items-center`) so the connector line is always pixel-perfect centered under the step circle regardless of variant or label length.
+
 ## [0.3.6] - 2026-03-18
 
 ### Fixed
