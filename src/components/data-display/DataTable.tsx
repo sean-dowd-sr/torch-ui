@@ -305,7 +305,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 			</Show>
 
 			<Show when={local.error}>
-				<p class="text-sm text-danger-600 dark:text-danger-400">
+				<p class="text-sm text-danger-600">
 					{local.error instanceof Error ? local.error.message : 'Failed to load'}
 				</p>
 			</Show>
@@ -413,7 +413,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 							</Show>
 							<Show when={local.addRow?.addError && local.addRow?.showAddForm}>
 								<TableRow hover={false}>
-									<TableCell colSpan={colSpan()} class="bg-danger-50/80 dark:bg-danger-950/30 text-sm text-danger-600 dark:text-danger-400">
+									<TableCell colSpan={colSpan()} class="bg-danger-50/80 text-sm text-danger-600">
 										{local.addRow!.addError}
 									</TableCell>
 								</TableRow>
@@ -471,7 +471,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 					>
 						<div class="space-y-4">{modal().children}</div>
 						<Show when={modal().editError}>
-							<p class="mt-3 text-sm text-danger-600 dark:text-danger-400">{modal().editError}</p>
+							<p class="mt-3 text-sm text-danger-600">{modal().editError}</p>
 						</Show>
 					</Dialog>
 				)}

@@ -112,8 +112,7 @@ const toggleModeVariants: Record<'outlined' | 'ghost', string> = {
 	ghost:
 		'border-2 border-transparent text-ink-700 hover:bg-surface-overlay ' +
 		'data-[pressed]:bg-primary-100 data-[pressed]:text-primary-800 ' +
-		'dark:data-[pressed]:bg-primary-500/20 dark:data-[pressed]:text-primary-200 ' +
-		'data-[pressed]:hover:bg-primary-200 dark:data-[pressed]:hover:bg-primary-500/30',
+		'data-[pressed]:hover:bg-primary-200',
 }
 
 /**

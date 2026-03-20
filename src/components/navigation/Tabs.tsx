@@ -59,7 +59,7 @@ export function Tabs(props: TabsProps) {
 						{(tab) => (
 							<KobalteTabs.Trigger
 								value={tab.id}
-								class="shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent bg-transparent px-5 py-3 text-sm font-medium text-ink-500 transition-colors hover:border-primary-300 hover:text-primary-700 data-[selected]:border-primary-500 data-[selected]:bg-transparent data-[selected]:text-primary-600 data-[selected]:shadow-none dark:hover:text-primary-400 dark:data-[selected]:border-primary-400 dark:data-[selected]:text-primary-400"
+								class="shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent bg-transparent px-5 py-3 text-sm font-medium text-ink-500 transition-colors hover:border-primary-300 hover:text-primary-700 data-[selected]:border-primary-500 data-[selected]:bg-transparent data-[selected]:text-primary-600 data-[selected]:shadow-none"
 							>
 								{tab.label}
 							</KobalteTabs.Trigger>

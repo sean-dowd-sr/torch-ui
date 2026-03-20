@@ -199,7 +199,7 @@ export function Autocomplete(props: AutocompleteProps) {
 				itemComponent={(itemProps) => (
 					<KobalteCombobox.Item
 						item={itemProps.item}
-						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 dark:data-[highlighted]:bg-primary-500/20 dark:data-[highlighted]:text-primary-200 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
 					>
 						<KobalteCombobox.ItemLabel class="flex-1">
 							{local.renderOption ? (

@@ -45,7 +45,7 @@ export const KEY = {
 const variantClasses: Record<KbdVariant, string> = {
 	default: [
 		'bg-surface-raised border border-surface-border border-b-2',
-		'shadow-sm dark:shadow-none',
+		'shadow-sm',
 	].join(' '),
 	flat: 'bg-surface-overlay border border-surface-border',
 }

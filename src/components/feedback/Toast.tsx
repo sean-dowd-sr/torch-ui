@@ -224,18 +224,18 @@ export function ToastProvider(props: ToastProviderProps) {
 
 const subtleClasses: Record<ToastVariant, string> = {
 	default: 'bg-surface-overlay text-ink-900 border border-surface-border',
-	success: 'bg-success-50 text-success-800 border border-success-200 dark:bg-success-950 dark:text-success-100 dark:border-success-800',
-	error: 'bg-danger-50 text-danger-800 border border-danger-200 dark:bg-danger-950 dark:text-danger-100 dark:border-danger-800',
-	warning: 'bg-warning-50 text-warning-800 border border-warning-200 dark:bg-warning-950 dark:text-warning-100 dark:border-warning-800',
-	info: 'bg-info-50 text-info-800 border border-info-200 dark:bg-info-950 dark:text-info-100 dark:border-info-800',
+	success: 'bg-success-50 text-success-800 border border-success-200',
+	error: 'bg-danger-50 text-danger-800 border border-danger-200',
+	warning: 'bg-warning-50 text-warning-800 border border-warning-200',
+	info: 'bg-info-50 text-info-800 border border-info-200',
 }
 
 const solidClasses: Record<ToastVariant, string> = {
 	default: 'bg-surface-overlay text-ink-900 border border-surface-border',
-	success: 'bg-success-600 text-white border border-success-600 dark:bg-success-700 dark:border-success-700',
-	error: 'bg-danger-600 text-white border border-danger-600 dark:bg-danger-700 dark:border-danger-700',
-	warning: 'bg-warning-500 text-white border border-warning-500 dark:bg-warning-600 dark:border-warning-600 dark:text-white',
-	info: 'bg-info-600 text-white border border-info-600 dark:bg-info-700 dark:border-info-700',
+	success: 'bg-success-600 text-white border border-success-600',
+	error: 'bg-danger-600 text-white border border-danger-600',
+	warning: 'bg-warning-500 text-white border border-warning-500',
+	info: 'bg-info-600 text-white border border-info-600',
 }
 
 const variantIconMap: Partial<Record<ToastVariant, keyof import('../../icons').TorchUIIcons>> = {

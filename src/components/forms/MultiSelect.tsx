@@ -348,7 +348,7 @@ export function MultiSelect(props: MultiSelectProps) {
 					>
 						<KobalteSelect.Item
 							item={itemProps.item}
-							class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 dark:data-[highlighted]:bg-primary-500/20 dark:data-[highlighted]:text-primary-200 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+							class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
 						>
 							<KobalteSelect.ItemLabel class="flex-1">
 								<span class="flex items-center gap-2">

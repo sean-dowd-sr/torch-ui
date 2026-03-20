@@ -114,22 +114,22 @@ export function Slider(props: SliderProps) {
 	const color = () => local.color ?? 'primary'
 	const trackBgClass = () =>
 		color() === 'indigo'
-			? 'bg-indigo-300/80 dark:bg-indigo-500/40'
+			? 'bg-indigo-300/80'
 			: color() === 'rose'
-				? 'bg-rose-300/80 dark:bg-rose-500/40'
+				? 'bg-rose-300/80'
 				: 'bg-primary-300/80'
 	const fillThumbClass = () =>
 		color() === 'indigo'
-			? 'bg-indigo-500 dark:bg-indigo-400'
+			? 'bg-indigo-500'
 			: color() === 'rose'
-				? 'bg-rose-500 dark:bg-rose-400'
+				? 'bg-rose-500'
 				: 'bg-primary-500'
 	const focusRingClass = () =>
 		color() === 'indigo'
-			? 'focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-300'
+			? 'focus-visible:ring-indigo-400'
 			: color() === 'rose'
-				? 'focus-visible:ring-rose-400 dark:focus-visible:ring-rose-300'
-				: 'focus-visible:ring-primary-400 dark:focus-visible:ring-primary-300'
+				? 'focus-visible:ring-rose-400'
+				: 'focus-visible:ring-primary-400'
 
 	const thumbCenterStyle = (): Record<string, string> =>
 		isHorizontal()
@@ -167,7 +167,7 @@ export function Slider(props: SliderProps) {
 						<KobalteSlider.Label
 							class={cn(
 								'text-sm font-medium text-ink-700 shrink-0',
-								hasError() && 'text-danger-600 dark:text-danger-400'
+								hasError() && 'text-danger-600'
 							)}
 						>
 							{local.label}
@@ -184,7 +184,7 @@ export function Slider(props: SliderProps) {
 				<KobalteSlider.Label
 					class={cn(
 						'text-sm font-medium text-ink-700 mb-2',
-						hasError() && 'text-danger-600 dark:text-danger-400'
+						hasError() && 'text-danger-600'
 					)}
 				>
 					{local.label}
@@ -231,7 +231,7 @@ export function Slider(props: SliderProps) {
 										'relative z-10 block rounded-full border-0 outline-none transition cursor-pointer touch-none',
 										thumbSizeClass(),
 										fillThumbClass(),
-										'shadow-[0_1px_3px_rgba(0,0,0,0.12)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)]',
+										'shadow-[0_1px_3px_rgba(0,0,0,0.12)]',
 										'ring-0 hover:ring-0 focus-visible:ring-2',
 										focusRingClass(),
 										'group-[.is-disabled]/slider:bg-surface-border group-[.is-disabled]/slider:cursor-not-allowed group-[.is-disabled]/slider:shadow-none'
@@ -278,7 +278,7 @@ export function Slider(props: SliderProps) {
 				</KobalteSlider.Description>
 			</Show>
 			<Show when={local.error}>
-				<KobalteSlider.ErrorMessage class="mt-1 text-xs text-danger-600 dark:text-danger-400">
+				<KobalteSlider.ErrorMessage class="mt-1 text-xs text-danger-600">
 					{local.error}
 				</KobalteSlider.ErrorMessage>
 			</Show>
