@@ -61,6 +61,7 @@ export interface ButtonProps
 
 const filledVariants: ButtonVariant[] = ['primary', 'danger', 'success', 'warning', 'info']
 
+
 const buttonVariants: Record<ButtonVariant, string> = {
 	primary:
 		'border-2 border-transparent bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus-visible:ring-primary-500/50',

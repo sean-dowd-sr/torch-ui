@@ -25,7 +25,7 @@ export type { ChartProps, ChartData, ChartDataset, ChartType, ScatterPoint, Bubb
 export { EmptyState } from './EmptyState'
 export type { EmptyStateProps } from './EmptyState'
 export { Tag } from './Tag'
-export type { TagProps, TagVariant, TagSize } from './Tag'
+export type { TagProps, TagVariant, TagSize, TagStyle } from './Tag'
 
 export { Kbd, KbdShortcut, KEY } from './Kbd'
 export type { KbdProps, KbdShortcutProps, KbdVariant, KbdSize } from './Kbd'

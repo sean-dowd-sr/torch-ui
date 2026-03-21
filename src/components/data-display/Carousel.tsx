@@ -23,6 +23,8 @@ export interface CarouselProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	dotsBgClass?: string
 	/** When true, renders dots absolutely positioned over the bottom of the slide (instead of below it). Slide content should add bottom padding to avoid overlap. */
 	dotsOverlay?: boolean
+	/** Custom color for the progress bar (e.g. '#3b82f6', 'var(--color-primary-500)', or 'bg-primary-500'). When set, overrides the default progress bar color. */
+	progressBarColor?: string
 	/** Accessible label for the carousel region. */
 	'aria-label'?: string
 }
@@ -37,6 +39,7 @@ export function Carousel(props: CarouselProps) {
 		'dotsVariant',
 		'dotsBgClass',
 		'dotsOverlay',
+		'progressBarColor',
 		'aria-label',
 		'class',
 	])
@@ -215,12 +218,12 @@ export function Carousel(props: CarouselProps) {
 										style={
 											progressBarReady()
 												? {
-														'background-color': (local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)',
+														'background-color': local.progressBarColor ?? ((local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)'),
 														animation: `carouselProgressBar ${autoPlayInterval()}ms linear forwards`,
 														'animation-fill-mode': 'forwards',
 													}
 												: {
-														'background-color': (local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)',
+														'background-color': local.progressBarColor ?? ((local.dotsVariant === 'light' || !!local.dotsBgClass) ? 'white' : 'var(--color-ink-700)'),
 														width: '0%',
 													}
 										}

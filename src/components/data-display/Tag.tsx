@@ -9,13 +9,17 @@ export type TagVariant =
 	| 'danger'
 	| 'info'
 
-export type TagSize = 'sm' | 'md'
+export type TagStyle = 'default' | 'solid'
+
+export type TagSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface TagProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'color'> {
 	/** Semantic color variant. Ignored when color is set. Default: neutral. */
 	variant?: TagVariant
 	/** Tag size. Default: md. */
 	size?: TagSize
+	/** Visual style: default (light background) or solid (surface background). Default: default. */
+	style?: TagStyle
 	/** CSS color for a status indicator dot before children (e.g. "#22c55e"). */
 	statusColor?: string
 	/** Accessible label for the status dot (e.g. "Active"). Rendered as sr-only text. When omitted, the dot is purely decorative. */
@@ -43,15 +47,23 @@ const tagVariants: Record<TagVariant, string> = {
 		'bg-info-50 text-info-700 border-info-100',
 }
 
+const tagStyles: Record<TagStyle, string> = {
+	default: '',
+	solid: 'bg-surface-base text-ink-900 border-surface-border',
+}
+
 const tagSizes: Record<TagSize, string> = {
 	sm: 'px-2 py-0.5 text-[11px]',
 	md: 'px-2.5 py-0.5 text-xs',
+	lg: 'px-3 py-1 text-sm',
+	xl: 'px-3.5 py-1.5 text-base',
 }
 
 export function Tag(props: TagProps) {
-	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'class', 'style', 'children', 'iconStart', 'iconEnd'])
+	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'style', 'class', 'children', 'iconStart', 'iconEnd'])
 	const variant = () => local.variant ?? 'neutral'
 	const size = () => local.size ?? 'md'
+	const tagStyle = () => local.style ?? 'default'
 
 	const customStyle = createMemo((): JSX.CSSProperties => {
 		const c = local.color
@@ -65,8 +77,8 @@ export function Tag(props: TagProps) {
 
 	const mergedStyle = createMemo((): JSX.CSSProperties => {
 		const base = customStyle()
-		const s = local.style
-		return typeof s === 'object' && s != null ? { ...base, ...s } as JSX.CSSProperties : base
+		const inlineStyle = local.style
+		return typeof inlineStyle === 'object' && inlineStyle != null ? { ...base, ...inlineStyle } as JSX.CSSProperties : base
 	})
 
 	return (
@@ -74,6 +86,7 @@ export function Tag(props: TagProps) {
 			class={cn(
 				'inline-flex items-center gap-1 rounded-full border font-medium',
 				!local.color && tagVariants[variant()],
+				!local.color && tagStyles[tagStyle()],
 				tagSizes[size()],
 				local.class,
 			)}
