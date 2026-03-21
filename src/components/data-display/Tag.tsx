@@ -1,4 +1,4 @@
-import { type JSX, splitProps, Show, createMemo } from 'solid-js'
+import { type JSX, splitProps, mergeProps, Show, createMemo } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 
 export type TagVariant =
@@ -74,11 +74,12 @@ const tagSizes: Record<TagSize, string> = {
 	xl: 'px-3.5 py-1.5 text-base',
 }
 
-export function Tag(props: TagProps) {
+export function Tag(rawProps: TagProps) {
+	const props = mergeProps({ variant: 'neutral' as TagVariant, size: 'md' as TagSize, visualStyle: 'default' as TagStyle }, rawProps)
 	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'visualStyle', 'style', 'class', 'children', 'iconStart', 'iconEnd'])
-	const variant = () => local.variant ?? 'neutral'
-	const size = () => local.size ?? 'md'
-	const tagStyle = () => local.visualStyle ?? 'default'
+	const variant = () => local.variant
+	const size = () => local.size
+	const tagStyle = () => local.visualStyle
 
 	const customStyle = createMemo((): JSX.CSSProperties => {
 		const c = local.color
