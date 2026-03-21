@@ -19,7 +19,7 @@ export interface TagProps extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, 'col
 	/** Tag size. Default: md. */
 	size?: TagSize
 	/** Visual style: default (light background) or solid (surface background). Default: default. */
-	style?: TagStyle
+	visualStyle?: TagStyle
 	/** CSS color for a status indicator dot before children (e.g. "#22c55e"). */
 	statusColor?: string
 	/** Accessible label for the status dot (e.g. "Active"). Rendered as sr-only text. When omitted, the dot is purely decorative. */
@@ -60,10 +60,10 @@ const tagSizes: Record<TagSize, string> = {
 }
 
 export function Tag(props: TagProps) {
-	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'style', 'class', 'children', 'iconStart', 'iconEnd'])
+	const [local, others] = splitProps(props, ['variant', 'size', 'statusColor', 'statusLabel', 'color', 'visualStyle', 'style', 'class', 'children', 'iconStart', 'iconEnd'])
 	const variant = () => local.variant ?? 'neutral'
 	const size = () => local.size ?? 'md'
-	const tagStyle = () => local.style ?? 'default'
+	const tagStyle = () => local.visualStyle ?? 'default'
 
 	const customStyle = createMemo((): JSX.CSSProperties => {
 		const c = local.color
