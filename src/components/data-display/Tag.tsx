@@ -47,9 +47,24 @@ const tagVariants: Record<TagVariant, string> = {
 		'bg-info-50 text-info-700 border-info-100',
 }
 
+const tagSolidVariants: Record<TagVariant, string> = {
+	neutral:
+		'bg-surface-base text-ink-900 border-surface-border',
+	primary:
+		'bg-primary-500 text-white border-primary-600',
+	success:
+		'bg-success-500 text-white border-success-600',
+	warning:
+		'bg-warning-500 text-white border-warning-600',
+	danger:
+		'bg-danger-500 text-white border-danger-600',
+	info:
+		'bg-info-500 text-white border-info-600',
+}
+
 const tagStyles: Record<TagStyle, string> = {
 	default: '',
-	solid: 'bg-surface-base text-ink-900 border-surface-border',
+	solid: '',
 }
 
 const tagSizes: Record<TagSize, string> = {
@@ -85,8 +100,7 @@ export function Tag(props: TagProps) {
 		<span
 			class={cn(
 				'inline-flex items-center gap-1 rounded-full border font-medium',
-				!local.color && tagVariants[variant()],
-				!local.color && tagStyles[tagStyle()],
+				!local.color && (tagStyle() === 'solid' ? tagSolidVariants[variant()] : tagVariants[variant()]),
 				tagSizes[size()],
 				local.class,
 			)}
