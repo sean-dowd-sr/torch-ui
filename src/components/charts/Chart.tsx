@@ -352,7 +352,7 @@ export function Chart(props: ChartProps) {
 		if (type === 'doughnut' || type === 'pie') {
 			applySegmentBorders(ci, type, currentDark)
 		} else {
-			ci.update('none')
+			ci.update()
 		}
 	})
 

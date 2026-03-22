@@ -133,8 +133,8 @@ const groupChildClassesFilled =
 const groupChildClassesVertical =
 	'flex-col [&>*]:!rounded-none [&>*]:!border-0 [&>*]:!border-b [&>*]:!border-surface-border [&>*:last-child]:!border-b-0 [&>*:first-child]:!rounded-t-lg [&>*:last-child]:!rounded-b-lg'
 
-const toggleItemClass = cn(
-	'inline-flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors outline-none',
+const toggleItemBaseClass = cn(
+	'inline-flex items-center justify-center font-medium transition-colors outline-none',
 	'bg-transparent text-ink-700 hover:bg-surface-overlay',
 	'data-[pressed]:bg-primary-500 data-[pressed]:text-white',
 	'data-[pressed]:hover:bg-primary-600 data-[pressed]:hover:text-white',
@@ -143,6 +143,14 @@ const toggleItemClass = cn(
 	'disabled:opacity-50 disabled:cursor-not-allowed',
 	'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
 )
+
+const toggleItemSizeClass: Record<ComponentSize, string> = {
+	xs: 'h-[var(--torch-h-xs)] px-2.5 text-xs',
+	sm: 'h-[var(--torch-h-sm)] px-3 text-xs',
+	md: 'h-[var(--torch-h-md)] px-4 text-sm',
+	lg: 'h-[var(--torch-h-lg)] px-5 text-sm',
+	xl: 'h-[var(--torch-h-xl)] px-6 text-base',
+}
 
 /**
  * Groups buttons into a single visual unit. Supports three modes:
@@ -224,7 +232,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 				>
 					<For each={local.options ?? []}>
 						{(opt) => (
-							<KobalteToggleGroup.Item value={opt.value} aria-label={opt.label} class={toggleItemClass}>
+							<KobalteToggleGroup.Item value={opt.value} aria-label={opt.label} class={cn(toggleItemBaseClass, toggleItemSizeClass[size()])}>
 								{opt.label}
 							</KobalteToggleGroup.Item>
 						)}
@@ -242,7 +250,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 			>
 				<For each={local.options ?? []}>
 					{(opt) => (
-						<KobalteToggleGroup.Item value={opt.value} aria-label={opt.label} class={toggleItemClass}>
+						<KobalteToggleGroup.Item value={opt.value} aria-label={opt.label} class={cn(toggleItemBaseClass, toggleItemSizeClass[size()])}>
 							{opt.label}
 						</KobalteToggleGroup.Item>
 					)}
