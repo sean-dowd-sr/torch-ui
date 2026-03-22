@@ -21,7 +21,9 @@ export interface SidebarGroup {
 	id?: string
 	title: string
 	items: SidebarItem[]
-	/** Groups with active items auto-open regardless. */
+	/** When true, the group header becomes a toggle that collapses/expands its items. Default false (static section header). */
+	collapsible?: boolean
+	/** Only relevant when collapsible=true. Groups with active items auto-open regardless. */
 	defaultOpen?: boolean
 }
 
@@ -36,7 +38,7 @@ export interface SidebarProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, '
 	header?: JSX.Element
 	/** Flat navigation items. Use `items` or `groups`, not both. */
 	items?: SidebarItem[]
-	/** Grouped navigation with collapsible section headers. */
+	/** Grouped navigation. Groups are static section headers by default; set collapsible on a group to make it togglable. */
 	groups?: SidebarGroup[]
 	/** Router-aware link component (e.g. `A` from @solidjs/router). Falls back to `<a>`. */
 	linkComponent?: Component<any>
@@ -87,7 +89,7 @@ export function Sidebar(props: SidebarProps) {
 	const variantClasses = () => {
 		switch (local.variant) {
 			case 'minimal':
-				return 'border-r border-surface-border'
+				return ''
 			case 'padded':
 				return 'border-r border-surface-border bg-surface-raised'
 			default:
@@ -264,34 +266,50 @@ export function Sidebar(props: SidebarProps) {
 
 	const renderGroup = (group: SidebarGroup) => {
 		const groupKey = group.id ?? group.title
-		const isOpen = () => hasActiveItem(group.items) || (groupOpenByTitle[groupKey] ?? (group.defaultOpen ?? false))
-		return (
-			<CollapsibleRoot
-				class="mb-1"
-				open={isOpen()}
-				onOpenChange={(next) => setGroupOpenByTitle(groupKey, next)}
-			>
-				<CollapsibleTrigger
-					class={cn(
-						'flex w-full items-center justify-between gap-1 rounded-lg px-2 py-1.5',
-						'text-[11px] font-semibold uppercase tracking-wider',
-						'text-ink-500',
-						'hover:bg-surface-overlay hover:text-ink-700',
-						'data-[expanded]:text-ink-700',
-						'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset'
-					)}
+
+		if (group.collapsible) {
+			const isOpen = () => hasActiveItem(group.items) || (groupOpenByTitle[groupKey] ?? (group.defaultOpen ?? false))
+			return (
+				<CollapsibleRoot
+					class="mb-2"
+					open={isOpen()}
+					onOpenChange={(next) => setGroupOpenByTitle(groupKey, next)}
 				>
-					<span>{group.title}</span>
-					<ChevronIcon />
-				</CollapsibleTrigger>
-				<CollapsibleContentStyled variant="minimal" class="pt-0.5">
-					<ul class="space-y-0.5">
-						<For each={group.items}>
-							{(item) => renderSidebarItem(item)}
-						</For>
-					</ul>
-				</CollapsibleContentStyled>
-			</CollapsibleRoot>
+					<CollapsibleTrigger
+						class={cn(
+							'flex w-full items-center justify-between gap-1 rounded px-2 py-1',
+							'text-[11px] font-semibold uppercase tracking-wider',
+							'text-ink-400 hover:text-ink-600',
+							'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset'
+						)}
+					>
+						<span>{group.title}</span>
+						<ChevronIcon />
+					</CollapsibleTrigger>
+					<CollapsibleContentStyled variant="minimal" class="pt-0.5">
+						<ul class="space-y-0.5">
+							<For each={group.items}>
+								{(item) => renderSidebarItem(item)}
+							</For>
+						</ul>
+					</CollapsibleContentStyled>
+				</CollapsibleRoot>
+			)
+		}
+
+		return (
+			<div class="mb-2">
+				<Show when={group.title && !local.collapsed}>
+					<p class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400 select-none">
+						{group.title}
+					</p>
+				</Show>
+				<ul class="space-y-0.5">
+					<For each={group.items}>
+						{(item) => renderSidebarItem(item)}
+					</For>
+				</ul>
+			</div>
 		)
 	}
 
