@@ -24,6 +24,8 @@ export interface StatCardProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	chartPosition?: 'under' | 'right'
 	/** When set, the chart wrapper gets role="img" + aria-label instead of aria-hidden. The chart child should be decorative (aria-hidden) to avoid duplicate announcements. */
 	chartA11yLabel?: string
+	/** Tailwind height class for the under-chart wrapper. Default 'h-10'. E.g. 'h-16', 'h-20'. Only applies when chartPosition is 'under'. */
+	chartHeight?: string
 }
 
 export function StatCard(props: StatCardProps) {
@@ -41,6 +43,7 @@ export function StatCard(props: StatCardProps) {
 		'chart',
 		'chartPosition',
 		'chartA11yLabel',
+		'chartHeight',
 		'iconLabel',
 		'class',
 	])
@@ -138,7 +141,7 @@ export function StatCard(props: StatCardProps) {
 						</div>
 						<Show when={local.chart != null && local.chartPosition !== 'right'}>
 							<div
-								class="mt-auto pt-3 h-10 w-full min-w-0"
+								class={cn('mt-auto pt-3 w-full min-w-0', local.chartHeight ?? 'h-10')}
 								aria-hidden={local.chartA11yLabel ? undefined : 'true'}
 								role={local.chartA11yLabel ? 'img' : undefined}
 								aria-label={local.chartA11yLabel}

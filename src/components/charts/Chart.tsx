@@ -14,6 +14,8 @@ export interface ChartDataset {
 	data: number[] | ScatterPoint[] | BubblePoint[]
 	backgroundColor?: string | string[]
 	borderColor?: string | string[]
+	hoverBackgroundColor?: string | string[]
+	hoverBorderColor?: string | string[]
 }
 
 export interface ChartData {
@@ -29,6 +31,8 @@ export interface ChartProps {
 	data: ChartData
 	/** When type is 'line', fill area under the line. Default false. Same idea as Sparkline fill. */
 	fill?: boolean
+	/** Dataset border width. Defaults: line=2, bar=0, doughnut/pie handled by segment borders. */
+	borderWidth?: number
 	/** Optional Chart.js options override (merged with defaults) */
 	options?: ChartConfiguration<ChartType>['options']
 	/** Accessible label for the chart wrapper. When provided, the chart is exposed to assistive tech. */
@@ -170,7 +174,8 @@ function buildConfig(
 	data: ChartData,
 	dark: boolean,
 	optionsOverride?: ChartConfiguration<ChartType>['options'],
-	lineFill?: boolean
+	lineFill?: boolean,
+	borderWidthProp?: number
 ): ChartConfiguration<ChartType> {
 	const segmentBorder =
 		type === 'doughnut' || type === 'pie' ? getSegmentBorderForMode(dark) : null
@@ -192,12 +197,15 @@ function buildConfig(
 			} as DatasetItem
 		}
 		const len = (ds.data as number[]).length
+		const defaultBorderWidth = isLine ? 2 : (segmentBorder?.borderWidth ?? 0)
 		const out: Record<string, unknown> = {
 			label: ds.label,
 			data: ds.data,
 			backgroundColor: ds.backgroundColor,
 			borderColor: ds.borderColor,
-			borderWidth: isLine ? 2 : segmentBorder?.borderWidth ?? 1,
+			hoverBackgroundColor: ds.hoverBackgroundColor,
+			hoverBorderColor: ds.hoverBorderColor,
+			borderWidth: borderWidthProp ?? defaultBorderWidth,
 			tension: isLine ? 0.3 : 0,
 			fill: isLine ? (lineFill ?? false) : undefined,
 		}
@@ -253,7 +261,7 @@ function buildConfig(
  * (caption, summary text, or data table) when the chart conveys meaningful data.
  */
 export function Chart(props: ChartProps) {
-	const [local] = splitProps(props, ['type', 'data', 'fill', 'options', 'aria-label', 'aria-labelledby', 'class'])
+	const [local] = splitProps(props, ['type', 'data', 'fill', 'borderWidth', 'options', 'aria-label', 'aria-labelledby', 'class'])
 	let canvasEl: HTMLCanvasElement | undefined
 	let chartInstance: import('chart.js').Chart | null = null
 	let ChartConstructor: typeof import('chart.js').Chart | null = null
@@ -273,7 +281,7 @@ export function Chart(props: ChartProps) {
 	function createChart(type: ChartType) {
 		if (!canvasEl || !ChartConstructor) return
 		destroyChart()
-		const config = buildConfig(type, local.data, dark(), local.options, local.fill)
+		const config = buildConfig(type, local.data, dark(), local.options, local.fill, local.borderWidth)
 		chartInstance = new ChartConstructor(canvasEl, config as ChartConfiguration<ChartType>)
 		if (type === 'doughnut' || type === 'pie') {
 			applySegmentBorders(chartInstance, type, dark())
@@ -325,7 +333,7 @@ export function Chart(props: ChartProps) {
 			return
 		}
 
-		const config = buildConfig(type, data, currentDark, opts, fill)
+		const config = buildConfig(type, data, currentDark, opts, fill, local.borderWidth)
 		ci.options = config.options!
 		ci.data.labels = data.labels
 		ci.data.datasets = data.datasets.map((ds, i) => {
@@ -336,6 +344,8 @@ export function Chart(props: ChartProps) {
 				data: ds.data,
 				backgroundColor: ds.backgroundColor,
 				borderColor: ds.borderColor,
+				hoverBackgroundColor: ds.hoverBackgroundColor,
+				hoverBorderColor: ds.hoverBorderColor,
 				fill: type === 'line' ? (fill ?? false) : undefined,
 			}
 		})
