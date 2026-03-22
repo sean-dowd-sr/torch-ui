@@ -203,7 +203,7 @@ export function Pagination(props: PaginationProps) {
 				</Show>
 				<Show when={hasPageSize()}>
 					<div class="flex shrink-0 items-center gap-2">
-						<label for={selectElId()} class="text-sm text-ink-500">
+						<label for={selectElId()} class="whitespace-nowrap text-sm text-ink-500">
 							Per page
 						</label>
 						<Select
