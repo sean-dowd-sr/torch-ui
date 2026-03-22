@@ -178,7 +178,7 @@ export function StatCard(props: StatCardProps) {
 						</Show>
 					</div>
 					<div
-						class={cn(local.chartHeight ?? 'h-20', local.chartWidth ?? 'w-36 sm:w-44', 'shrink-0')}
+						class={cn(local.chartHeight ?? 'h-20', local.chartWidth ?? 'w-28 sm:w-36', 'shrink-0')}
 						aria-hidden={local.chartA11yLabel ? undefined : 'true'}
 						role={local.chartA11yLabel ? 'img' : undefined}
 						aria-label={local.chartA11yLabel}
