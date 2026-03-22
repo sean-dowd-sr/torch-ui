@@ -111,7 +111,7 @@ export function TableRow(props: TableRowProps) {
 			class={cn(
 				'transition-colors',
 				inBody && striped ? 'even:bg-surface-stripe' : '',
-				allowHover() ? 'hover:bg-primary-500/20' : '',
+				allowHover() ? 'hover:bg-ink-900/5' : '',
 				local.class,
 			)}
 			{...others}

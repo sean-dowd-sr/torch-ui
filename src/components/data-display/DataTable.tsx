@@ -12,6 +12,7 @@ import {
 	TableRow,
 	TableHead,
 	TableCell,
+	type TableProps,
 } from './Table'
 import { Pagination, type PaginationProps } from '../navigation'
 
@@ -116,6 +117,10 @@ export type DataTableProps<T> = JSX.HTMLAttributes<HTMLDivElement> & DataTablePa
 	groupBy?: DataTableGroupByProps<T>
 	/** When true, the table header row is not rendered. */
 	hideHeader?: boolean
+	/** When true, removes the outer border/background/rounded container so the table can be embedded inside an existing panel. */
+	bare?: boolean
+	/** Visual props forwarded to the inner Table (striped, caption). */
+} & Pick<TableProps, 'striped' | 'caption'> & {
 	emptyState?: {
 		title: string
 		description?: string
@@ -153,7 +158,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 		'deleteDialog', 'groupBy', 'pagination', 'hideHeader',
 		'emptyState', 'loadMore', 'loading', 'error', 'items',
 		'columns', 'renderRowOverride', 'emptyMessage',
-		'skeletonRows', 'sort', 'class',
+		'skeletonRows', 'sort', 'class', 'bare', 'striped', 'caption',
 	])
 	const icons = useIcons()
 
@@ -312,8 +317,8 @@ export function DataTable<T>(props: DataTableProps<T>) {
 			<Show when={local.loading}>
 				<div role="status" aria-live="polite" class="sr-only">Loading</div>
 			</Show>
-			<div class={cn('overflow-x-auto', TABLE_CONTAINER_CLASS)}>
-				<Table class="min-w-full">
+			<div class={cn('overflow-x-auto', !local.bare && TABLE_CONTAINER_CLASS)}>
+				<Table class="min-w-full" striped={local.striped} caption={local.caption}>
 					<Show when={!local.hideHeader}>
 						<TableHeader>
 							<TableRow>

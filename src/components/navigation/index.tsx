@@ -1,4 +1,4 @@
-/** Navigation: Breadcrumbs, Dropdown Menu, NavigationMenu, Pagination, Tabs, ViewSwitcher */
+/** Navigation: Breadcrumbs, Dropdown Menu, MegaMenu, NavigationMenu, Pagination, Tabs, ViewSwitcher */
 export { Breadcrumbs, type BreadcrumbsProps, type BreadcrumbItem } from './Breadcrumbs'
 
 export {
@@ -29,6 +29,7 @@ export {
 } from './Tabs'
 
 export { ViewSwitcher, type ViewSwitcherProps, type ViewSwitcherItem, type ViewScope } from './ViewSwitcher'
+
 
 export { Sidebar, type SidebarProps, type SidebarItem, type SidebarGroup, type SidebarFooter } from './Sidebar'
 

@@ -50,22 +50,22 @@ export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 
 // Width for start/end; height for top/bottom
 const sizeWidthClasses: Record<DrawerSize, string> = {
-	xs: 'w-[280px]',
-	sm: 'w-[320px]',
-	md: 'w-[384px]',
-	lg: 'w-[448px]',
-	xl: 'w-[512px]',
-	'2xl': 'w-[42rem]',
+	xs: 'w-[320px]',
+	sm: 'w-[440px]',
+	md: 'w-[560px]',
+	lg: 'w-[680px]',
+	xl: 'w-[800px]',
+	'2xl': 'w-[960px]',
 	full: 'w-full',
 }
 
 const sizeHeightClasses: Record<DrawerSize, string> = {
-	xs: 'h-[280px]',
-	sm: 'h-[320px]',
-	md: 'h-[384px]',
-	lg: 'h-[448px]',
-	xl: 'h-[512px]',
-	'2xl': 'h-[42rem]',
+	xs: 'h-[320px]',
+	sm: 'h-[440px]',
+	md: 'h-[560px]',
+	lg: 'h-[680px]',
+	xl: 'h-[800px]',
+	'2xl': 'h-[960px]',
 	full: 'h-full',
 }
 
@@ -386,7 +386,7 @@ export function Drawer(props: DrawerProps) {
 						</div>
 					</Show>
 
-					<div class={cn('relative flex flex-1 flex-col', !local.noPadding && 'p-6')}>
+					<div class={cn('relative flex min-h-0 flex-1 flex-col', !local.noPadding && 'p-6')}>
 						{/* Close button in content area when actions are at bottom */}
 						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
 							<KobalteDialog.CloseButton
