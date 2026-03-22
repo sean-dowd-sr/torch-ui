@@ -14,18 +14,24 @@ export interface StatCardProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	value?: string | number | null
 	helperText?: string
 	trendLabel?: string
+	/** Optional secondary line below trendLabel (e.g. "last week"). Rendered smaller and muted. */
+	trendSubLabel?: string
 	/** Default: 'positive' (emerald). */
 	trendVariant?: 'positive' | 'neutral' | 'negative'
 	trendIcon?: JSX.Element
 	emptyText?: string
+	/** Optional content rendered below the trend block. Use for breakdown rows, sub-metrics, or any body content. Works with both chartPosition values. */
+	body?: JSX.Element
 	/** Optional chart or sparkline. Use chartPosition to place under the trend or to the right. */
 	chart?: JSX.Element
 	/** Where to render the chart: under the trend (default) or in a column to the right of the value/trend. */
 	chartPosition?: 'under' | 'right'
 	/** When set, the chart wrapper gets role="img" + aria-label instead of aria-hidden. The chart child should be decorative (aria-hidden) to avoid duplicate announcements. */
 	chartA11yLabel?: string
-	/** Tailwind height class for the under-chart wrapper. Default 'h-10'. E.g. 'h-16', 'h-20'. Only applies when chartPosition is 'under'. */
+	/** Tailwind height class for the chart wrapper. Default 'h-10' (under) or 'h-20' (right). */
 	chartHeight?: string
+	/** Tailwind width classes for the right-position chart wrapper. Default 'w-36 sm:w-44'. Only applies when chartPosition is 'right'. */
+	chartWidth?: string
 }
 
 export function StatCard(props: StatCardProps) {
@@ -37,13 +43,16 @@ export function StatCard(props: StatCardProps) {
 		'value',
 		'helperText',
 		'trendLabel',
+		'trendSubLabel',
 		'trendVariant',
 		'trendIcon',
 		'emptyText',
+		'body',
 		'chart',
 		'chartPosition',
 		'chartA11yLabel',
 		'chartHeight',
+		'chartWidth',
 		'iconLabel',
 		'class',
 	])
@@ -86,11 +95,16 @@ export function StatCard(props: StatCardProps) {
 				<div class="mt-1 text-sm text-ink-500">{local.helperText}</div>
 			</Show>
 			<Show when={local.trendLabel}>
-				<div class={cn(p.gap ?? 'mt-3', 'flex items-center gap-1.5 text-sm font-medium')}>
-					<Show when={local.trendIcon}>
-						<span class={cn('flex shrink-0', trendClasses())}>{local.trendIcon}</span>
+				<div class={cn(p.gap ?? 'mt-3')}>
+					<div class="flex items-center gap-1.5 text-sm font-medium">
+						<Show when={local.trendIcon}>
+							<span class={cn('flex shrink-0', trendClasses())}>{local.trendIcon}</span>
+						</Show>
+						<span class={cn('whitespace-nowrap', trendClasses())}>{local.trendLabel}</span>
+					</div>
+					<Show when={local.trendSubLabel}>
+						<div class="mt-0.5 text-xs text-ink-500">{local.trendSubLabel}</div>
 					</Show>
-					<span class={cn(trendClasses())}>{local.trendLabel}</span>
 				</div>
 			</Show>
 		</>
@@ -138,6 +152,9 @@ export function StatCard(props: StatCardProps) {
 						<div class={cn(contentMt(), 'flex-1')}>
 							<ValueOrEmpty />
 							<TrendBlock />
+							<Show when={local.body}>
+								<div class="mt-3">{local.body}</div>
+							</Show>
 						</div>
 						<Show when={local.chart != null && local.chartPosition !== 'right'}>
 							<div
@@ -156,9 +173,12 @@ export function StatCard(props: StatCardProps) {
 					<div class="min-w-0 flex-1">
 						<ValueOrEmpty small />
 						<TrendBlock gap="mt-2" />
+						<Show when={local.body}>
+							<div class="mt-3">{local.body}</div>
+						</Show>
 					</div>
 					<div
-						class="h-14 w-24 shrink-0 sm:w-32"
+						class={cn(local.chartHeight ?? 'h-20', local.chartWidth ?? 'w-36 sm:w-44', 'shrink-0')}
 						aria-hidden={local.chartA11yLabel ? undefined : 'true'}
 						role={local.chartA11yLabel ? 'img' : undefined}
 						aria-label={local.chartA11yLabel}
