@@ -320,7 +320,7 @@ export function MegaMenuPanel(props: MegaMenuPanelProps) {
 /** ─── MegaMenuColumn ────────────────────────────────────────────────────────── */
 export function MegaMenuColumn(props: { class?: string; children: JSX.Element }) {
 	return (
-		<div class={cn('flex flex-col gap-0.5', props.class)}>
+		<div class={cn('flex flex-col gap-1', props.class)}>
 			{props.children}
 		</div>
 	)
@@ -364,7 +364,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			}}
 			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
-				'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
+				'group flex w-full items-start gap-3 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.active ? 'bg-primary-50' : 'hover:bg-surface-overlay',
 				props.disabled && 'pointer-events-none opacity-40',
 				props.class,
@@ -496,31 +496,21 @@ export interface MegaMenuBarLinkProps {
 
 export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 	const contextVariant = useContext(VariantContext)
-	const inv = useContext(InvertedContext)
 	const v = () => props.variant ?? contextVariant
 
 	return (
-		<div class={cn('flex items-stretch', v() === 'underline' && 'h-full')}>
+		<div>
 			<a
 				href={props.href}
 				class={cn(
-					'flex items-center text-sm font-medium transition-colors',
-					inv ? 'text-white/65' : 'text-ink-700',
-					'outline-none',
-					inv ? 'focus-visible:ring-2 focus-visible:ring-white/40' : 'focus-visible:ring-2 focus-visible:ring-primary-500/50',
-					v() === 'default' && (inv
-						? 'h-9 rounded-md px-3 py-2 hover:bg-white/10 hover:text-white'
-						: 'h-9 rounded-md px-3 py-2 hover:bg-surface-overlay hover:text-ink-900'),
+					'flex items-center text-sm font-medium text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+					v() === 'default' && 'h-9 rounded-md px-3 py-2 hover:bg-surface-overlay hover:text-ink-900',
 					v() === 'underline' && [
 						'h-full rounded-none px-3',
 						'border-b-2 border-transparent',
-						inv
-							? 'hover:border-white/60 hover:text-white'
-							: 'hover:border-primary-500 hover:text-primary-600',
+						'hover:border-primary-500 hover:text-primary-600',
 					],
-					v() === 'ghost' && (inv
-						? 'h-9 rounded-md px-3 py-2 hover:text-white'
-						: 'h-9 rounded-md px-3 py-2 hover:text-primary-600'),
+					v() === 'ghost' && 'h-9 rounded-md px-3 py-2 hover:text-primary-600',
 					props.class,
 				)}
 			>
