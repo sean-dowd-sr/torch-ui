@@ -238,7 +238,7 @@ function CodeInputDigits(props: CodeInputProps) {
 							hasError()
 								? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
 								: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-							'disabled:opacity-50 disabled:cursor-not-allowed'
+							'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 						)}
 						aria-label={`Digit ${i + 1}`}
 						aria-invalid={hasError() ? 'true' : undefined}

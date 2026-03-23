@@ -187,11 +187,11 @@ function MonthGrid(props: MonthGridProps) {
 											: inRange()
 												? 'text-primary-700 hover:bg-primary-100'
 												: otherMonth()
-													? 'text-ink-300 hover:bg-surface-overlay'
+													? disabled() ? 'bg-surface-dim text-ink-500 cursor-not-allowed' : 'text-ink-300 hover:bg-surface-overlay'
 													: today()
 														? 'text-primary-600 font-semibold hover:bg-surface-overlay'
 														: 'text-ink-800 hover:bg-surface-overlay',
-										disabled() && 'cursor-not-allowed opacity-30',
+										disabled() && 'bg-surface-dim text-ink-500 cursor-not-allowed',
 									)}
 								>
 									{day.getDate()}
@@ -581,7 +581,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 							hasError()
 								? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600'
 								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400',
-							local.disabled && 'cursor-not-allowed opacity-50',
+							local.disabled && 'bg-surface-dim text-ink-500 cursor-not-allowed',
 							clearable() && (local.start || local.end) && !local.disabled && 'pr-8',
 						)}
 					>

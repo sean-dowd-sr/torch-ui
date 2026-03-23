@@ -422,7 +422,7 @@ export function FileUpload(props: FileUploadProps) {
 						dragOver()
 							? 'border-primary-500 bg-primary-50'
 							: 'border-surface-border bg-surface-base/50',
-						(local.disabled || atLimit()) && 'pointer-events-none opacity-50'
+						(local.disabled || atLimit()) && 'pointer-events-none bg-surface-dim'
 					)}
 						onDrop={handleDrop}
 						onDragOver={handleDragOver}
@@ -493,7 +493,7 @@ export function FileUpload(props: FileUploadProps) {
 								disabled={local.disabled || atLimit()}
 								class={cn(
 									'inline-flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
-									(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
+									(local.disabled || atLimit()) && 'bg-surface-dim text-ink-500 cursor-not-allowed'
 								)}
 							>
 								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -530,7 +530,7 @@ export function FileUpload(props: FileUploadProps) {
 								disabled={local.disabled || atLimit()}
 								class={cn(
 									'inline-flex items-center gap-2 rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm font-medium text-ink-700 hover:bg-surface-overlay transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
-									(local.disabled || atLimit()) && 'opacity-50 cursor-not-allowed'
+									(local.disabled || atLimit()) && 'bg-surface-dim text-ink-500 cursor-not-allowed'
 								)}
 							>
 								{icons.fileUpload({ class: 'h-4 w-4', 'aria-hidden': 'true' })}

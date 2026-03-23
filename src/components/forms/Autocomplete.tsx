@@ -199,7 +199,7 @@ export function Autocomplete(props: AutocompleteProps) {
 				itemComponent={(itemProps) => (
 					<KobalteCombobox.Item
 						item={itemProps.item}
-						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
+						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed"
 					>
 						<KobalteCombobox.ItemLabel class="flex-1">
 							{local.renderOption ? (
@@ -234,7 +234,7 @@ export function Autocomplete(props: AutocompleteProps) {
 						hasError() ? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500' : 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 focus-within:border-transparent',
 						sc().h, sc().py, sc().text, sc().pl, sc().pr,
 						local.disabled &&
-							'cursor-not-allowed bg-surface-base text-ink-500 pointer-events-none'
+							'cursor-not-allowed bg-surface-dim text-ink-500 pointer-events-none'
 					)}
 				>
 					<KobalteCombobox.Input

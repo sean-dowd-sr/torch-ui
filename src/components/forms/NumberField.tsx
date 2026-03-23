@@ -193,7 +193,7 @@ export function NumberField(props: NumberFieldProps) {
 							class={cn(
 								'flex-none flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50 rounded-md group',
 								stepperButtonW(),
-								'disabled:cursor-not-allowed disabled:opacity-50'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 							)}
 							aria-label="Decrease"
 						>
@@ -228,7 +228,7 @@ export function NumberField(props: NumberFieldProps) {
 							class={cn(
 								'flex-none flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50 rounded-md group',
 								stepperButtonW(),
-								'disabled:cursor-not-allowed disabled:opacity-50'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 							)}
 							aria-label="Increase"
 						>

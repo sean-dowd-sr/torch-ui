@@ -102,7 +102,6 @@ export function Checkbox(props: CheckboxProps) {
 				class={cn(
 					'flex items-center select-none',
 					size() === 'sm' ? 'gap-1.5' : 'gap-2',
-					local.disabled && 'opacity-50',
 					hasError() && 'text-danger-600',
 				)}
 			>
@@ -118,7 +117,7 @@ export function Checkbox(props: CheckboxProps) {
 						hasError()
 							? 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-inset data-[focus-visible]:ring-danger-500 data-[focus-visible]:border-transparent'
 							: 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-inset data-[focus-visible]:ring-primary-500 data-[focus-visible]:border-transparent',
-						local.disabled && 'cursor-not-allowed',
+						local.disabled && 'bg-surface-dim text-ink-500 cursor-not-allowed',
 					)}
 				>
 					<KobalteCheckbox.Indicator class="absolute inset-0 flex items-center justify-center text-white">

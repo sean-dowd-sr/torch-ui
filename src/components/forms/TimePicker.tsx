@@ -161,7 +161,7 @@ export function TimePicker(props: TimePickerProps) {
 							hasError()
 								? 'border-danger-500 bg-surface-raised text-ink-900 hover:border-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger-500 focus-visible:border-transparent'
 								: 'border-surface-border bg-surface-raised text-ink-900 hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 focus-visible:border-transparent',
-							local.disabled && 'cursor-not-allowed opacity-50',
+							local.disabled && 'bg-surface-dim text-ink-500 cursor-not-allowed',
 						)}
 					>
 						{icons.clock({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })}

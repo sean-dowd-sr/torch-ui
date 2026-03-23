@@ -245,7 +245,7 @@ export function Switch(props: SwitchProps) {
 							class={cn(
 								'text-sm font-medium cursor-pointer select-none',
 								hasError() ? 'text-danger-600' : 'text-ink-700',
-								local.disabled && 'opacity-50 cursor-not-allowed'
+								local.disabled && 'cursor-not-allowed'
 							)}
 						>
 							{local.label}

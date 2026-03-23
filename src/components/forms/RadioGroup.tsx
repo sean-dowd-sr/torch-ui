@@ -83,8 +83,7 @@ export function RadioGroup(props: RadioGroupProps) {
 						<KobalteRadioGroup.Label
 							class={cn(
 								'block text-sm font-medium',
-								hasError() ? 'text-danger-600' : 'text-ink-700',
-								local.disabled && 'opacity-50'
+								hasError() ? 'text-danger-600' : 'text-ink-700'
 							)}
 						>
 							{local.label}
@@ -109,7 +108,7 @@ export function RadioGroup(props: RadioGroupProps) {
 								class={cn(
 									'inline-flex gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
 									opt.description ? 'items-start' : 'items-center',
-									'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+									'data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed',
 									'data-[highlighted]:bg-surface-overlay',
 									hasError()
 										? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger-500'
@@ -125,7 +124,7 @@ export function RadioGroup(props: RadioGroupProps) {
 										'border-2 border-surface-border bg-transparent',
 										// Selected: primary ring, transparent interior; dot is the ItemIndicator
 										'data-[checked]:border-primary-500 data-[checked]:bg-transparent',
-										'data-[disabled]:opacity-50'
+										'data-[disabled]:bg-surface-dim data-[disabled]:border-surface-border'
 									)}
 								>
 									<KobalteRadioGroup.ItemIndicator class="h-2 w-2 rounded-full bg-primary-500 shrink-0 pointer-events-none" />

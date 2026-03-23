@@ -170,7 +170,7 @@ export function ColorPicker(props: ColorPickerProps) {
 						id={triggerId}
 						disabled={local.disabled}
 						class={cn(
-							'h-10 w-10 shrink-0 rounded-lg border-2 shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+							'h-10 w-10 shrink-0 rounded-lg border-2 shadow-sm transition outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed cursor-pointer',
 							hasError() ? 'border-danger-500 hover:border-danger-600' : 'border-surface-border hover:border-ink-300',
 						)}
 						style={{ 'background-color': currentHex() || 'transparent' }}
