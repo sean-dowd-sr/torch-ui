@@ -15,19 +15,25 @@ export interface BreadcrumbsProps {
 	items: BreadcrumbItem[]
 	/** Optional separator between items. Default ChevronRight. */
 	separator?: JSX.Element
+	/** Use light (white-based) text for dark backgrounds in light mode */
+	inverted?: boolean
 	/** Root class. */
 	class?: string
 }
 
-function DefaultSeparator(): JSX.Element {
+function DefaultSeparator(props: { inverted?: boolean }): JSX.Element {
 	const icons = useIcons()
-	return icons.chevronRight({ class: 'h-4 w-4 shrink-0 text-ink-400', 'aria-hidden': 'true' })
+	return icons.chevronRight({
+		class: cn('h-4 w-4 shrink-0', props.inverted ? 'text-white/30' : 'text-ink-400'),
+		'aria-hidden': 'true',
+	})
 }
 
 export function Breadcrumbs(props: BreadcrumbsProps) {
-	const [local] = splitProps(props, ['items', 'separator', 'class'])
+	const [local] = splitProps(props, ['items', 'separator', 'inverted', 'class'])
 
-	const separator = () => local.separator ?? <DefaultSeparator />
+	const separator = () => local.separator ?? <DefaultSeparator inverted={local.inverted} />
+	const inv = () => local.inverted ?? false
 
 	return (
 		<KobalteBreadcrumbs class={cn('flex flex-wrap items-center gap-1 text-sm', local.class)}>
@@ -36,7 +42,13 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
 					{(item, i) => {
 						const isLast = () => i() === local.items.length - 1
 						return (
-							<li class="flex items-center gap-1" classList={{ 'text-ink-500': !isLast() }}>
+							<li
+								class="flex items-center gap-1"
+								classList={{
+									'text-ink-500': !isLast() && !inv(),
+									'text-white/50': !isLast() && inv(),
+								}}
+							>
 								<Show when={i() > 0}>
 									<KobalteBreadcrumbs.Separator class="flex shrink-0">
 										{separator()}
@@ -45,14 +57,22 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
 								<Show
 									when={!!item.href && !isLast()}
 									fallback={
-										<span class="font-medium text-ink-800" {...(isLast() && { 'aria-current': 'page' })}>
+										<span
+											class={cn('font-medium', inv() ? 'text-white' : 'text-ink-800')}
+											{...(isLast() && { 'aria-current': 'page' })}
+										>
 											{item.label}
 										</span>
 									}
 								>
 									<KobalteBreadcrumbs.Link
 										href={item.href!}
-										class="text-ink-600 hover:text-ink-900 underline-offset-2 hover:underline"
+										class={cn(
+											'underline-offset-2 hover:underline',
+											inv()
+												? 'text-white/70 hover:text-white'
+												: 'text-ink-600 hover:text-ink-900',
+										)}
 									>
 										{item.label}
 									</KobalteBreadcrumbs.Link>

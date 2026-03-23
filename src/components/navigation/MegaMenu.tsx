@@ -7,6 +7,7 @@ import { useIcons } from '../../icons'
 /** ─── Variant context ───────────────────────────────────────────────────────── */
 type MenuVariant = 'default' | 'underline' | 'ghost'
 const VariantContext = createContext<MenuVariant>('default')
+const InvertedContext = createContext(false)
 
 /** ─── Injected styles ───────────────────────────────────────────────────────── */
 function injectMegaMenuStyles() {
@@ -94,6 +95,8 @@ export interface MegaMenuBarProps {
 	containerRef?: HTMLElement
 	/** Horizontal alignment of nav items */
 	justify?: 'start' | 'center' | 'end'
+	/** Use light (white-based) trigger text for dark backgrounds in light mode */
+	inverted?: boolean
 	/** Standard Kobalte NavigationMenu props */
 	id?: string
 	disabled?: boolean
@@ -101,7 +104,7 @@ export interface MegaMenuBarProps {
 }
 
 export function MegaMenuBar(props: MegaMenuBarProps) {
-	const [local, others] = splitProps(props, ['class', 'children', 'variant', 'fullWidth', 'containerRef', 'justify'])
+	const [local, others] = splitProps(props, ['class', 'children', 'variant', 'fullWidth', 'containerRef', 'justify', 'inverted'])
 	const variant = () => local.variant ?? 'default'
 	const isUnderline = () => variant() === 'underline'
 	let wrapperRef!: HTMLDivElement
@@ -129,7 +132,9 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 				{...others}
 			>
 				<VariantContext.Provider value={variant()}>
+				<InvertedContext.Provider value={local.inverted ?? false}>
 					{local.children}
+				</InvertedContext.Provider>
 				</VariantContext.Provider>
 
 				{/* Viewport anchor */}
@@ -189,6 +194,7 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 	const [local, others] = splitProps(props, ['class', 'children', 'noChevron', 'variant', 'icon', 'iconPosition'])
 	const icons = useIcons()
 	const contextVariant = useContext(VariantContext)
+	const inv = useContext(InvertedContext)
 	const v = () => local.variant ?? contextVariant
 	const ip = () => local.iconPosition ?? 'start'
 	const isStacked = () => ip() === 'top' || ip() === 'bottom'
@@ -196,26 +202,33 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 	return (
 		<KobalteNavigationMenu.Trigger
 			class={cn(
-				'group relative flex items-center gap-1.5 text-sm font-medium text-ink-700 transition-colors',
+				'group relative flex items-center gap-1.5 text-sm font-medium transition-colors',
+				inv ? 'text-white/65' : 'text-ink-700',
 				'outline-none',
-				v() !== 'underline' && 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-primary-500/50',
+				v() !== 'underline' && (inv
+					? 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-white/40'
+					: 'data-[focus-visible]:ring-2 data-[focus-visible]:ring-primary-500/50'),
 				v() === 'default' && [
 					!isStacked() && 'h-9',
 					'rounded-md px-3 py-2',
-					'hover:bg-surface-overlay hover:text-ink-900',
-					'data-[expanded]:bg-surface-overlay data-[expanded]:text-ink-900',
+					inv
+						? 'hover:bg-white/10 hover:text-white data-[expanded]:bg-white/10 data-[expanded]:text-white'
+						: 'hover:bg-surface-overlay hover:text-ink-900 data-[expanded]:bg-surface-overlay data-[expanded]:text-ink-900',
 				],
 				v() === 'underline' && [
 					'h-full rounded-none px-3',
 					isStacked() && 'py-2',
 					'border-b-2 border-transparent',
-					'hover:border-primary-500 hover:text-primary-600',
-					'data-[expanded]:border-primary-500 data-[expanded]:text-primary-600',
+					inv
+						? 'hover:border-white/60 hover:text-white data-[expanded]:border-white/60 data-[expanded]:text-white'
+						: 'hover:border-primary-500 hover:text-primary-600 data-[expanded]:border-primary-500 data-[expanded]:text-primary-600',
 				],
 				v() === 'ghost' && [
 					!isStacked() && 'h-9',
 					'rounded-md px-3 py-2',
-					'hover:text-primary-600 data-[expanded]:text-primary-600',
+					inv
+						? 'hover:text-white data-[expanded]:text-white'
+						: 'hover:text-primary-600 data-[expanded]:text-primary-600',
 				],
 				local.class,
 			)}
@@ -245,7 +258,10 @@ export function MegaMenuTrigger(props: MegaMenuTriggerProps) {
 			</Show>
 			<Show when={!local.noChevron && !isStacked()}>
 				{icons.chevronDown({
-					class: 'relative h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform duration-200 group-data-[expanded]:rotate-180',
+					class: cn(
+						'relative h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[expanded]:rotate-180',
+						inv ? 'text-white/40 group-hover:text-white/60' : 'text-ink-400',
+					),
 					'aria-hidden': 'true',
 				})}
 			</Show>
@@ -480,6 +496,7 @@ export interface MegaMenuBarLinkProps {
 
 export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 	const contextVariant = useContext(VariantContext)
+	const inv = useContext(InvertedContext)
 	const v = () => props.variant ?? contextVariant
 
 	return (
@@ -487,15 +504,23 @@ export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 			<a
 				href={props.href}
 				class={cn(
-					'flex items-center text-sm font-medium text-ink-700 transition-colors',
-					'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
-					v() === 'default' && 'h-9 rounded-md px-3 py-2 hover:bg-surface-overlay hover:text-ink-900',
+					'flex items-center text-sm font-medium transition-colors',
+					inv ? 'text-white/65' : 'text-ink-700',
+					'outline-none',
+					inv ? 'focus-visible:ring-2 focus-visible:ring-white/40' : 'focus-visible:ring-2 focus-visible:ring-primary-500/50',
+					v() === 'default' && (inv
+						? 'h-9 rounded-md px-3 py-2 hover:bg-white/10 hover:text-white'
+						: 'h-9 rounded-md px-3 py-2 hover:bg-surface-overlay hover:text-ink-900'),
 					v() === 'underline' && [
 						'h-full rounded-none px-3',
 						'border-b-2 border-transparent',
-						'hover:border-primary-500 hover:text-primary-600',
+						inv
+							? 'hover:border-white/60 hover:text-white'
+							: 'hover:border-primary-500 hover:text-primary-600',
 					],
-					v() === 'ghost' && 'h-9 rounded-md px-3 py-2 hover:text-primary-600',
+					v() === 'ghost' && (inv
+						? 'h-9 rounded-md px-3 py-2 hover:text-white'
+						: 'h-9 rounded-md px-3 py-2 hover:text-primary-600'),
 					props.class,
 				)}
 			>
