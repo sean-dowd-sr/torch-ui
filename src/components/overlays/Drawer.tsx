@@ -391,7 +391,7 @@ export function Drawer(props: DrawerProps) {
 						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
 							<KobalteDialog.CloseButton
 								aria-label="Close"
-								class="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 z-10"
+								class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 z-10"
 								onClick={setCloseReason}
 							>
 								{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
