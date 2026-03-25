@@ -1,4 +1,4 @@
-import { For, Show, type JSX, splitProps, onCleanup, createEffect } from 'solid-js'
+import { For, Show, type JSX, splitProps, onCleanup } from 'solid-js'
 import { cn } from '../../utilities/classNames'
 import { createSortableDrag } from '../../utilities/createSortableDrag'
 import { useIcons } from '../../icons'
@@ -26,7 +26,6 @@ function ReorderableListDragOverlay(props: {
   content?: HTMLElement
 }) {
   let el: HTMLDivElement | undefined
-  let contentRef: HTMLDivElement | undefined
 
   const onMove = (e: PointerEvent) => {
     if (!el) return
@@ -39,13 +38,6 @@ function ReorderableListDragOverlay(props: {
   document.addEventListener('pointerup', cleanup, { once: true })
   document.addEventListener('pointercancel', cleanup, { once: true })
   onCleanup(cleanup)
-
-  // Set innerHTML when content changes
-  createEffect(() => {
-    if (contentRef && props.content) {
-      contentRef.innerHTML = props.content.innerHTML
-    }
-  })
 
   return (
     <div
@@ -61,9 +53,9 @@ function ReorderableListDragOverlay(props: {
         'z-index': '50',
         'will-change': 'transform',
       }}
-      class="rounded-lg border border-surface-border bg-surface-raised text-sm shadow-lg select-none"
+      class="rounded-lg border border-surface-border bg-surface-raised text-sm shadow-lg select-none overflow-hidden"
     >
-      <div ref={contentRef} class="flex items-center justify-between px-4 py-3" />
+      <div ref={(node) => { if (node && props.content) node.appendChild(props.content.cloneNode(true)) }} />
     </div>
   )
 }
@@ -100,7 +92,7 @@ export function ReorderableList(props: ReorderableListProps) {
   let pointerY = 0
   let overlayW = 0
   let overlayH = 0
-  let overlayContent: JSX.Element | undefined
+  let overlayContent: HTMLElement | undefined
 
   return (
     <div
