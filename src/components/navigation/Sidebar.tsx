@@ -279,7 +279,7 @@ export function Sidebar(props: SidebarProps) {
 						class={cn(
 							'flex w-full items-center justify-between gap-1 rounded px-2 py-1',
 							'text-[11px] font-semibold uppercase tracking-wider',
-							'text-ink-400 hover:text-ink-600',
+							'text-ink-600 hover:text-ink-800',
 							'outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-inset'
 						)}
 					>
@@ -300,7 +300,7 @@ export function Sidebar(props: SidebarProps) {
 		return (
 			<div class="mb-2">
 				<Show when={group.title && !local.collapsed}>
-					<p class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400 select-none">
+					<p class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-ink-600 select-none">
 						{group.title}
 					</p>
 				</Show>

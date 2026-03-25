@@ -387,17 +387,17 @@ export function Drawer(props: DrawerProps) {
 					</Show>
 
 					<div class={cn('relative flex min-h-0 flex-1 flex-col', !local.noPadding && 'p-6')}>
-						{/* Close button in content area when actions are at bottom */}
+						{/* Close button positioned absolutely within the padding area but outside content flow */}
 						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
 							<KobalteDialog.CloseButton
 								aria-label="Close"
-								class="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
+								class="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700 z-10"
 								onClick={setCloseReason}
 							>
 								{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
 							</KobalteDialog.CloseButton>
 						</Show>
-						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto p-1', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
+						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto p-1', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
 							{local.children}
 						</div>
 					</div>
