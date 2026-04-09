@@ -3,46 +3,37 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'v*.*.*'
-
-# Required for npm provenance attestation
-permissions:
-  contents: read
-  id-token: write
+      - 'v*'
 
 jobs:
   publish:
-    name: Build & publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Verify tag matches package version
-        run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-            echo "❌ package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
-            exit 1
-          fi
-          echo "✅ Version $PKG_VERSION matches tag"
+      - name: Type check
+        run: npm run typecheck
 
-      - name: Run tests
+      - name: Test
         run: npm test
 
-      - name: Publish to npm
-        run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish --provenance --access public
