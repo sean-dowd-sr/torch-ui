@@ -5,6 +5,12 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-04-10
+
+### Fixed
+- **`MegaMenu`**: viewport and content motion use **opacity-only** animations (no 3D `rotateX`, `scale`, or horizontal `translateX`) so dropdown text and icons stay sharp on HiDPI. Removed arrow `drop-shadow` filter; bumped injected stylesheet id to `torchui-mega-menu-styles-v2` and remove legacy `torchui-mega-menu-styles` on mount.
+- **`MegaMenu`**: re-applied v0.6.0 **alignment** tweaks — section/item horizontal rhythm (`px-3` items, tighter column `gap-0.5`), **`MegaMenuBarLink`** underline bar stretch (`flex items-stretch` / `h-full`), description as **`div`**; item vertical padding **`py-1.5`** (with `px-3`) for density vs v0.6.0’s `py-2.5`.
+
 ## [0.6.1] - 2026-04-09
 
 ### Fixed

@@ -11,7 +11,8 @@ const InvertedContext = createContext(false)
 
 /** ─── Injected styles ───────────────────────────────────────────────────────── */
 function injectMegaMenuStyles() {
-	const id = 'torchui-mega-menu-styles'
+	document.getElementById('torchui-mega-menu-styles')?.remove()
+	const id = 'torchui-mega-menu-styles-v2'
 	const el = document.getElementById(id) as HTMLStyleElement | null
 	if (el) return
 	const style = document.createElement('style')
@@ -26,25 +27,28 @@ function injectMegaMenuStyles() {
 			overflow-x: clip;
 			overflow-y: visible;
 			transition: width 200ms ease;
-			animation: torchui-mm-viewport-hide 180ms ease-in forwards;
+			animation: torchui-mm-viewport-hide 160ms ease-in forwards;
 			outline: none;
 		}
 		.torchui-mm-viewport[data-expanded] {
 			pointer-events: auto;
 			opacity: 1;
-			animation: torchui-mm-viewport-show 200ms ease-out;
+			animation: torchui-mm-viewport-show 180ms ease-out forwards;
+			transform: none;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
 		}
+		/* Opacity-only: any transform on the viewport keeps a composited layer and makes body text look soft on HiDPI */
 		@keyframes torchui-mm-viewport-show {
-			from { opacity: 0; transform: rotateX(-8deg) scale(0.97); }
-			to   { opacity: 1; transform: rotateX(0deg)  scale(1);    }
+			from { opacity: 0; }
+			to   { opacity: 1; }
 		}
 		@keyframes torchui-mm-viewport-hide {
-			from { opacity: 1; transform: rotateX(0deg)  scale(1);    }
-			to   { opacity: 0; transform: rotateX(-4deg) scale(0.97); }
+			from { opacity: 1; }
+			to   { opacity: 0; }
 		}
 		.torchui-mm-arrow {
 			color: var(--color-surface-raised);
-			filter: drop-shadow(0 -1px 0 var(--color-surface-border));
 			transition: transform 200ms ease;
 		}
 		.torchui-mm-content { 
@@ -62,15 +66,15 @@ function injectMegaMenuStyles() {
 		.torchui-mm-viewport[data-fullwidth] .torchui-mm-content { width: 100%; min-width: unset; }
 		.torchui-mm-viewport[data-fullwidth] { transform-origin: top left; }
 		.torchui-mm-content:not([data-expanded]):not([data-motion]) { opacity: 0; pointer-events: none; }
-		.torchui-mm-content[data-expanded]              { pointer-events: auto; z-index: 2; }
+		.torchui-mm-content[data-expanded]              { pointer-events: auto; z-index: 2; transform: none; }
 		.torchui-mm-content[data-motion="from-end"]     { animation-name: torchui-mm-from-end;   z-index: 2; }
 		.torchui-mm-content[data-motion="from-start"]   { animation-name: torchui-mm-from-start; z-index: 2; }
 		.torchui-mm-content[data-motion="to-end"]       { animation-name: torchui-mm-to-end;     z-index: 1; }
 		.torchui-mm-content[data-motion="to-start"]     { animation-name: torchui-mm-to-start;   z-index: 1; }
-		@keyframes torchui-mm-from-end   { from { opacity: 0; transform: translateX( 20px) } to { opacity: 1; transform: translateX(0) } }
-		@keyframes torchui-mm-from-start { from { opacity: 0; transform: translateX(-20px) } to { opacity: 1; transform: translateX(0) } }
-		@keyframes torchui-mm-to-end     { from { opacity: 1; transform: translateX(0) } to { opacity: 0; transform: translateX( 20px) } }
-		@keyframes torchui-mm-to-start   { from { opacity: 1; transform: translateX(0) } to { opacity: 0; transform: translateX(-20px) } }
+		@keyframes torchui-mm-from-end   { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes torchui-mm-from-start { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes torchui-mm-to-end     { from { opacity: 1; } to { opacity: 0; } }
+		@keyframes torchui-mm-to-start   { from { opacity: 1; } to { opacity: 0; } }
 		.torchui-mm-root { display: flex; gap: 0.25rem; position: relative; height: 100%; align-items: stretch; width: 100%; min-width: max-content; }
 		.torchui-mm-root > div { height: 100%; }
 		.torchui-mm-root > div > li { height: 100%; display: flex; }
@@ -138,10 +142,7 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 				</VariantContext.Provider>
 
 				{/* Viewport anchor */}
-				<div
-					class="z-[9999] pointer-events-none absolute top-full left-0 flex w-full justify-center"
-					style={{ perspective: '800px' }}
-				>
+				<div class="z-[9999] pointer-events-none absolute top-full left-0 flex w-full justify-center">
 					<KobalteNavigationMenu.Viewport
 						data-fullwidth={local.fullWidth ? '' : undefined}
 						class={cn(
@@ -320,7 +321,7 @@ export function MegaMenuPanel(props: MegaMenuPanelProps) {
 /** ─── MegaMenuColumn ────────────────────────────────────────────────────────── */
 export function MegaMenuColumn(props: { class?: string; children: JSX.Element }) {
 	return (
-		<div class={cn('flex flex-col gap-1', props.class)}>
+		<div class={cn('flex flex-col gap-0.5', props.class)}>
 			{props.children}
 		</div>
 	)
@@ -364,7 +365,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			}}
 			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
-				'group flex w-full items-start gap-3 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
+				'group flex w-full items-start gap-3 rounded-lg px-3 py-1.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.active ? 'bg-primary-50' : 'hover:bg-surface-overlay',
 				props.disabled && 'pointer-events-none opacity-40',
 				props.class,
@@ -392,7 +393,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 					</Show>
 				</div>
 				<Show when={props.description}>
-					<p class="mt-0.5 text-xs leading-relaxed text-ink-500">{props.description}</p>
+					<div class="mt-0.5 text-xs leading-relaxed text-ink-500">{props.description}</div>
 				</Show>
 			</div>
 		</Dynamic>
@@ -499,7 +500,7 @@ export function MegaMenuBarLink(props: MegaMenuBarLinkProps) {
 	const v = () => props.variant ?? contextVariant
 
 	return (
-		<div>
+		<div class={cn('flex items-stretch', v() === 'underline' && 'h-full')}>
 			<a
 				href={props.href}
 				class={cn(
