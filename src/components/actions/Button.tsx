@@ -186,19 +186,19 @@ export function Button(props: ButtonProps) {
 			radiusClasses[resolvedRadius()],
 			local.fullWidth && 'w-full',
 			hasElevation() && 'shadow-sm hover:shadow',
-			isDisabled() && 'opacity-50 cursor-not-allowed pointer-events-none',
+			isDisabled() && 'opacity-50 pointer-events-none',
 			local.class
 		)
 
 	const toggleClass = () =>
 		cn(
 			sharedButtonClass,
-			'focus-visible:ring-primary-500/50 disabled:opacity-50 disabled:cursor-not-allowed',
+			'focus-visible:ring-primary-500/50 disabled:opacity-50',
 			toggleModeVariants[toggleVariant()],
 			local.iconOnly ? iconOnlySizeConfig[size()] : buttonSizeConfig[size()],
 			radiusClasses[resolvedRadius()],
 			local.fullWidth && 'w-full',
-			isDisabled() && 'opacity-50 cursor-not-allowed pointer-events-none',
+			isDisabled() && 'opacity-50 pointer-events-none',
 			local.class
 		)
 

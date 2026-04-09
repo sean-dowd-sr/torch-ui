@@ -234,7 +234,7 @@ export function Slider(props: SliderProps) {
 										'shadow-[0_1px_3px_rgba(0,0,0,0.12)]',
 										'ring-0 hover:ring-0 focus-visible:ring-2',
 										focusRingClass(),
-										'group-[.is-disabled]/slider:bg-surface-border group-[.is-disabled]/slider:cursor-not-allowed group-[.is-disabled]/slider:shadow-none'
+										'group-[.is-disabled]/slider:bg-surface-border group-[.is-disabled]/slider:group-[.is-disabled]/slider:shadow-none'
 									)}
 								>
 									<KobalteSlider.Input />

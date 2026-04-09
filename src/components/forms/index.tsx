@@ -1,7 +1,7 @@
 /** Form controls: Input, TextArea, Select, Autocomplete, MultiSelect, Checkbox, Switch, RadioGroup, NumberField, CodeInput, Slider, FileUpload, DatePicker, ColorPicker */
 export { Input, type InputProps } from './Input'
 export { TextArea, type TextAreaProps, type TextAreaResize } from './TextArea'
-export { Select, type SelectProps, type SelectOption } from './Select'
+export { Select, type SelectProps, type SelectOption, type SelectOptionGroup } from './Select'
 export { Autocomplete, type AutocompleteProps, type AutocompleteOption } from './Autocomplete'
 export { MultiSelect, type MultiSelectProps, type MultiSelectOption } from './MultiSelect'
 export { Checkbox, type CheckboxProps, type CheckboxSize } from './Checkbox'

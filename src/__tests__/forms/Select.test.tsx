@@ -10,6 +10,23 @@ const OPTIONS = [
 	{ value: 'gb', label: 'United Kingdom' },
 ]
 
+const GROUPS = [
+	{
+		group: 'Americas',
+		options: [
+			{ value: 'us', label: 'United States' },
+			{ value: 'ca', label: 'Canada' },
+		],
+	},
+	{
+		group: 'Europe',
+		options: [
+			{ value: 'gb', label: 'United Kingdom' },
+			{ value: 'de', label: 'Germany' },
+		],
+	},
+]
+
 describe('Select', () => {
 	it('renders label', () => {
 		renderUI(() => <Select label="Country" options={OPTIONS} />)
@@ -71,5 +88,37 @@ describe('Select', () => {
 	it('shows helper text', () => {
 		renderUI(() => <Select options={OPTIONS} helperText="Select your country of residence" />)
 		expect(screen.getByText('Select your country of residence')).toBeInTheDocument()
+	})
+})
+
+describe('Select — grouped options', () => {
+	it('renders section headers when groups are provided', async () => {
+		const user = userEvent.setup()
+		const { container } = renderUI(() => <Select groups={GROUPS} />)
+		await user.click(container.querySelector('button')!)
+		expect(screen.getByText('Americas')).toBeInTheDocument()
+		expect(screen.getByText('Europe')).toBeInTheDocument()
+	})
+
+	it('renders all options within groups', async () => {
+		const user = userEvent.setup()
+		const { container } = renderUI(() => <Select groups={GROUPS} />)
+		await user.click(container.querySelector('button')!)
+		expect(screen.getByRole('option', { name: 'United States' })).toBeInTheDocument()
+		expect(screen.getByRole('option', { name: 'Germany' })).toBeInTheDocument()
+	})
+
+	it('calls onValueChange when a grouped option is selected', async () => {
+		const user = userEvent.setup()
+		const onValueChange = vi.fn()
+		const { container } = renderUI(() => <Select groups={GROUPS} onValueChange={onValueChange} />)
+		await user.click(container.querySelector('button')!)
+		await user.click(screen.getByRole('option', { name: 'Germany' }))
+		expect(onValueChange).toHaveBeenCalledWith('de')
+	})
+
+	it('shows controlled value from a group', () => {
+		renderUI(() => <Select groups={GROUPS} value="gb" />)
+		expect(screen.getByText('United Kingdom')).toBeInTheDocument()
 	})
 })

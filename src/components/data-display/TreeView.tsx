@@ -158,7 +158,7 @@ export function TreeView(props: TreeViewProps) {
 									selected()
 										? 'bg-primary-50 text-primary-700 font-medium'
 										: 'text-ink-700 hover:bg-surface-overlay hover:text-ink-900',
-									node.disabled && 'cursor-not-allowed opacity-40',
+									node.disabled && 'opacity-40',
 								)}
 								style={{ 'padding-left': `${level * indent() + 8}px` }}
 							>

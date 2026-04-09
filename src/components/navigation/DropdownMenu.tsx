@@ -46,7 +46,7 @@ export function DropdownMenuItem(props: DropdownMenuItemProps) {
 		<_KbItem
 			class={cn(
 				'flex cursor-pointer select-none items-center rounded-md px-2 py-1.5 text-sm text-ink-700 outline-none',
-				'data-[highlighted]:bg-surface-overlay data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+				'data-[highlighted]:bg-surface-overlay data-[disabled]:opacity-50 data-[disabled]:',
 				local.class,
 			)}
 			{...others}
