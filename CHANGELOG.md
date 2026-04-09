@@ -5,6 +5,13 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2026-04-10
+
+### Fixed
+- **`MegaMenu`**: `MegaMenu.Content` now renders **`as="div"`** instead of Kobalte’s default **`ul`**. Custom panel markup (grids, sections, `button` rows) is not valid inside `ul`, so browsers could “repair” the tree and show **progressively indented / staggered** rows when multiple items appeared in one column.
+- **`MegaMenuItem`**: added **`min-w-0`** and **`text-left`** so labels stay aligned in flex layouts.
+- **`MegaMenu`**: injected styles id **`torchui-mega-menu-styles-v3`** (drops legacy v1/v2 tags on mount); viewport uses **opacity** transition only — **no `width` transition** (width animation reflows text and looked blurry).
+
 ## [0.6.2] - 2026-04-10
 
 ### Fixed

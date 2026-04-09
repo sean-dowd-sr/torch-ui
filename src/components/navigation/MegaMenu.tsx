@@ -12,13 +12,15 @@ const InvertedContext = createContext(false)
 /** ─── Injected styles ───────────────────────────────────────────────────────── */
 function injectMegaMenuStyles() {
 	document.getElementById('torchui-mega-menu-styles')?.remove()
-	const id = 'torchui-mega-menu-styles-v2'
+	document.getElementById('torchui-mega-menu-styles-v2')?.remove()
+	const id = 'torchui-mega-menu-styles-v3'
 	const el = document.getElementById(id) as HTMLStyleElement | null
 	if (el) return
 	const style = document.createElement('style')
 	style.id = id
 	document.head.appendChild(style)
 	style.textContent = `
+		/* No width transition: animating viewport width reflows text every frame and reads as blurry. */
 		.torchui-mm-viewport {
 			position: relative;
 			transform-origin: var(--kb-menu-content-transform-origin);
@@ -26,26 +28,13 @@ function injectMegaMenuStyles() {
 			opacity: 0;
 			overflow-x: clip;
 			overflow-y: visible;
-			transition: width 200ms ease;
-			animation: torchui-mm-viewport-hide 160ms ease-in forwards;
 			outline: none;
+			transition: opacity 120ms ease;
 		}
 		.torchui-mm-viewport[data-expanded] {
 			pointer-events: auto;
 			opacity: 1;
-			animation: torchui-mm-viewport-show 180ms ease-out forwards;
 			transform: none;
-			-webkit-font-smoothing: antialiased;
-			-moz-osx-font-smoothing: grayscale;
-		}
-		/* Opacity-only: any transform on the viewport keeps a composited layer and makes body text look soft on HiDPI */
-		@keyframes torchui-mm-viewport-show {
-			from { opacity: 0; }
-			to   { opacity: 1; }
-		}
-		@keyframes torchui-mm-viewport-hide {
-			from { opacity: 1; }
-			to   { opacity: 0; }
 		}
 		.torchui-mm-arrow {
 			color: var(--color-surface-raised);
@@ -57,9 +46,9 @@ function injectMegaMenuStyles() {
 			left: 0; 
 			z-index: 1; 
 			min-width: max-content;
-			animation-duration: 100ms; 
-			animation-timing-function: ease; 
-			animation-fill-mode: forwards; 
+			animation-duration: 80ms;
+			animation-timing-function: ease;
+			animation-fill-mode: forwards;
 			pointer-events: none;
 			outline: none;
 		}
@@ -147,7 +136,7 @@ export function MegaMenuBar(props: MegaMenuBarProps) {
 						data-fullwidth={local.fullWidth ? '' : undefined}
 						class={cn(
 							'torchui-mm-viewport',
-							'relative border border-surface-border bg-surface-raised shadow-lg',
+							'relative isolate border border-surface-border bg-surface-raised shadow-lg',
 							local.fullWidth ? 'mt-0' : isUnderline() ? 'mt-0' : 'mt-3',
 							local.fullWidth
 								? 'w-full rounded-b-xl rounded-t-none h-[var(--kb-navigation-menu-viewport-height)]'
@@ -280,7 +269,10 @@ export function MegaMenuContent(props: MegaMenuContentProps) {
 	const [local, others] = splitProps(props, ['class', 'children'])
 	return (
 		<KobalteNavigationMenu.Portal>
+			{/* `as="div"`: default Kobalte NavigationMenu.Content is `ul`; our panel is divs + buttons. Invalid
+			    `ul > div` makes browsers insert implied list boxes, so each extra row looks progressively indented. */}
 			<KobalteNavigationMenu.Content
+				as="div"
 				class={cn('torchui-mm-content', local.class)}
 				{...others}
 			>
@@ -365,7 +357,7 @@ export function MegaMenuItem(props: MegaMenuItemProps) {
 			}}
 			aria-disabled={props.disabled ? 'true' : undefined}
 			class={cn(
-				'group flex w-full items-start gap-3 rounded-lg px-3 py-1.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
+				'group flex w-full min-w-0 items-start gap-3 rounded-lg px-3 py-1.5 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-500/50',
 				props.active ? 'bg-primary-50' : 'hover:bg-surface-overlay',
 				props.disabled && 'pointer-events-none opacity-40',
 				props.class,
