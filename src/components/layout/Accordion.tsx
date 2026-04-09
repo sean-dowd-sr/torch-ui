@@ -99,7 +99,7 @@ export function AccordionItemStyled(props: AccordionItemStyledProps) {
 		<KobalteAccordion.Item
 			class={cn(
 				'w-full overflow-hidden border border-surface-border first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:-mt-px',
-				'data-[disabled]:opacity-60 data-[disabled]:',
+				'data-[disabled]:opacity-60 data-[disabled]:cursor-not-allowed',
 				local.class
 			)}
 			{...others}

@@ -224,7 +224,7 @@ function CodeInputSingle(props: CodeInputProps) {
 
 						: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
 
-					'disabled:bg-surface-dim disabled:text-ink-500 disabled:',
+					'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
 
 					local.class
 
@@ -478,7 +478,7 @@ function CodeInputDigits(props: CodeInputProps) {
 
 								: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
 
-							'disabled:opacity-50 disabled:'
+							'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 
 						)}
 

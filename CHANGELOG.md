@@ -5,6 +5,13 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-04-09
+
+### Fixed
+- Restored **`MegaMenu`** and **`Breadcrumbs`** behavior from v0.5.15 (`InvertedContext`, `inverted` prop) after an accidental regression in v0.6.0.
+- **`DropdownMenu`**, **`ContextMenu`**, and many form/navigation components: repaired truncated Tailwind classes (`data-[disabled]:…`, `disabled:…`) that produced invalid CSS in v0.6.0; restored intended `cursor-not-allowed` and disabled surface styling consistent with v0.5.15.
+- **`NumberField`**: stepper triggers no longer used a broken `disabled:disabled:opacity-50` class string; disabled styling matches the standalone input path.
+
 ## [0.4.0] - 2026-03-18
 
 ### Added

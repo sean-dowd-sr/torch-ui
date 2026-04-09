@@ -140,8 +140,8 @@ const toggleItemBaseClass = cn(
 	'data-[pressed]:hover:bg-primary-600 data-[pressed]:hover:text-white',
 	'data-[pressed]:!border-white/20',
 	'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500/50',
-	'disabled:opacity-50 disabled:',
-	'data-[disabled]:opacity-50 data-[disabled]:'
+	'disabled:opacity-50 disabled:cursor-not-allowed',
+	'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
 )
 
 const toggleItemSizeClass: Record<ComponentSize, string> = {

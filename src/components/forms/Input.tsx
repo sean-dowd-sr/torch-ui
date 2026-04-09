@@ -179,13 +179,13 @@ export function Input(props: InputProps) {
 							hasStart() ? sc().plAdorn : sc().pl,
 							hasEnd() ? sc().prAdorn : sc().pr,
 							hasAffix()
-								? 'bg-surface-raised border-none ring-0 disabled:bg-surface-dim disabled:text-ink-500 disabled:'
+								? 'bg-surface-raised border-none ring-0 disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 								: cn(
 										'rounded-lg border bg-surface-raised',
 										hasError()
 											? 'border-danger-500 focus:ring-2 focus:ring-inset focus:ring-danger-500 focus:border-transparent'
 											: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
-										'disabled:bg-surface-dim disabled:text-ink-500 disabled:'
+										'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 								  ),
 							local.inputClass
 						)}

@@ -45,6 +45,7 @@ dev/
 # Temporary files
 *.tmp
 *.temp
+*.tgz
 node_modules
 
 # Internal reports

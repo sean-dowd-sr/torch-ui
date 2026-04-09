@@ -220,7 +220,7 @@ export function RadioGroup(props: RadioGroupProps) {
 
 									opt.description ? 'items-start' : 'items-center',
 
-									'data-[disabled]:opacity-50 data-[disabled]:',
+									'data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed',
 
 									'data-[highlighted]:bg-surface-overlay',
 
@@ -252,7 +252,7 @@ export function RadioGroup(props: RadioGroupProps) {
 
 										'data-[checked]:border-primary-500 data-[checked]:bg-transparent',
 
-										'data-[disabled]:opacity-50'
+										'data-[disabled]:bg-surface-dim data-[disabled]:border-surface-border'
 
 									)}
 

@@ -293,7 +293,7 @@ export const Select = (props: SelectProps) => {
 	const renderItem = (itemProps: { item: { rawValue: SelectOption } }) => (
 		<KobalteSelect.Item
 			item={itemProps.item as never}
-			class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:"
+			class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed"
 		>
 			<KobalteSelect.ItemLabel class="flex-1">
 				<span class="flex min-w-0 items-center gap-2">
@@ -392,7 +392,7 @@ export const Select = (props: SelectProps) => {
 
 						: '',
 
-					'disabled:bg-surface-dim disabled:text-ink-500 disabled:',
+					'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
 
 					'data-[placeholder-shown]:text-ink-400',
 

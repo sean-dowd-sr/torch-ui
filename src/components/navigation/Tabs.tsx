@@ -99,7 +99,7 @@ export function TabsTrigger(props: TabsTriggerProps) {
 			class={cn(
 				'rounded-md px-3 py-1.5 text-xs font-medium text-ink-500 transition-colors',
 				'data-[selected]:bg-surface-overlay data-[selected]:text-ink-900',
-				'data-[disabled]:opacity-50 data-[disabled]:',
+				'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
 				local.class,
 			)}
 			{...others}

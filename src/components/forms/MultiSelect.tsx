@@ -698,7 +698,7 @@ export function MultiSelect(props: MultiSelectProps) {
 
 							item={itemProps.item}
 
-							class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:"
+							class="relative flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none text-ink-900 data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed"
 
 						>
 
@@ -816,7 +816,7 @@ export function MultiSelect(props: MultiSelectProps) {
 
 								'data-[expanded]:hover:bg-transparent',
 
-								'data-[disabled]:bg-surface-base data-[disabled]:text-ink-500 data-[disabled]:',
+								'data-[disabled]:bg-surface-base data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed',
 
 								'data-[placeholder-shown]:text-ink-400',
 

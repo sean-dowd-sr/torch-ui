@@ -324,7 +324,7 @@ export function NumberField(props: NumberFieldProps) {
 
 									: 'border-surface-border focus:ring-2 focus:ring-inset focus:ring-primary-500 focus:border-transparent',
 
-								'disabled:bg-surface-dim disabled:text-ink-500 disabled:'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 
 							)}
 
@@ -388,7 +388,7 @@ export function NumberField(props: NumberFieldProps) {
 
 								stepperButtonW(),
 
-								'disabled:disabled:opacity-50'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 
 							)}
 
@@ -440,7 +440,7 @@ export function NumberField(props: NumberFieldProps) {
 
 								'px-2 text-ink-900 placeholder:text-ink-400',
 
-								'disabled:bg-surface-dim disabled:text-ink-500 disabled:'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 
 							)}
 
@@ -458,7 +458,7 @@ export function NumberField(props: NumberFieldProps) {
 
 								stepperButtonW(),
 
-								'disabled:disabled:opacity-50'
+								'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed'
 
 							)}
 

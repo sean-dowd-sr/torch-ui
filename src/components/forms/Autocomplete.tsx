@@ -400,7 +400,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 						item={itemProps.item}
 
-						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:opacity-50 data-[disabled]:"
+						class="relative flex items-center justify-between px-3 py-2 text-sm text-ink-900 cursor-pointer outline-none data-[highlighted]:bg-primary-50 data-[highlighted]:text-primary-900 data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed"
 
 					>
 
@@ -478,7 +478,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 					<KobalteCombobox.Input
 
-						class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:"
+						class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:cursor-not-allowed"
 
 						placeholder={local.placeholder || 'Search...'}
 
