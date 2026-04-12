@@ -173,13 +173,18 @@ export function CodeBlock(props: CodeBlockProps) {
 	}
 
 	const containerClass = () => {
-		const base = primary() ? 'bg-primary-600' : 'bg-surface-raised'
+		const base = primary() ? 'bg-primary-600' : dark() ? '' : 'bg-surface-raised'
 		if (embedded()) return base
 		return cn(
 			base,
 			primary() ? 'border border-primary-600/80' : 'border border-surface-border'
 		)
 	}
+
+	const containerStyle = () =>
+		dark() && !primary()
+			? { 'background-color': 'color-mix(in oklch, white 6%, #020b13)' }
+			: undefined
 
 	const headerBorderClass = () =>
 		primary() ? 'border-primary-500/60' : 'border-surface-border'
@@ -456,6 +461,7 @@ export function CodeBlock(props: CodeBlockProps) {
 				containerClass(),
 				local.class
 			)}
+			style={containerStyle()}
 			{...others}
 		>
 			<Show when={collapsible()} fallback={codeContent}>
