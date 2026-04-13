@@ -5,6 +5,14 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2026-04-13
+
+### Fixed
+- **`Breadcrumbs`**: inverted separator color changed from `text-white/30` to `text-white/50` for better contrast on dark backgrounds.
+- **`MegaMenuColumn`**: gap between items increased from `gap-0.5` to `gap-1` so hover/active states no longer touch.
+- **`MegaMenuSection`**: section label and children wrapped in `gap-1` flex column; removed `mb-1` from label so spacing is consistent.
+- **`TableRow`**: added explicit `stripe` prop so grouped `DataTable` rows reset the stripe pattern at the start of each group instead of continuing the CSS `even:` count across group boundaries.
+
 ## [0.6.3] - 2026-04-10
 
 ### Fixed

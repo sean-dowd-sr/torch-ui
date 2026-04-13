@@ -24,7 +24,7 @@ export interface BreadcrumbsProps {
 function DefaultSeparator(props: { inverted?: boolean }): JSX.Element {
 	const icons = useIcons()
 	return icons.chevronRight({
-		class: cn('h-4 w-4 shrink-0', props.inverted ? 'text-white/30' : 'text-ink-400'),
+		class: cn('h-4 w-4 shrink-0', props.inverted ? 'text-white/50' : 'text-ink-400'),
 		'aria-hidden': 'true',
 	})
 }

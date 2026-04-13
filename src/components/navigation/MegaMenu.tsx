@@ -313,7 +313,7 @@ export function MegaMenuPanel(props: MegaMenuPanelProps) {
 /** ─── MegaMenuColumn ────────────────────────────────────────────────────────── */
 export function MegaMenuColumn(props: { class?: string; children: JSX.Element }) {
 	return (
-		<div class={cn('flex flex-col gap-0.5', props.class)}>
+		<div class={cn('flex flex-col gap-1', props.class)}>
 			{props.children}
 		</div>
 	)
@@ -322,11 +322,13 @@ export function MegaMenuColumn(props: { class?: string; children: JSX.Element })
 /** ─── MegaMenuSection ───────────────────────────────────────────────────────── */
 export function MegaMenuSection(props: { label: string; class?: string; children: JSX.Element }) {
 	return (
-		<div class={cn(props.class)}>
-			<div class="mb-1 px-3 text-[11px] font-semibold uppercase tracking-widest text-ink-400">
+		<div class={cn('flex flex-col gap-1', props.class)}>
+			<div class="px-3 text-[11px] font-semibold uppercase tracking-widest text-ink-400">
 				{props.label}
 			</div>
-			{props.children}
+			<div class="flex flex-col gap-1">
+				{props.children}
+			</div>
 		</div>
 	)
 }

@@ -98,19 +98,30 @@ export function TableFooter(props: TableFooterProps) {
 export interface TableRowProps extends JSX.HTMLAttributes<HTMLTableRowElement> {
 	/** When false, hover background is not applied (e.g. for empty state, loading, or group header rows). Default true for body rows. */
 	hover?: boolean
+	/**
+	 * Explicit stripe override for grouped tables. When defined, overrides CSS `even:` striping so
+	 * the stripe pattern resets to white at the start of each group.
+	 * Omit (undefined) to fall back to CSS `even:bg-surface-stripe` (flat tables).
+	 */
+	stripe?: boolean
 }
 
 export function TableRow(props: TableRowProps) {
-	const [local, others] = splitProps(props, ['class', 'hover'])
+	const [local, others] = splitProps(props, ['class', 'hover', 'stripe'])
 	const striped = useContext(TableContext) ?? false
 	const section = useContext(TableSectionContext)
 	const inBody = section === 'body'
 	const allowHover = () => local.hover !== false && inBody
+	const stripeClass = () => {
+		if (!inBody) return ''
+		if (local.stripe !== undefined) return local.stripe ? 'bg-surface-stripe' : ''
+		return striped ? 'even:bg-surface-stripe' : ''
+	}
 	return (
 		<tr
 			class={cn(
 				'transition-colors',
-				inBody && striped ? 'even:bg-surface-stripe' : '',
+				stripeClass(),
 				allowHover() ? 'hover:bg-ink-900/5' : '',
 				local.class,
 			)}

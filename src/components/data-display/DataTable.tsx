@@ -216,13 +216,13 @@ export function DataTable<T>(props: DataTableProps<T>) {
 		)
 	}
 
-	function renderItem(item: T) {
+	function renderItem(item: T, stripe?: boolean) {
 		const overridden = local.renderRowOverride?.(item)
 		if (import.meta.env.DEV && overridden != null && (typeof overridden !== 'object' || Array.isArray(overridden))) {
 			console.warn('DataTable: renderRowOverride must return a single <TableRow> element or null/undefined, not an array or fragment')
 		}
 		return overridden ?? (
-			<TableRow>
+			<TableRow stripe={stripe}>
 				<For each={local.columns}>
 					{(col) => <TableCell class={col.cellClass}>{col.cell(item)}</TableCell>}
 				</For>
@@ -410,7 +410,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 														{local.groupBy!.renderGroupHeader(key)}
 													</TableCell>
 												</TableRow>,
-												...groupItems.map((item) => renderItem(item)),
+												...groupItems.map((item, i) => renderItem(item, local.striped ? i % 2 === 1 : undefined)),
 											]}
 										</For>
 									</Show>
