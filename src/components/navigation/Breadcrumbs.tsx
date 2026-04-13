@@ -58,7 +58,7 @@ export function Breadcrumbs(props: BreadcrumbsProps) {
 									when={!!item.href && !isLast()}
 									fallback={
 										<span
-											class={cn('font-medium', inv() ? 'text-white' : 'text-ink-800')}
+											class={cn('font-medium', isLast() ? (inv() ? 'text-white' : 'text-ink-800') : (inv() ? 'text-white/50' : 'text-ink-500'))}
 											{...(isLast() && { 'aria-current': 'page' })}
 										>
 											{item.label}
