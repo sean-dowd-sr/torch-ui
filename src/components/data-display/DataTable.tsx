@@ -1,6 +1,6 @@
 import { type JSX, Show, For, createMemo, splitProps } from 'solid-js'
 import { Button } from '../actions'
-import { Input } from '../forms'
+import { Input, type InputProps } from '../forms'
 import { Dialog, AlertDialog } from '../overlays'
 import { EmptyState } from './EmptyState'
 import { cn } from '../../utilities/classNames'
@@ -20,11 +20,7 @@ import { Pagination, type PaginationProps } from '../navigation'
 export const TABLE_CONTAINER_CLASS =
 	'rounded-xl border border-surface-border bg-surface-raised'
 
-export interface DataTableSearchProps {
-	value: string
-	onValueChange: (value: string) => void
-	placeholder: string
-}
+export type DataTableSearchProps = InputProps
 
 export interface DataTableButtonProps {
 	label: string
@@ -246,12 +242,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 					<Show when={local.search}>
 						{(search) => (
 							<div class="min-w-[200px] flex-1">
-								<Input
-									bare
-									value={search().value}
-									onValueChange={search().onValueChange}
-									placeholder={search().placeholder}
-								/>
+								<Input bare {...search()} />
 							</div>
 						)}
 					</Show>
