@@ -405,7 +405,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 									<Show when={groups().length > 0} fallback={renderEmptyRow()}>
 										<For each={groups()}>
 											{({ key, items: groupItems }) => [
-												<TableRow class="bg-surface-dim font-medium text-ink-700" hover={false}>
+												<TableRow class="bg-surface-dim font-medium text-ink-700" hover={false} stripe={false}>
 													<TableCell colSpan={colSpan()} class="py-2 pl-4 text-sm font-medium" role="rowheader">
 														{local.groupBy!.renderGroupHeader(key)}
 													</TableCell>
