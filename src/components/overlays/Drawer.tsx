@@ -94,6 +94,10 @@ export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 
 	contentClass?: string
 
+	/** Title text rendered in the fixed header bar. When provided with bottom actions, appears alongside the close button in a non-scrolling header. */
+
+	title?: string
+
 }
 
 
@@ -415,6 +419,8 @@ export function Drawer(props: DrawerProps) {
 		'noPadding',
 
 		'contentClass',
+
+		'title',
 
 		'class',
 
@@ -774,29 +780,32 @@ export function Drawer(props: DrawerProps) {
 
 
 
+					{/* Fixed header with title and close button when actions are at bottom */}
+					<Show when={actionsPosition() === 'bottom' && (local.title || (canClose() && local.showCloseButton !== false))}>
+						<div class="flex shrink-0 items-center border-b border-surface-border px-6 py-4">
+							<Show when={local.title}>
+								<KobalteDialog.Title class="flex-1 text-lg font-semibold text-ink-900">
+									{local.title}
+								</KobalteDialog.Title>
+							</Show>
+							<Show when={!local.title}>
+								<div class="flex-1" />
+							</Show>
+							<Show when={canClose() && local.showCloseButton !== false}>
+								<KobalteDialog.CloseButton
+									aria-label="Close"
+									class="flex h-8 w-8 items-center justify-center rounded-full text-ink-500 hover:bg-surface-dim hover:text-ink-700"
+									onClick={setCloseReason}
+								>
+									{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
+								</KobalteDialog.CloseButton>
+							</Show>
+						</div>
+					</Show>
+
 					<div class={cn('relative flex min-h-0 flex-1 flex-col', !local.noPadding && 'p-6')}>
 
-						{/* Close button in content area when actions are at bottom */}
-
-						<Show when={actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false}>
-
-							<KobalteDialog.CloseButton
-
-								aria-label="Close"
-
-								class="absolute right-6 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
-
-								onClick={setCloseReason}
-
-							>
-
-								{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}
-
-							</KobalteDialog.CloseButton>
-
-						</Show>
-
-						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto p-1', actionsPosition() === 'bottom' && canClose() && local.showCloseButton !== false && 'pr-10', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
+						<div class={cn('flex min-h-0 flex-1 flex-col overflow-y-auto p-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden', hasFooter() && actionsPosition() === 'bottom' && 'min-h-0', local.contentClass)}>
 
 							{local.children}
 
