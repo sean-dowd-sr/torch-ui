@@ -80,6 +80,10 @@ export interface RadioGroupProps {
 
 	size?: ComponentSize
 
+	/** Removes item padding and tightens gap — for dense UIs like filter/sort drawers. */
+
+	compact?: boolean
+
 	/** Additional class for the root. */
 
 	class?: string
@@ -119,6 +123,8 @@ export function RadioGroup(props: RadioGroupProps) {
 		'orientation',
 
 		'size',
+
+		'compact',
 
 		'class',
 
@@ -198,9 +204,13 @@ export function RadioGroup(props: RadioGroupProps) {
 
 					class={cn(
 
-						'flex gap-3',
+						'flex',
 
-						local.orientation === 'horizontal' ? 'flex-row flex-wrap' : 'flex-col'
+						local.compact ? 'gap-0' : local.size === 'sm' ? 'gap-1' : 'gap-3',
+
+						local.orientation === 'horizontal' ? 'flex-row flex-wrap' : 'flex-col',
+
+						local.disabled && 'opacity-50 pointer-events-none'
 
 					)}
 
@@ -216,11 +226,11 @@ export function RadioGroup(props: RadioGroupProps) {
 
 								class={cn(
 
-									'inline-flex gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
+									local.compact ? 'inline-flex gap-2 cursor-pointer select-none rounded border border-transparent px-1 py-1 transition-colors outline-none' : local.size === 'sm' ? 'inline-flex gap-2 cursor-pointer select-none rounded-md border border-transparent px-2 py-1.5 transition-colors outline-none' : 'inline-flex gap-3 cursor-pointer select-none rounded-lg border border-transparent p-3 transition-colors outline-none',
 
 									opt.description ? 'items-start' : 'items-center',
 
-									'data-[disabled]:bg-surface-dim data-[disabled]:text-ink-500 data-[disabled]:cursor-not-allowed',
+									'data-[disabled]:cursor-not-allowed',
 
 									'data-[highlighted]:bg-surface-overlay',
 
@@ -252,7 +262,7 @@ export function RadioGroup(props: RadioGroupProps) {
 
 										'data-[checked]:border-primary-500 data-[checked]:bg-transparent',
 
-										'data-[disabled]:bg-surface-dim data-[disabled]:border-surface-border'
+										'data-[disabled]:border-surface-border'
 
 									)}
 

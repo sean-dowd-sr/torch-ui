@@ -58,7 +58,7 @@ export function HoverCardContent(props: HoverCardContentProps) {
 		<KobalteHoverCard.Portal>
 			<KobalteHoverCard.Content
 				class={cn(
-					'z-50 min-w-[220px] max-w-sm rounded-xl border border-surface-border bg-surface-raised shadow-lg',
+					'z-[80] min-w-[220px] max-w-sm rounded-xl border border-surface-border bg-surface-raised shadow-lg',
 					'data-[expanded]:animate-in data-[closed]:animate-out',
 					'data-[expanded]:fade-in-0 data-[closed]:fade-out-0',
 					'data-[expanded]:zoom-in-95 data-[closed]:zoom-out-95',

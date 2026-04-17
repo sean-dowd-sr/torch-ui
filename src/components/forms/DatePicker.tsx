@@ -690,17 +690,19 @@ export function DatePicker(props: DatePickerProps) {
 
 
 
-				<KobaltePopover.Portal>
+			<KobaltePopover.Portal>
 
-					<KobaltePopover.Content
+				<KobaltePopover.Content
 
-						role="dialog"
+					data-kb-top-layer=""
+
+					role="dialog"
 
 						aria-label="Choose date"
 
 						class={cn(
 
-							'z-50 rounded-xl border border-surface-border bg-surface-raised shadow-xl outline-none',
+							'z-[80] rounded-xl border border-surface-border bg-surface-raised shadow-xl outline-none',
 
 							'origin-top data-[expanded]:animate-in data-[expanded]:fade-in-0 data-[expanded]:zoom-in-95',
 
@@ -1418,9 +1420,9 @@ export function DatePicker(props: DatePickerProps) {
 
 						</div>
 
-					</KobaltePopover.Content>
+				</KobaltePopover.Content>
 
-				</KobaltePopover.Portal>
+			</KobaltePopover.Portal>
 
 			</KobaltePopover>
 

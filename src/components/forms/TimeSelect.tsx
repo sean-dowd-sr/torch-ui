@@ -37,7 +37,7 @@ export function TimeSelect(props: TimeSelectProps) {
 			</KobalteSelect.Trigger>
 			<KobalteSelect.Portal>
 				<KobalteSelect.Content class={cn(
-					'z-50 min-w-[3rem] rounded-md border border-surface-border bg-surface-raised shadow-md',
+					'z-[80] min-w-[3rem] rounded-md border border-surface-border bg-surface-raised shadow-md',
 					'origin-top data-[expanded]:animate-in data-[expanded]:fade-in-0 data-[expanded]:zoom-in-95',
 					'data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95',
 				)}>

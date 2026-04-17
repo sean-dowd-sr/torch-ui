@@ -1,15 +1,45 @@
 ---
 name: torch-ui
-description: Build SolidJS interfaces with the Torch UI component library (@torch-ui/solid). Covers all 90+ components, props, import paths, compound patterns, theming, and accessibility. Use when creating or editing SolidJS UI code that uses Torch UI, @torch-ui/solid, or Kobalte-based components.
+description: Build SolidJS interfaces with Torch UI (@torch-ui/solid). Prefer the Torch UI MCP tools for component discovery and API docs when available; otherwise use skill/reference markdown. Covers Kobalte primitives, category imports, compound components, theming, and accessibility. Use when creating or editing SolidJS UI that uses Torch UI, @torch-ui/solid, or Kobalte-based components.
 ---
 
 # Torch UI — SolidJS Component Library
 
 Torch UI (`@torch-ui/solid`) is a production-grade SolidJS component library built on **Kobalte** primitives and **Tailwind CSS v4**. 90+ components across 9 categories.
 
+## MCP-first workflow (recommended)
+
+When the **Torch UI MCP** server is enabled, use its tools **before** guessing props or import paths. The server reads `manifest.jsonl` and `skill/reference/<category>/<Component>.md` from this skill package.
+
+| Tool | Use it when |
+|------|-------------|
+| **`resolve_component`** | You have a symbol name (`Button`, `DataTable`, `useToast`, `AlertDialogProps`) and need the matching `doc_id` and metadata. |
+| **`search_components`** | You have a fuzzy need (“table with sorting”, “destructive confirm”, “toast”) and want ranked matches. |
+| **`list_components`** | You need an inventory of components, optionally filtered by `category`. |
+| **`read_component`** | You have a `doc_id` (e.g. `forms/Input`, `data-display/DataTable`) and need the full API markdown (props, exports, types). |
+| **`read_conventions`** | You need this entire conventions guide (imports, `cn()`, compound components, providers) without opening files. |
+
+**`doc_id` format:** `{category}/{Component}` with category one of: `actions`, `charts`, `data-display`, `feedback`, `forms`, `layout`, `navigation`, `overlays`, `typography`. Examples: `layout/Card`, `feedback/Toast`, `overlays/Dialog`.
+
+**Suggested sequence for implementation work:**
+
+1. **`resolve_component`** or **`search_components`** → get `doc_id` and `import_path`.
+2. **`read_component`** → copy accurate props, variants, and type exports into code.
+3. If still unsure about cross-cutting rules (tree-shaking imports, `cn`, providers), call **`read_conventions`** or read the sections below.
+
+### Without MCP (offline / tools unavailable)
+
+From a checkout of the **torch-ui** repo, read:
+
+- `skill/SKILL.md` — this file (conventions + patterns).
+- `skill/reference/INDEX.md` — component index.
+- `skill/reference/<category>/<Component>.md` — per-component API.
+
+Regenerate reference docs after library changes: `bun run skill/scripts/extract-api.ts` (from the torch-ui repo).
+
 ## Quick reference
 
-For per-component API docs (props, exports, types), see `skill/reference/<category>/<Component>.md`. Full index at `skill/reference/INDEX.md`.
+Per-component API docs live under `skill/reference/`. Full index: `skill/reference/INDEX.md`.
 
 ## Installation & setup
 

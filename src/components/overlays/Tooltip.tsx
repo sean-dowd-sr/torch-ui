@@ -21,7 +21,7 @@ export function TooltipContent(props: TooltipContentProps) {
 		<KobalteTooltip.Portal>
 			<_KbContent
 				class={cn(
-					'z-50 max-w-xs rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-ink-900 shadow-md',
+					'z-[80] max-w-xs rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-ink-900 shadow-md',
 					local.class
 				)}
 				{...others}

@@ -368,13 +368,15 @@ export function TimePicker(props: TimePickerProps) {
 
 					<KobaltePopover.Content
 
+						data-kb-top-layer=""
+
 						role="dialog"
 
 						aria-label="Choose time"
 
 						class={cn(
 
-							'z-50 rounded-xl border border-surface-border bg-surface-raised shadow-xl outline-none',
+							'z-[80] rounded-xl border border-surface-border bg-surface-raised shadow-xl outline-none',
 
 							'origin-top data-[expanded]:animate-in data-[expanded]:fade-in-0 data-[expanded]:zoom-in-95',
 

@@ -292,7 +292,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 					<KobalteDropdownMenu.Portal>
 						<KobalteDropdownMenu.Content
 							class={cn(
-								'z-50 min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg'
+								'z-[80] min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg'
 							)}
 						>
 							<ButtonGroupMenuRenderer content={menuContent()} />

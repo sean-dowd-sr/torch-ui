@@ -1,8 +1,10 @@
 import { JSX } from 'solid-js';
 export { T as TablePanel, a as TablePanelProps } from '../TablePanel-C7i99nvl.js';
 export { BubblePoint, Chart, ChartData, ChartDataset, ChartProps, ChartType, ScatterPoint, Sparkline, SparklineProps } from '../charts/index.js';
+import { a as InputProps } from '../Input-Dzvde_F6.js';
 import { a as PaginationProps } from '../Pagination-BMqBzMLT.js';
 import 'chart.js';
+import '../component-size-BIaRRIRi.js';
 
 type AvatarShape = 'circle' | 'rounded' | 'square';
 type AvatarColor = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
@@ -513,11 +515,7 @@ declare function TableCell(props: TableCellProps): JSX.Element;
 
 /** Shared table container styling: white background, border, rounded. Use with overflow-x-auto or overflow-hidden. */
 declare const TABLE_CONTAINER_CLASS = "rounded-xl border border-surface-border bg-surface-raised";
-interface DataTableSearchProps {
-    value: string;
-    onValueChange: (value: string) => void;
-    placeholder: string;
-}
+type DataTableSearchProps = InputProps;
 interface DataTableButtonProps {
     label: string;
     onClick: () => void;

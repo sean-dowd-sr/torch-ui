@@ -544,7 +544,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				<KobalteCombobox.Portal>
 
-					<KobalteCombobox.Content class="torchui-combobox-content bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 py-1 max-h-60 overflow-auto z-50">
+					<KobalteCombobox.Content class="torchui-combobox-content bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 py-1 max-h-60 overflow-auto z-[80]">
 
 						<KobalteCombobox.Listbox class="outline-none" />
 

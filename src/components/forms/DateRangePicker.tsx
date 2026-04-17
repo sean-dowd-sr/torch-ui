@@ -1210,9 +1210,11 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 					<KobaltePopover.Content
 
+						data-kb-top-layer=""
+
 						class={cn(
 
-							'z-50 rounded-xl border border-surface-border bg-surface-raised shadow-xl',
+							'z-[80] rounded-xl border border-surface-border bg-surface-raised shadow-xl',
 
 							'origin-top data-[expanded]:animate-in data-[expanded]:fade-in-0 data-[expanded]:zoom-in-95',
 

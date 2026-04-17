@@ -62,7 +62,7 @@ export function PopoverContent(props: PopoverContentProps) {
 		<KobaltePopover.Portal>
 			<KobaltePopover.Content
 				class={cn(
-					'z-50 min-w-[180px] rounded-lg border border-surface-border bg-surface-raised p-2 shadow-lg',
+					'z-[80] min-w-[180px] rounded-lg border border-surface-border bg-surface-raised p-2 shadow-lg',
 					local.class
 				)}
 				{...others}

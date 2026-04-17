@@ -24,7 +24,7 @@ export function DropdownMenuContent(props: DropdownMenuContentProps) {
 		<KobalteDropdownMenu.Portal>
 			<_KbContent
 				class={cn(
-					'z-50 min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg outline-none',
+					'z-[80] min-w-[160px] rounded-lg border border-surface-border bg-surface-raised p-1 shadow-lg outline-none',
 					local.class,
 				)}
 				{...others}
