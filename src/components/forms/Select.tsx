@@ -303,7 +303,8 @@ export const Select = (props: SelectProps) => {
 				if (
 					m.attributeName === 'data-highlighted' &&
 					m.target instanceof HTMLElement &&
-					m.target.hasAttribute('data-highlighted')
+					m.target.hasAttribute('data-highlighted') &&
+					typeof m.target.scrollIntoView === 'function'
 				) {
 					m.target.scrollIntoView({ block: 'nearest' })
 				}
