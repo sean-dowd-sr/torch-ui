@@ -644,6 +644,32 @@ export function MultiSelect(props: MultiSelectProps) {
 
 	}
 
+	/**
+	 * Keep the keyboard-highlighted option visible inside the scrollable
+	 * listbox. Kobalte sets `data-highlighted` on the active item but does
+	 * not scroll the container — without this, arrow-down past the visible
+	 * window leaves focus off-screen.
+	 */
+	const observeHighlightedScrollIntoView = (el: HTMLElement) => {
+		const observer = new MutationObserver((mutations) => {
+			for (const m of mutations) {
+				if (
+					m.attributeName === 'data-highlighted' &&
+					m.target instanceof HTMLElement &&
+					m.target.hasAttribute('data-highlighted')
+				) {
+					m.target.scrollIntoView({ block: 'nearest' })
+				}
+			}
+		})
+		observer.observe(el, {
+			attributes: true,
+			attributeFilter: ['data-highlighted'],
+			subtree: true,
+		})
+		onCleanup(() => observer.disconnect())
+	}
+
 
 
 	return (
@@ -965,6 +991,8 @@ export function MultiSelect(props: MultiSelectProps) {
 						</Show>
 
 						<div
+
+							ref={observeHighlightedScrollIntoView}
 
 							class={cn(
 

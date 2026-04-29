@@ -1,4 +1,4 @@
-import { createSignal, createUniqueId, splitProps, Show, type JSX } from 'solid-js'
+import { createSignal, createUniqueId, onCleanup, splitProps, Show, type JSX } from 'solid-js'
 
 import { Select as KobalteSelect } from '@kobalte/core/select'
 
@@ -289,6 +289,34 @@ export const Select = (props: SelectProps) => {
 
 
 
+	/**
+	 * Keep the keyboard-highlighted option visible inside the scrollable
+	 * listbox. Kobalte sets `data-highlighted` on the active item but does
+	 * not scroll the container — without this, arrow-down past the visible
+	 * window leaves focus off-screen. We observe attribute mutations on the
+	 * listbox subtree and call `scrollIntoView({ block: 'nearest' })`
+	 * whenever an item gets highlighted (keyboard or mouse).
+	 */
+	const observeHighlightedScrollIntoView = (el: HTMLElement) => {
+		const observer = new MutationObserver((mutations) => {
+			for (const m of mutations) {
+				if (
+					m.attributeName === 'data-highlighted' &&
+					m.target instanceof HTMLElement &&
+					m.target.hasAttribute('data-highlighted')
+				) {
+					m.target.scrollIntoView({ block: 'nearest' })
+				}
+			}
+		})
+		observer.observe(el, {
+			attributes: true,
+			attributeFilter: ['data-highlighted'],
+			subtree: true,
+		})
+		onCleanup(() => observer.disconnect())
+	}
+
 	// Shared item renderer used by both flat and grouped modes
 	const renderItem = (itemProps: { item: { rawValue: SelectOption } }) => (
 		<KobalteSelect.Item
@@ -526,7 +554,10 @@ export const Select = (props: SelectProps) => {
 
 				</Show>
 
-				<div class={cn('outline-none min-h-0', local.searchable && 'flex-1 overflow-auto py-1')}>
+				<div
+					ref={observeHighlightedScrollIntoView}
+					class={cn('outline-none min-h-0', local.searchable && 'flex-1 overflow-auto py-1')}
+				>
 
 					<KobalteSelect.Listbox class="outline-none" />
 
