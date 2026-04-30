@@ -300,6 +300,10 @@ function CodeInputDigits(props: CodeInputProps) {
 
 		if (!raw) {
 
+			// Imperatively reset the DOM input so non-digit characters don't
+			// stick visually when the controlled value hasn't changed.
+			target.value = val[index] ?? ''
+
 			emit((val.slice(0, index) + val.slice(index + 1)).slice(0, length()))
 
 			return

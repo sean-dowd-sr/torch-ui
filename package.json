@@ -1,6 +1,6 @@
 {
   "name": "@torch-ui/solid",
-  "version": "0.6.19",
+  "version": "0.6.20",
   "description": "A modern, accessible SolidJS component library built with Tailwind CSS and Kobalte",
   "type": "module",
   "sideEffects": false,
@@ -46,6 +46,7 @@
   "author": "Sean Dowd <sean.dowd.sr@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@torch-ui/solid": "0.6.19",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.3.1"
   },
