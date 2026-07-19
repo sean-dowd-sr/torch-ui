@@ -186,6 +186,12 @@ export const Select = (props: SelectProps) => {
 
 		'id',
 
+		// aria-* on the wrapper would miss the actual trigger; forward these to KobalteSelect instead.
+
+		'aria-label',
+
+		'aria-labelledby',
+
 	])
 
 	const icons = useIcons()
@@ -578,29 +584,33 @@ export const Select = (props: SelectProps) => {
 				fallback={
 					<KobalteSelect<SelectOption>
 
-						value={selectedOption() ?? undefined}
+					value={selectedOption() ?? undefined}
 
-						onChange={handleChange}
+					onChange={handleChange}
 
-						options={filteredOptions()}
+					options={filteredOptions()}
 
-						onOpenChange={handleOpenChange}
+					onOpenChange={handleOpenChange}
 
-						optionValue="value"
+					optionValue="value"
 
-						optionTextValue="label"
+					optionTextValue="label"
 
-						placeholder={local.placeholder || 'Select an option'}
+					placeholder={local.placeholder || 'Select an option'}
 
-						disabled={local.disabled}
+					disabled={local.disabled}
 
-						validationState={hasError() ? 'invalid' : undefined}
+					validationState={hasError() ? 'invalid' : undefined}
 
-						closeOnSelection={true}
+					closeOnSelection={true}
 
-						itemComponent={renderItem as never}
+					itemComponent={renderItem as never}
 
-					>
+					aria-label={local['aria-label']}
+
+					aria-labelledby={local['aria-labelledby']}
+
+				>
 						{renderInner()}
 					</KobalteSelect>
 				}
@@ -632,6 +642,10 @@ export const Select = (props: SelectProps) => {
 					itemComponent={renderItem as never}
 
 					sectionComponent={renderSection as never}
+
+					aria-label={local['aria-label']}
+
+					aria-labelledby={local['aria-labelledby']}
 
 				>
 					{renderInner()}
