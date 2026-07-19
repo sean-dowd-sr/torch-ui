@@ -240,12 +240,11 @@ export function Pagination(props: PaginationProps) {
 	// Guard against Kobalte Select firing onValueChange without an actual change
 	// (e.g. user opens dropdown and re-selects the current value). Without this
 	// guard, that interaction would silently reset the page to 1.
-	const [lastPageSize, setLastPageSize] = createSignal(local.pageSize ?? 0)
-
+	// Compare against pageSizeVal() (derived from the controlled prop) so the
+	// guard always reflects the latest parent state — no detached signal needed.
 	function handlePageSizeChange(v: string) {
 		const newPageSize = Number(v)
-		if (newPageSize === lastPageSize()) return
-		setLastPageSize(newPageSize)
+		if (newPageSize === pageSizeVal()) return
 		local.onPageSizeChange?.(newPageSize)
 		local.onPageChange(1)
 	}
