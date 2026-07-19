@@ -6,6 +6,61 @@ import { useIcons } from '../../icons'
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50]
 
+export type PaginationLocale = 'en' | 'zh'
+
+export interface PaginationLabels {
+	/** aria-label on the <nav> element. Default: "Pagination" / "分页". */
+	navAriaLabel?: string
+	/** Info text before the start index. Default: "Showing " / "显示 ". */
+	infoPrefix?: string
+	/** Info text between end index and total. Default: " of " / " 条，共 ". */
+	infoMiddle?: string
+	/** Info text after total. Default: "" / " 条". */
+	infoSuffix?: string
+	/** Visible label and aria-label for the per-page selector. Default: "Per page" / "每页". */
+	perPage?: string
+	/** aria-label for the first-page button. Default: "First page" / "第一页". */
+	firstPage?: string
+	/** aria-label for the previous-page button. Default: "Previous page" / "上一页". */
+	previousPage?: string
+	/** aria-label for the next-page button. Default: "Next page" / "下一页". */
+	nextPage?: string
+	/** aria-label for the last-page button. Default: "Last page" / "最后一页". */
+	lastPage?: string
+	/** aria-label for the current page button. Use "{page}" as a placeholder. Default: "Page {page}" / "第 {page} 页". */
+	currentPage?: string
+	/** aria-label for a non-current page button. Use "{page}" as a placeholder. Default: "Go to page {page}" / "跳转到第 {page} 页". */
+	goToPage?: string
+}
+
+const EN_LABELS: Required<PaginationLabels> = {
+	navAriaLabel: 'Pagination',
+	infoPrefix: 'Showing ',
+	infoMiddle: ' of ',
+	infoSuffix: '',
+	perPage: 'Per page',
+	firstPage: 'First page',
+	previousPage: 'Previous page',
+	nextPage: 'Next page',
+	lastPage: 'Last page',
+	currentPage: 'Page {page}',
+	goToPage: 'Go to page {page}',
+}
+
+const ZH_LABELS: Required<PaginationLabels> = {
+	navAriaLabel: '分页',
+	infoPrefix: '显示 ',
+	infoMiddle: ' 条，共 ',
+	infoSuffix: ' 条',
+	perPage: '每页',
+	firstPage: '第一页',
+	previousPage: '上一页',
+	nextPage: '下一页',
+	lastPage: '最后一页',
+	currentPage: '第 {page} 页',
+	goToPage: '跳转到第 {page} 页',
+}
+
 export interface PaginationProps extends JSX.HTMLAttributes<HTMLElement> {
 	/** Current 1-based page. */
 	page: number
@@ -25,13 +80,22 @@ export interface PaginationProps extends JSX.HTMLAttributes<HTMLElement> {
 	onPageSizeChange?: (size: number) => void
 	/** Options for per-page selector. Default: [10, 25, 50]. */
 	pageSizeOptions?: number[]
-	/** Optional id for the per-page select element (for label association). */
+	/** Optional id for the per-page select wrapper (for label association / testing). */
 	selectId?: string
+	/** Locale for built-in labels. Default: "en". */
+	locale?: PaginationLocale
+	/** Override any built-in label. Merged on top of locale defaults. */
+	labels?: PaginationLabels
 }
 
 /** Inclusive integer range. */
 function range(start: number, end: number): number[] {
 	return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+}
+
+/** Replace "{page}" placeholder with the page number. */
+function formatPage(tmpl: string, p: number): string {
+	return tmpl.replace('{page}', String(p))
 }
 
 /**
@@ -42,9 +106,16 @@ export function Pagination(props: PaginationProps) {
 	const [local, others] = splitProps(props, [
 		'page', 'totalPages', 'onPageChange', 'maxPages', 'showFirstLast',
 		'totalItems', 'pageSize', 'onPageSizeChange', 'pageSizeOptions',
-		'selectId', 'class',
+		'selectId', 'locale', 'labels', 'class',
 	])
 	const icons = useIcons()
+
+	/** Merged labels: locale defaults overridden by explicit `labels` prop. */
+	const t = (): Required<PaginationLabels> => ({
+		...EN_LABELS,
+		...(local.locale === 'zh' ? ZH_LABELS : {}),
+		...(local.labels ?? {}),
+	})
 
 	const total = () => Math.max(1, local.totalPages)
 	/** Clamped page — always valid even if consumer state is stale. */
@@ -128,6 +199,7 @@ export function Pagination(props: PaginationProps) {
 		pageSizeOptions().map((n) => ({ value: String(n), label: String(n) }))
 	const uniqueId = createUniqueId()
 	const selectElId = () => local.selectId ?? `pagination-page-size-${uniqueId}`
+	const perPageLabelId = () => `pagination-per-page-label-${uniqueId}`
 
 	// --- Page number buttons ---
 	/** Build page buttons. maxPages = exact max number of numbered buttons (including first/last). */
@@ -165,8 +237,16 @@ export function Pagination(props: PaginationProps) {
 	const canPrev = () => page() > 1
 	const canNext = () => page() < total()
 
+	// Guard against Kobalte Select firing onValueChange without an actual change
+	// (e.g. user opens dropdown and re-selects the current value). Without this
+	// guard, that interaction would silently reset the page to 1.
+	const [lastPageSize, setLastPageSize] = createSignal(local.pageSize ?? 0)
+
 	function handlePageSizeChange(v: string) {
-		local.onPageSizeChange?.(Number(v))
+		const newPageSize = Number(v)
+		if (newPageSize === lastPageSize()) return
+		setLastPageSize(newPageSize)
+		local.onPageSizeChange?.(newPageSize)
 		local.onPageChange(1)
 	}
 
@@ -174,7 +254,7 @@ export function Pagination(props: PaginationProps) {
 		<nav
 			ref={(el) => (navEl = el)}
 			role="navigation"
-			aria-label="Pagination"
+			aria-label={t().navAriaLabel}
 			{...others}
 			class={cn(
 				'flex w-full items-center gap-4',
@@ -186,28 +266,34 @@ export function Pagination(props: PaginationProps) {
 			<div ref={(el) => (fixedEl = el)} class="flex shrink-0 items-center gap-4">
 				<Show when={hasInfo()}>
 					<p class="shrink-0 text-sm text-ink-600">
-						Showing{' '}
 						{(local.totalItems ?? 0) === 0 ? (
 							<>
-								<span class="font-medium text-ink-900">0</span> of{' '}
+								{t().infoPrefix}
 								<span class="font-medium text-ink-900">0</span>
+								{t().infoMiddle}
+								<span class="font-medium text-ink-900">0</span>
+								{t().infoSuffix}
 							</>
 						) : (
 							<>
+								{t().infoPrefix}
 								<span class="font-medium text-ink-900">{start() + 1}</span>–
-								<span class="font-medium text-ink-900">{end()}</span> of{' '}
+								<span class="font-medium text-ink-900">{end()}</span>
+								{t().infoMiddle}
 								<span class="font-medium text-ink-900">{local.totalItems}</span>
+								{t().infoSuffix}
 							</>
 						)}
 					</p>
 				</Show>
 				<Show when={hasPageSize()}>
 					<div class="flex shrink-0 items-center gap-2">
-						<label for={selectElId()} class="whitespace-nowrap text-sm text-ink-500">
-							Per page
-						</label>
+						<span id={perPageLabelId()} class="whitespace-nowrap text-sm text-ink-500">
+							{t().perPage}
+						</span>
 						<Select
 							id={selectElId()}
+							aria-labelledby={perPageLabelId()}
 							value={String(pageSizeVal())}
 							onValueChange={handlePageSizeChange}
 							options={pageSizeSelectOptions()}
@@ -225,7 +311,7 @@ export function Pagination(props: PaginationProps) {
 							size="sm"
 							iconOnly
 							icon={icons.chevronsLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-							aria-label="First page"
+							aria-label={t().firstPage}
 							disabled={!canPrev()}
 							onClick={() => local.onPageChange(1)}
 							class="rounded-lg"
@@ -237,7 +323,7 @@ export function Pagination(props: PaginationProps) {
 						size="sm"
 						iconOnly
 						icon={icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-						aria-label="Previous page"
+						aria-label={t().previousPage}
 						disabled={!canPrev()}
 						onClick={() => local.onPageChange(page() - 1)}
 						class="rounded-lg"
@@ -250,7 +336,11 @@ export function Pagination(props: PaginationProps) {
 										type="button"
 										variant={p === page() ? 'primary' : 'outlined'}
 										size="sm"
-										aria-label={p === page() ? `Page ${p}` : `Go to page ${p}`}
+										aria-label={
+											p === page()
+												? formatPage(t().currentPage, p)
+												: formatPage(t().goToPage, p)
+										}
 										aria-current={p === page() ? 'page' : undefined}
 										onClick={() => local.onPageChange(p)}
 										class="min-w-[2.25rem] rounded-lg"
@@ -272,7 +362,7 @@ export function Pagination(props: PaginationProps) {
 						size="sm"
 						iconOnly
 						icon={icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-						aria-label="Next page"
+						aria-label={t().nextPage}
 						disabled={!canNext()}
 						onClick={() => local.onPageChange(page() + 1)}
 						class="rounded-lg"
@@ -284,7 +374,7 @@ export function Pagination(props: PaginationProps) {
 							size="sm"
 							iconOnly
 							icon={icons.chevronsRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-							aria-label="Last page"
+							aria-label={t().lastPage}
 							disabled={!canNext()}
 							onClick={() => local.onPageChange(total())}
 							class="rounded-lg"

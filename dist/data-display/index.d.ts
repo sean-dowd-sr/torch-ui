@@ -2,7 +2,7 @@ import { JSX } from 'solid-js';
 export { T as TablePanel, a as TablePanelProps } from '../TablePanel-C7i99nvl.js';
 export { BubblePoint, Chart, ChartData, ChartDataset, ChartProps, ChartType, ScatterPoint, Sparkline, SparklineProps } from '../charts/index.js';
 import { a as InputProps } from '../Input-Dzvde_F6.js';
-import { a as PaginationProps } from '../Pagination-BMqBzMLT.js';
+import { a as PaginationProps } from '../Pagination-BEI4IwQU.js';
 import 'chart.js';
 import '../component-size-BIaRRIRi.js';
 
@@ -575,7 +575,7 @@ interface DataTableGroupByProps<T> {
     /** Sort group keys: null (uncategorized) first, then others by key. Override for custom order. */
     groupOrder?: (a: string | null, b: string | null) => number;
 }
-type DataTablePagination = Pick<PaginationProps, 'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast'>;
+type DataTablePagination = Pick<PaginationProps, 'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast' | 'locale' | 'labels'>;
 type DataTablePagingProps = {
     pagination: DataTablePagination;
     loadMore?: never;
@@ -621,7 +621,8 @@ type DataTableProps<T> = JSX.HTMLAttributes<HTMLDivElement> & DataTablePagingPro
     columns: ColumnDef<T>[];
     /** Escape hatch: return a complete <TableRow> to override, or null/undefined for column-based default. Returning anything else (fragment, bare text, false) produces invalid table markup. */
     renderRowOverride?: (item: T) => JSX.Element | null | undefined;
-    emptyMessage: string;
+    /** Message shown when items is empty and no emptyState is provided. Default: "No data". */
+    emptyMessage?: string;
     /** Number of skeleton rows to show while loading. Default: 5. */
     skeletonRows?: number;
 };
