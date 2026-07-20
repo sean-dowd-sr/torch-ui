@@ -321,7 +321,7 @@ interface TreeNode {
     /** Prevents selection and interaction */
     disabled?: boolean;
 }
-interface TreeViewProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children' | 'onSelect'> {
+interface TreeViewProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, "children" | "onSelect"> {
     /** Tree data */
     nodes: TreeNode[];
     /** Controlled selected node id */

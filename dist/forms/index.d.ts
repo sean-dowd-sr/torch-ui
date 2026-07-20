@@ -62,6 +62,15 @@ interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children
     groups?: SelectOptionGroup[];
     /** When true, show a search input in the dropdown to filter options by label. Default false. */
     searchable?: boolean;
+    /**
+     * Whether the select should trap focus and lock outside interactions while open.
+     * Default false. Set to true when used inside a modal Dialog so that the Dialog's
+     * focus trap is paused (via focusScopeStack) while the select is open — this
+     * prevents the Dialog from stealing focus from the search input on every keystroke.
+     * Side effect: outside pointer events are disabled while open (acceptable since
+     * users only interact with the select while it's open).
+     */
+    modal?: boolean;
     /** Ref forwarded to the root wrapper div. */
     ref?: (el: HTMLDivElement) => void;
     /** Id for the root wrapper (e.g. for aria-labelledby / label for). */
@@ -120,6 +129,12 @@ interface AutocompleteProps {
     renderOption?: (option: AutocompleteOption) => JSX.Element;
     /** Ref forwarded to the root wrapper div. */
     ref?: (el: HTMLDivElement) => void;
+    /** ID forwarded to the underlying combobox input (e.g. for label[for] association). */
+    id?: string;
+    /** Accessible label for the input (when no visible label is rendered). Forwarded to the underlying combobox input. */
+    'aria-label'?: string;
+    /** ID of an element that labels this control. Forwarded to the underlying combobox input. */
+    'aria-labelledby'?: string;
 }
 declare function Autocomplete(props: AutocompleteProps): JSX.Element;
 

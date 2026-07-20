@@ -132,6 +132,16 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	searchable?: boolean
 
+	/**
+	 * Whether the select should trap focus and lock outside interactions while open.
+	 * Default false. Set to true when used inside a modal Dialog so that the Dialog's
+	 * focus trap is paused (via focusScopeStack) while the select is open — this
+	 * prevents the Dialog from stealing focus from the search input on every keystroke.
+	 * Side effect: outside pointer events are disabled while open (acceptable since
+	 * users only interact with the select while it's open).
+	 */
+	modal?: boolean
+
 	/** Ref forwarded to the root wrapper div. */
 
 	ref?: (el: HTMLDivElement) => void
@@ -181,6 +191,8 @@ export const Select = (props: SelectProps) => {
 		'size',
 
 		'searchable',
+
+		'modal',
 
 		'ref',
 
@@ -606,6 +618,8 @@ export const Select = (props: SelectProps) => {
 
 					itemComponent={renderItem as never}
 
+					modal={local.modal}
+
 					aria-label={local['aria-label']}
 
 					aria-labelledby={local['aria-labelledby']}
@@ -642,6 +656,8 @@ export const Select = (props: SelectProps) => {
 					itemComponent={renderItem as never}
 
 					sectionComponent={renderSection as never}
+
+					modal={local.modal}
 
 					aria-label={local['aria-label']}
 
