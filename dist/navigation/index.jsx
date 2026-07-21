@@ -36,8 +36,8 @@ import {
   TabsList,
   TabsTrigger,
   ViewSwitcher
-} from "../chunk/X6RGOMRN.jsx";
-import "../chunk/6SWT7WUM.jsx";
+} from "../chunk/PLR5RIYA.jsx";
+import "../chunk/NNFTAFY6.jsx";
 import "../chunk/N5KQYWCA.jsx";
 export {
   Breadcrumbs,

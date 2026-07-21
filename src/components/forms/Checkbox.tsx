@@ -194,7 +194,7 @@ export function Checkbox(props: CheckboxProps) {
 
 			id={local.id}
 
-			class={cn('w-full', local.class)}
+			class={cn(local.bare ? 'inline-flex' : 'w-full', local.class)}
 
 		>
 
