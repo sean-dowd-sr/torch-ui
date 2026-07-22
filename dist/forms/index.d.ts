@@ -127,6 +127,11 @@ interface AutocompleteProps {
     onInputChange?: (value: string) => void;
     /** Custom render for each option. Receives the option; return JSX (e.g. label + description). */
     renderOption?: (option: AutocompleteOption) => JSX.Element;
+    /**
+     * Kobalte Combobox triggerMode. Default "input" (listbox opens only when typing).
+     * Use "focus" to open the listbox on input focus (e.g. EntityPicker click-to-show).
+     */
+    triggerMode?: 'input' | 'focus' | 'manual';
     /** Ref forwarded to the root wrapper div. */
     ref?: (el: HTMLDivElement) => void;
     /** ID forwarded to the underlying combobox input (e.g. for label[for] association). */

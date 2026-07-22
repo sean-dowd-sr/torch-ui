@@ -152,6 +152,12 @@ export interface AutocompleteProps {
 	/** Custom render for each option. Receives the option; return JSX (e.g. label + description). */
 	renderOption?: (option: AutocompleteOption) => JSX.Element
 
+	/**
+	 * Kobalte Combobox triggerMode. Default "input" (listbox opens only when typing).
+	 * Use "focus" to open the listbox on input focus (e.g. EntityPicker click-to-show).
+	 */
+	triggerMode?: 'input' | 'focus' | 'manual'
+
 	/** Ref forwarded to the root wrapper div. */
 	ref?: (el: HTMLDivElement) => void
 
@@ -217,6 +223,8 @@ export function Autocomplete(props: AutocompleteProps) {
 		'onInputChange',
 
 		'renderOption',
+
+		'triggerMode',
 
 		'ref',
 
@@ -342,19 +350,22 @@ export function Autocomplete(props: AutocompleteProps) {
 
 
 	const handleClear = (e: MouseEvent) => {
-
 		e.preventDefault()
-
 		e.stopPropagation()
-
 		setDirty(false)
-
 		if (local.inputValue === undefined) setInputValueState('')
-
 		local.onInputChange?.('')
-
 		local.onValueChange?.('')
 
+		// KobalteCombobox.Input 非受控,上述回调不会清空其内部显示值。
+		// 直接清空 input DOM 并触发 input 事件,让 Kobalte 同步内部状态。
+		const wrapper = (e.currentTarget as HTMLElement).closest('div.w-full')
+		const input = wrapper?.querySelector('input')
+		if (input && input.value !== '') {
+			input.value = ''
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+			setDirty(false)
+		}
 	}
 
 
@@ -383,9 +394,9 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				value={selectedOption()}
 
-				defaultFilter={local.filterOptions ? undefined : 'contains'}
+			defaultFilter={local.filterOptions ? undefined : 'contains'}
 
-				triggerMode="input"
+			triggerMode={local.triggerMode ?? 'input'}
 
 				disabled={local.disabled}
 
