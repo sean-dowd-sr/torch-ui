@@ -89,6 +89,9 @@ describe('Drawer', () => {
 				<p>Form content</p>
 			</Drawer>
 		))
-		expect(screen.getByRole('button', { name: '取消' })).toBeInTheDocument()
+		// KobalteDialog.CloseButton sets aria-label="Dismiss", which overrides the
+		// text content for the accessible name. Query by visible text to verify
+		// the custom cancelLabel is rendered.
+		expect(screen.getByText('取消')).toBeInTheDocument()
 	})
 })
