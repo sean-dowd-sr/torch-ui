@@ -70,4 +70,28 @@ describe('Drawer', () => {
 		))
 		expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
 	})
+
+	it('does not render footer when only onClose provided (detail drawer)', () => {
+		renderUI(() => (
+			<Drawer open aria-label="Detail" onClose={vi.fn()} title="详情">
+				<p>Detail content</p>
+			</Drawer>
+		))
+		// 详情型 Drawer 不应渲染 Cancel 按钮 (无底部 footer)
+		expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
+		// 但仍应渲染右上角 X 关闭按钮
+		expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
+	})
+
+	it('renders footer with Cancel button when onCancel provided', () => {
+		renderUI(() => (
+			<Drawer open aria-label="Form" onClose={vi.fn()} onCancel={vi.fn()} cancelLabel="取消">
+				<p>Form content</p>
+			</Drawer>
+		))
+		// KobalteDialog.CloseButton sets aria-label="Dismiss", which overrides the
+		// text content for the accessible name. Query by visible text to verify
+		// the custom cancelLabel is rendered.
+		expect(screen.getByText('取消')).toBeInTheDocument()
+	})
 })

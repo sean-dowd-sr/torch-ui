@@ -45,6 +45,8 @@ interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
     noPadding?: boolean;
     /** Optional class applied to the inner scrollable content div (the direct parent of children). */
     contentClass?: string;
+    /** Title text rendered in the fixed header bar. When provided with bottom actions, appears alongside the close button in a non-scrolling header. */
+    title?: string;
 }
 type DrawerOffset = '0' | '2' | '4' | '6';
 declare function Drawer(props: DrawerProps): JSX.Element;
