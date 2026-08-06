@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest'
-import { screen } from '@solidjs/testing-library'
+import { screen, waitFor } from '@solidjs/testing-library'
 import userEvent from '@testing-library/user-event'
 import { FileUpload } from '../../components/forms/FileUpload'
 import { renderUI } from '../../test/test-utils'
@@ -124,7 +124,6 @@ describe('FileUpload', () => {
 		expect(screen.getByRole('dialog')).toBeInTheDocument()
 		const closeBtn = screen.getByRole('button', { name: /close/i })
 		await user.click(closeBtn)
-		await new Promise((r) => setTimeout(r, 300))
-		expect(document.activeElement).toBe(viewBtn)
+		await waitFor(() => expect(document.activeElement).toBe(viewBtn))
 	})
 })
