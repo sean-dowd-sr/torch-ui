@@ -36,7 +36,10 @@ export function TimeSelect(props: TimeSelectProps) {
 				<KobalteSelect.Icon class="text-[8px] text-ink-400 leading-none">▾</KobalteSelect.Icon>
 			</KobalteSelect.Trigger>
 			<KobalteSelect.Portal>
-				<KobalteSelect.Content class={cn(
+				{/* Mark as top layer so the enclosing modal Dialog's ariaHideOutside does not set aria-hidden on this portaled content */}
+				<KobalteSelect.Content
+					data-kb-top-layer
+					class={cn(
 					'z-[80] min-w-[3rem] rounded-md border border-surface-border bg-surface-raised shadow-md',
 					'origin-top data-[expanded]:animate-in data-[expanded]:fade-in-0 data-[expanded]:zoom-in-95',
 					'data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95',

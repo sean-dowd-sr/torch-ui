@@ -101,23 +101,18 @@ export interface AutocompleteProps {
 	label?: string
 
 	/** Error message and invalid styling. */
-
 	error?: JSX.Element
 
 	/** Hint text below the control. */
-
 	helperText?: JSX.Element
 
 	/** When true, never render label row or error/helper text (control only). */
-
 	bare?: boolean
 
 	/** When true, show required indicator on label. */
-
 	required?: boolean
 
 	/** When true, show "optional" on the label row when not required. Default false. */
-
 	optional?: boolean
 
 	options: AutocompleteOption[]
@@ -129,46 +124,51 @@ export interface AutocompleteProps {
 	onValueChange?: (value: string) => void
 
 	/** Called when the user interacts with the control while an error is shown, allowing the parent to clear the error. */
-
 	onErrorClear?: () => void
 
 	class?: string
 
 	/** Disable the control and input. */
-
 	disabled?: boolean
 
 	/** When true, hide the clear (X) button. */
-
 	disableClearable?: boolean
 
 	/** Input size. Controls height, text size, and padding. Default: md (36px). */
-
 	size?: ComponentSize
 
 	/** Disable specific options. Overrides option.disabled when provided. */
-
 	getOptionDisabled?: (option: AutocompleteOption) => boolean
 
 	/** Custom filter. Receives full options and current input value; return filtered options. Use (x) => x for async (you manage options). */
-
 	filterOptions?: (options: AutocompleteOption[], inputValue: string) => AutocompleteOption[]
 
 	/** Controlled input value (typed text). When provided with onInputChange, enables controlled input for async/search-as-you-type. */
-
 	inputValue?: string
 
 	/** Called when the user types. Use with filterOptions or for controlled input. */
-
 	onInputChange?: (value: string) => void
 
 	/** Custom render for each option. Receives the option; return JSX (e.g. label + description). */
-
 	renderOption?: (option: AutocompleteOption) => JSX.Element
 
-	/** Ref forwarded to the root wrapper div. */
+	/**
+	 * Kobalte Combobox triggerMode. Default "input" (listbox opens only when typing).
+	 * Use "focus" to open the listbox on input focus (e.g. EntityPicker click-to-show).
+	 */
+	triggerMode?: 'input' | 'focus' | 'manual'
 
+	/** Ref forwarded to the root wrapper div. */
 	ref?: (el: HTMLDivElement) => void
+
+	/** ID forwarded to the underlying combobox input (e.g. for label[for] association). */
+	id?: string
+
+	/** Accessible label for the input (when no visible label is rendered). Forwarded to the underlying combobox input. */
+	'aria-label'?: string
+
+	/** ID of an element that labels this control. Forwarded to the underlying combobox input. */
+	'aria-labelledby'?: string
 
 }
 
@@ -224,7 +224,14 @@ export function Autocomplete(props: AutocompleteProps) {
 
 		'renderOption',
 
+		'triggerMode',
+
 		'ref',
+
+		// forwarded to the underlying combobox input
+		'id',
+		'aria-label',
+		'aria-labelledby',
 
 	])
 
@@ -343,19 +350,23 @@ export function Autocomplete(props: AutocompleteProps) {
 
 
 	const handleClear = (e: MouseEvent) => {
-
 		e.preventDefault()
-
 		e.stopPropagation()
-
 		setDirty(false)
-
 		if (local.inputValue === undefined) setInputValueState('')
-
 		local.onInputChange?.('')
-
 		local.onValueChange?.('')
 
+		// KobalteCombobox.Input is uncontrolled; the callbacks above don't clear its
+		// internal display value. Clear the input DOM and dispatch an input event
+		// directly so Kobalte syncs its internal state.
+		const wrapper = (e.currentTarget as HTMLElement).closest('div.w-full')
+		const input = wrapper?.querySelector('input')
+		if (input && input.value !== '') {
+			input.value = ''
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+			setDirty(false)
+		}
 	}
 
 
@@ -384,15 +395,34 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				value={selectedOption()}
 
-				defaultFilter={local.filterOptions ? undefined : 'contains'}
+			defaultFilter={local.filterOptions ? undefined : (option, input) => {
+				// When the input equals the current selected item's label (i.e., the user is
+			// viewing the selected value, not typing), show all options so they can switch
+			// to another value (official behavior: with a value selected, opening the
+			// dropdown shows the full list with the current value checked).
+			// Only filter by input when the user types text different from the selected value.
+				const selectedLabel = selectedOption()?.label
+				if (selectedLabel && input === selectedLabel) return true
+				const label = typeof option === 'object' && option !== null ? String((option as AutocompleteOption).label ?? '') : String(option)
+				return label.toLowerCase().includes(input.toLowerCase())
+			}}
 
-				triggerMode="input"
+
+			triggerMode={local.triggerMode ?? 'input'}
 
 				disabled={local.disabled}
 
 				onChange={handleChange}
 
 				onInputChange={handleInputChange}
+
+				// Kobalte Combobox calls resetInputValue on selectedKeys change: if there's no
+			// selected item (e.g., user typed custom text not in options) and
+			// noResetInputOnBlur is not set, it clears the input (setInputValue("")).
+			// This loses user input in "free input + blur to submit" scenarios (e.g., custom
+			// spec name entry). With noResetInputOnBlur enabled, the input is only reset to
+			// the selected label when a selection exists; custom text is preserved otherwise.
+				noResetInputOnBlur
 
 				itemComponent={(itemProps) => (
 
@@ -462,7 +492,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 					class={cn(
 
-						'w-full flex cursor-pointer items-center justify-between gap-2 rounded-lg transition-colors outline-none text-ink-900 bg-surface-raised border',
+						'w-full flex cursor-pointer items-center rounded-lg transition-colors outline-none text-ink-900 bg-surface-raised border',
 
 						hasError() ? 'border-danger-500 focus-within:ring-2 focus-within:ring-inset focus-within:ring-danger-500' : 'border-surface-border focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 focus-within:border-transparent',
 
@@ -478,13 +508,23 @@ export function Autocomplete(props: AutocompleteProps) {
 
 					<KobalteCombobox.Input
 
-						class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:cursor-not-allowed"
+					class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:cursor-not-allowed"
 
-						placeholder={local.placeholder || 'Search...'}
+					placeholder={local.placeholder || 'Search...'}
 
-						disabled={local.disabled}
+					disabled={local.disabled}
 
-					/>
+					id={local.id}
+
+					aria-label={local['aria-label']}
+
+					aria-labelledby={local['aria-labelledby']}
+
+				/>
+
+					{/* Clear + dropdown button group: tight layout with input content (no gap-2 spacing) */}
+
+					<div class="flex items-center gap-0.5">
 
 					<Show when={!local.disableClearable}>
 
@@ -526,6 +566,8 @@ export function Autocomplete(props: AutocompleteProps) {
 
 					</KobalteCombobox.Trigger>
 
+					</div>
+
 				</KobalteCombobox.Control>
 
 				<Show when={!local.bare && !hasError() && local.helperText}>
@@ -544,7 +586,19 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				<KobalteCombobox.Portal>
 
-					<KobalteCombobox.Content class="torchui-combobox-content bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 py-1 max-h-60 overflow-auto z-[80]">
+					{/* Mark as top layer so the enclosing modal Dialog's ariaHideOutside does not set aria-hidden on this portaled content */}
+					<KobalteCombobox.Content
+
+						data-kb-top-layer
+
+						class="torchui-combobox-content bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 py-1 max-h-60 overflow-auto z-[80]"
+
+						// Prevent Kobalte's FocusScope from pulling focus back to the input on Content close.
+					// Otherwise, combined with triggerMode="focus", focus restoration re-triggers the
+					// dropdown open (repeated pop-ups after clicking outside).
+						onCloseAutoFocus={(e) => e.preventDefault()}
+
+					>
 
 						<KobalteCombobox.Listbox class="outline-none" />
 

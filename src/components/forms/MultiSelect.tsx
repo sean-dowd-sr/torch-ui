@@ -937,6 +937,11 @@ export function MultiSelect(props: MultiSelectProps) {
 
 					<KobalteSelect.Content
 
+						// Mark as top layer so the enclosing modal Dialog's ariaHideOutside does not set
+					// aria-hidden on this portaled content (otherwise Chrome logs "Blocked aria-hidden..."
+					// when focus enters a listbox item).
+						data-kb-top-layer
+
 						class={cn(
 
 							'bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 z-[100] flex flex-col max-h-60',

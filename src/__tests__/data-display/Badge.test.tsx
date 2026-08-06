@@ -14,8 +14,23 @@ describe('Badge', () => {
 		expect(container.querySelector('span')).toBeInTheDocument()
 	})
 
-	it('is aria-hidden by default (decorative)', () => {
+	it('is aria-hidden by default for dot-only (decorative)', () => {
 		const { container } = renderUI(() => <Badge />)
+		expect(container.firstChild).toHaveAttribute('aria-hidden', 'true')
+	})
+
+	it('is not aria-hidden by default when has text content', () => {
+		const { container } = renderUI(() => <Badge>Published</Badge>)
+		expect(container.firstChild).not.toHaveAttribute('aria-hidden')
+	})
+
+	it('is not aria-hidden by default when has icon', () => {
+		const { container } = renderUI(() => <Badge icon={<svg />}>5</Badge>)
+		expect(container.firstChild).not.toHaveAttribute('aria-hidden')
+	})
+
+	it('is aria-hidden when decorative=true explicitly set with content', () => {
+		const { container } = renderUI(() => <Badge decorative={true}>Published</Badge>)
 		expect(container.firstChild).toHaveAttribute('aria-hidden', 'true')
 	})
 
