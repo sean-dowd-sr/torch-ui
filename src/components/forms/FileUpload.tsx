@@ -632,6 +632,8 @@ export function FileUpload(props: FileUploadProps) {
 
 	let inputEl: HTMLInputElement | undefined
 
+	let eyeButtonEl: HTMLButtonElement | undefined
+
 
 
 	const handleInputChange = (e: Event) => {
@@ -1122,6 +1124,8 @@ export function FileUpload(props: FileUploadProps) {
 
 									<button
 
+										ref={(el) => (eyeButtonEl = el)}
+
 										type="button"
 
 										onClick={(e) => { e.currentTarget.blur(); setViewModalOpen(true) }}
@@ -1151,6 +1155,8 @@ export function FileUpload(props: FileUploadProps) {
 						open={viewModalOpen()}
 
 						onClose={() => setViewModalOpen(false)}
+
+						onCloseComplete={() => eyeButtonEl?.focus({ preventScroll: true })}
 
 						size="md"
 

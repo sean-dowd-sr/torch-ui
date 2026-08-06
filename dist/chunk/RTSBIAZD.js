@@ -4674,6 +4674,7 @@ function FileUpload(props) {
   const hasAnyError = () => validationErrors().length > 0 || !!local.error;
   const ariaErrorMessage = () => validationErrors().length > 0 ? validationId() : local.error ? errorId() : void 0;
   let inputEl;
+  let eyeButtonEl;
   const handleInputChange = (e) => {
     setValidationErrors([]);
     if (local.error && local.onErrorClear) local.onErrorClear();
@@ -4969,6 +4970,7 @@ function FileUpload(props) {
                 e.currentTarget.blur();
                 setViewModalOpen(true);
               };
+              use((el) => eyeButtonEl = el, _el$27);
               insert(_el$27, () => icons.eye({
                 class: "h-4 w-4",
                 "aria-hidden": "true"
@@ -5019,6 +5021,9 @@ function FileUpload(props) {
           return viewModalOpen();
         },
         onClose: () => setViewModalOpen(false),
+        onCloseComplete: () => eyeButtonEl?.focus({
+          preventScroll: true
+        }),
         size: "md",
         showCloseButton: true,
         get header() {

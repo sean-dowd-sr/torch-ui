@@ -104,4 +104,27 @@ describe('FileUpload', () => {
 		const input = container.querySelector('input[type="file"]')
 		expect(input).toBeDisabled()
 	})
+
+	test('restores focus to the view-files button after the preview dialog closes', async () => {
+		const user = userEvent.setup()
+		const files = [{ id: '1', file: makeFile('a.png'), status: 'done' as const }]
+		renderUI(() => (
+			<FileUpload
+				label="Upload"
+				files={files}
+				onAddFiles={vi.fn()}
+				onRemove={vi.fn()}
+				variant="button"
+				fileInline
+			/>
+		))
+		const viewBtn = screen.getByRole('button', { name: 'View files' })
+		expect(viewBtn).toBeInTheDocument()
+		await user.click(viewBtn)
+		expect(screen.getByRole('dialog')).toBeInTheDocument()
+		const closeBtn = screen.getByRole('button', { name: /close/i })
+		await user.click(closeBtn)
+		await new Promise((r) => setTimeout(r, 300))
+		expect(document.activeElement).toBe(viewBtn)
+	})
 })

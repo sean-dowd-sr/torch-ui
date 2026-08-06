@@ -1,4 +1,4 @@
-import { Copy } from './LLDNZCDX.js';
+import { Copy } from './RTSBIAZD.js';
 import { cn } from './CZPH5U6S.js';
 import { spread, mergeProps, insert, createComponent, memo, template } from 'solid-js/web';
 import { splitProps, Show } from 'solid-js';

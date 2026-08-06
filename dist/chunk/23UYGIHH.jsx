@@ -4380,6 +4380,7 @@ function FileUpload(props) {
   const hasAnyError = () => validationErrors().length > 0 || !!local.error;
   const ariaErrorMessage = () => validationErrors().length > 0 ? validationId() : local.error ? errorId() : void 0;
   let inputEl;
+  let eyeButtonEl;
   const handleInputChange = (e) => {
     setValidationErrors([]);
     if (local.error && local.onErrorClear) local.onErrorClear();
@@ -4679,6 +4680,7 @@ function FileUpload(props) {
 									</Show14>
 
 									<button
+    ref={(el) => eyeButtonEl = el}
     type="button"
     onClick={(e) => {
       e.currentTarget.blur();
@@ -4704,6 +4706,7 @@ function FileUpload(props) {
 					<Dialog
     open={viewModalOpen()}
     onClose={() => setViewModalOpen(false)}
+    onCloseComplete={() => eyeButtonEl?.focus({ preventScroll: true })}
     size="md"
     showCloseButton
     header={<h2 class="text-lg font-semibold text-ink-900">{l().ariaUploadedFiles}</h2>}
