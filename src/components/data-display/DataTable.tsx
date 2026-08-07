@@ -90,7 +90,7 @@ export interface DataTableGroupByProps<T> {
 
 export type DataTablePagination = Pick<
 	PaginationProps,
-	'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast'
+	'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast' | 'locale' | 'labels'
 >
 
 export type DataTablePagingProps =
@@ -130,7 +130,8 @@ export type DataTableProps<T> = JSX.HTMLAttributes<HTMLDivElement> & DataTablePa
 	columns: ColumnDef<T>[]
 	/** Escape hatch: return a complete <TableRow> to override, or null/undefined for column-based default. Returning anything else (fragment, bare text, false) produces invalid table markup. */
 	renderRowOverride?: (item: T) => JSX.Element | null | undefined
-	emptyMessage: string
+	/** Message shown when items is empty and no emptyState is provided. Default: "No data". */
+	emptyMessage?: string
 	/** Number of skeleton rows to show while loading. Default: 5. */
 	skeletonRows?: number
 }
@@ -203,7 +204,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 							/>
 						) : (
 							<div class="py-8 text-center text-sm text-ink-500">
-								{local.emptyMessage}
+								{local.emptyMessage ?? 'No data'}
 							</div>
 						)}
 					</TableCell>

@@ -1,4 +1,4 @@
-﻿import type { JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 import { createUniqueId, createSignal, onMount, onCleanup, Show, For, splitProps } from 'solid-js'
 
@@ -632,6 +632,8 @@ export function FileUpload(props: FileUploadProps) {
 
 	let inputEl: HTMLInputElement | undefined
 
+	let eyeButtonEl: HTMLButtonElement | undefined
+
 
 
 	const handleInputChange = (e: Event) => {
@@ -1122,9 +1124,13 @@ export function FileUpload(props: FileUploadProps) {
 
 									<button
 
+										ref={(el) => (eyeButtonEl = el)}
+
 										type="button"
 
-										onClick={() => setViewModalOpen(true)}
+										onClick={(e) => { e.currentTarget.blur(); setViewModalOpen(true) }}
+
+										title={l().ariaViewFiles}
 
 										class="shrink-0 rounded p-1.5 text-ink-500 hover:bg-surface-overlay hover:text-ink-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 
@@ -1150,19 +1156,23 @@ export function FileUpload(props: FileUploadProps) {
 
 						onClose={() => setViewModalOpen(false)}
 
+						onCloseComplete={() => eyeButtonEl?.focus({ preventScroll: true })}
+
 						size="md"
 
 						showCloseButton
 
+						header={<h2 class="text-lg font-semibold text-ink-900">{l().ariaUploadedFiles}</h2>}
+
 					>
 
-						<h2 class="text-lg font-semibold text-ink-900">
+						<p class="mb-3 text-sm text-ink-500">
 
 							{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
 
-						</h2>
+						</p>
 
-						<ul class="mt-3 space-y-2" aria-label={l().ariaUploadedFiles}>
+						<ul class="space-y-2" aria-label={l().ariaUploadedFiles}>
 
 							<For each={local.files}>
 

@@ -132,6 +132,16 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	searchable?: boolean
 
+	/**
+	 * Whether the select should trap focus and lock outside interactions while open.
+	 * Default false. Set to true when used inside a modal Dialog so that the Dialog's
+	 * focus trap is paused (via focusScopeStack) while the select is open — this
+	 * prevents the Dialog from stealing focus from the search input on every keystroke.
+	 * Side effect: outside pointer events are disabled while open (acceptable since
+	 * users only interact with the select while it's open).
+	 */
+	modal?: boolean
+
 	/** Ref forwarded to the root wrapper div. */
 
 	ref?: (el: HTMLDivElement) => void
@@ -182,9 +192,17 @@ export const Select = (props: SelectProps) => {
 
 		'searchable',
 
+		'modal',
+
 		'ref',
 
 		'id',
+
+		// aria-* on the wrapper would miss the actual trigger; forward these to KobalteSelect instead.
+
+		'aria-label',
+
+		'aria-labelledby',
 
 	])
 
@@ -505,6 +523,11 @@ export const Select = (props: SelectProps) => {
 
 			<KobalteSelect.Content
 
+				// Mark as top layer so the enclosing modal Dialog's ariaHideOutside does not set
+			// aria-hidden on this portaled content (otherwise Chrome logs "Blocked aria-hidden..."
+			// when focus enters a listbox item).
+				data-kb-top-layer
+
 				class={cn(
 
 					'bg-surface-raised rounded-lg border border-surface-border shadow-lg mt-2 z-[100] flex flex-col max-h-60',
@@ -578,29 +601,35 @@ export const Select = (props: SelectProps) => {
 				fallback={
 					<KobalteSelect<SelectOption>
 
-						value={selectedOption() ?? undefined}
+					value={selectedOption() ?? undefined}
 
-						onChange={handleChange}
+					onChange={handleChange}
 
-						options={filteredOptions()}
+					options={filteredOptions()}
 
-						onOpenChange={handleOpenChange}
+					onOpenChange={handleOpenChange}
 
-						optionValue="value"
+					optionValue="value"
 
-						optionTextValue="label"
+					optionTextValue="label"
 
-						placeholder={local.placeholder || 'Select an option'}
+					placeholder={local.placeholder || 'Select an option'}
 
-						disabled={local.disabled}
+					disabled={local.disabled}
 
-						validationState={hasError() ? 'invalid' : undefined}
+					validationState={hasError() ? 'invalid' : undefined}
 
-						closeOnSelection={true}
+					closeOnSelection={true}
 
-						itemComponent={renderItem as never}
+					itemComponent={renderItem as never}
 
-					>
+					modal={local.modal}
+
+					aria-label={local['aria-label']}
+
+					aria-labelledby={local['aria-labelledby']}
+
+				>
 						{renderInner()}
 					</KobalteSelect>
 				}
@@ -632,6 +661,12 @@ export const Select = (props: SelectProps) => {
 					itemComponent={renderItem as never}
 
 					sectionComponent={renderSection as never}
+
+					modal={local.modal}
+
+					aria-label={local['aria-label']}
+
+					aria-labelledby={local['aria-labelledby']}
 
 				>
 					{renderInner()}

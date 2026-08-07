@@ -46,7 +46,14 @@ export function Badge(props: BadgeProps) {
 	const hasIcon = () => local.icon != null
 	const hasContent = () => local.children != null
 	const usePill = () => hasIcon() || hasContent()
-	const isDecorative = () => local.decorative !== false
+	// Default: badges with content (text/icon) carry semantic info and should
+	// be accessible (non-decorative); only dot-only badges default to decorative.
+	// Explicit `decorative={true}` forces decorative (for purely visual accents).
+	const isDecorative = () => {
+		if (local.decorative === true) return true
+		if (local.decorative === false) return false
+		return !usePill()
+	}
 	const hasA11yName = () => {
 		const o = others as Record<string, unknown>
 		return o['aria-label'] != null || o['aria-labelledby'] != null
