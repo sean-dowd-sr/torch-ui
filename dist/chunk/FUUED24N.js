@@ -4319,7 +4319,7 @@ function ensureDialogStyles() {
 }
 function Dialog(props) {
   const icons = useIcons();
-  const [local, others] = splitProps(props, ["open", "onOpenChange", "onClose", "size", "overlay", "closeOnOverlayClick", "overlayClass", "overlayDim", "overlayBlur", "showCloseButton", "overlayAnimation", "panelAnimation", "animationDuration", "animationExitDuration", "onCloseComplete", "class", "children", "header", "footer"]);
+  const [local, others] = splitProps(props, ["open", "onOpenChange", "onClose", "size", "overlay", "closeOnOverlayClick", "overlayClass", "overlayDim", "overlayBlur", "showCloseButton", "overlayAnimation", "panelAnimation", "animationDuration", "animationExitDuration", "onCloseComplete", "class", "children", "header", "footer", "ref"]);
   onMount(ensureDialogStyles);
   const duration = () => local.animationDuration ?? DEFAULT_DURATION_MS;
   const exitDuration = () => local.animationExitDuration ?? Math.round((local.animationDuration ?? DEFAULT_DURATION_MS) * 0.8);
@@ -4345,6 +4345,18 @@ function Dialog(props) {
   const panelAnimation = () => local.panelAnimation ?? "scale";
   const hasCloseRow = () => (local.onClose != null || local.onOpenChange != null) && local.showCloseButton !== false;
   const hasHeaderRow = () => !!(local.header || hasCloseRow());
+  const mergedContentRef = (el) => {
+    if (el) {
+      const focusable = el.querySelector('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (focusable) focusable.focus({
+        preventScroll: true
+      });
+      else el.focus({
+        preventScroll: true
+      });
+    }
+    if (typeof local.ref === "function") local.ref(el);
+  };
   return createComponent(Dialog$1, {
     get open() {
       return local.open;
@@ -4371,6 +4383,7 @@ function Dialog(props) {
             }
           }), _el$2);
           insert(_el$2, createComponent(Dialog$1.Content, mergeProps({
+            ref: mergedContentRef,
             get ["class"]() {
               return cn(panelAnimation() !== "none" && "torchui-dialog-content", isFull() && "h-full min-h-0 flex flex-col");
             },

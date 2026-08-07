@@ -1,4 +1,4 @@
-import { useIcons } from './RTSBIAZD.js';
+import { useIcons } from './FUUED24N.js';
 import { cn } from './CZPH5U6S.js';
 import { delegateEvents, createComponent, mergeProps, effect, className, insert, memo, template, use, setAttribute } from 'solid-js/web';
 import { splitProps, createSignal, createEffect, on, onMount, onCleanup, Show, For, Index } from 'solid-js';

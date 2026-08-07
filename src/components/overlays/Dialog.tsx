@@ -154,6 +154,7 @@ export function Dialog(props: DialogProps) {
 		'children',
 		'header',
 		'footer',
+		'ref',
 	])
 
 	// Dev warning for accessibility
@@ -206,6 +207,23 @@ export function Dialog(props: DialogProps) {
 	const hasCloseRow = () => (local.onClose != null || local.onOpenChange != null) && local.showCloseButton !== false
 	const hasHeaderRow = () => !!(local.header || hasCloseRow())
 
+	// 弹窗内容挂载时（ref 回调在 DOM 插入的 render 阶段执行）尽力同步聚焦弹窗内首个可聚焦元素
+	// （或面板自身），改善初始焦点体验。注意：由于 Kobalte createHideOutside 在 effect 中同步对弹窗外
+	// 元素设置 aria-hidden，而本 ref 回调的 focus 对 portal 元素可能被浏览器延迟，因此本处**无法**单独
+	// 消除 Chrome "Blocked aria-hidden..." 时序警告——该问题由 Kobalte `ariaHideOutside` 的补丁根治
+	// （见 `.todo/菜单导航页三问题修复.md`，在 `@kobalte/core` 的 `ariaHideOutside` 中先移焦点再隐藏）。
+	// 同时转发调用方传入的 ref（若有），不破坏透传。
+	const mergedContentRef = (el: HTMLElement | null) => {
+		if (el) {
+			const focusable = el.querySelector<HTMLElement>(
+				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+			)
+			if (focusable) focusable.focus({ preventScroll: true })
+			else el.focus({ preventScroll: true })
+		}
+		if (typeof local.ref === 'function') (local.ref as (el: HTMLElement) => void)(el as HTMLElement)
+	}
+
 	return (
 		<KobalteDialog
 			open={local.open}
@@ -241,6 +259,7 @@ export function Dialog(props: DialogProps) {
 					>
 						{/* Content: focus trap, role=dialog, aria-modal, escape key, animation */}
 						<KobalteDialog.Content
+							ref={mergedContentRef}
 							class={cn(
 								panelAnimation() !== 'none' && 'torchui-dialog-content',
 								isFull() && 'h-full min-h-0 flex flex-col',

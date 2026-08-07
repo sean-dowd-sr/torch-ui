@@ -4063,7 +4063,8 @@ function Dialog(props) {
     "class",
     "children",
     "header",
-    "footer"
+    "footer",
+    "ref"
   ]);
   if (false) {
     const hasAccessibleNameProp = () => "aria-label" in others || "aria-labelledby" in others || "ariaLabel" in others || "ariaLabelledby" in others;
@@ -4103,6 +4104,16 @@ function Dialog(props) {
   const panelAnimation = () => local.panelAnimation ?? "scale";
   const hasCloseRow = () => (local.onClose != null || local.onOpenChange != null) && local.showCloseButton !== false;
   const hasHeaderRow = () => !!(local.header || hasCloseRow());
+  const mergedContentRef = (el) => {
+    if (el) {
+      const focusable = el.querySelector(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable) focusable.focus({ preventScroll: true });
+      else el.focus({ preventScroll: true });
+    }
+    if (typeof local.ref === "function") local.ref(el);
+  };
   return <KobalteDialog
     open={local.open}
     onOpenChange={(isOpen) => {
@@ -4140,6 +4151,7 @@ function Dialog(props) {
     /* Content: focus trap, role=dialog, aria-modal, escape key, animation */
   }
 						<KobalteDialog.Content
+    ref={mergedContentRef}
     class={cn(
       panelAnimation() !== "none" && "torchui-dialog-content",
       isFull() && "h-full min-h-0 flex flex-col"
